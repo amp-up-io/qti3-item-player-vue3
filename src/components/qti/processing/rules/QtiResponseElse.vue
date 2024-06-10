@@ -46,7 +46,7 @@ export default {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Detect an expression
           if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
-            throw new QtiValidationException('Expression nodes not permitted: "' + slot.componentOptions.tag + '"')
+            throw new QtiValidationException('Expression nodes not permitted: "' + slot.type.name + '"')
           }
           // Detect * Response Rules
           if (!qtiProcessing.isResponseRuleNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
@@ -64,6 +64,7 @@ export default {
       const children = this.$.subTree.children[0].children
 
       children.forEach((rule) => {
+        if (rule.component === null) return
         this.responseRules.push(rule.component.proxy)
       })
     },

@@ -60,32 +60,38 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
+     * Validate the child nodes:
      * expression (1)
      */
     validateChildren () {
       let countExpression = 0
-      this.$slots.default.forEach((slot) => {
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Detect an expression
-          if (qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
             countExpression += 1
           } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
+
       if (countExpression !== 1) {
         throw new QtiValidationException('Must have exactly one Expression node')
       }
-      // Ensure declaration and expression have matching baseType and cardinality
-      this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier), this.$children[0])
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
     processChildren () {
-      this.expression = this.$children[0]
+      const expression = this.$.subTree.children[0].children[0].component.proxy
+      // Ensure declaration and expression have matching baseType and cardinality
+      this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier), expression)
+      // All good.  Save off our expression
+      this.expression = expression
     },
 
     evaluate () {
@@ -120,6 +126,7 @@ export default {
   created () {
     try {
       qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier)
+      this.validateChildren()
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
@@ -133,7 +140,7 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)

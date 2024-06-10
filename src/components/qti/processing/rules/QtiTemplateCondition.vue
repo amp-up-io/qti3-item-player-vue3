@@ -32,7 +32,7 @@ export default {
   methods: {
 
     /**
-     * Iterate through the child nodes:
+     * Validate the child nodes:
      * qti-template-if (1)
      * qti-template-else-if (*)
      * qti-template-else (0..1)
@@ -42,11 +42,16 @@ export default {
       let countTemplateIf = 0
       // Must not have more than 1
       let countTemplateElse = 0
-      this.$slots.default.forEach((slot) => {
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have 1 qti-template-if node')
+      }
+
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // detect the slot type from the component tag
-          switch (slot.componentOptions.tag) {
-            case 'qti-template-if':
+          switch (slot.type.name) {
+            case 'QtiTemplateIf':
               if (countTemplateIf === 0) {
                 countTemplateIf = 1
               } else {
@@ -54,7 +59,7 @@ export default {
               }
               break
 
-            case 'qti-template-else':
+            case 'QtiTemplateElse':
               if (countTemplateIf === 0) {
                 throw new QtiValidationException('qti-template-else node not permitted before qti-template-if')
               }
@@ -65,7 +70,7 @@ export default {
               }
               break
 
-            case 'qti-template-else-if':
+            case 'QtiTemplateElseIf':
               if (countTemplateIf === 0) {
                 throw new QtiValidationException('qti-template-else-if node not permitted before qti-template-if')
               }
@@ -75,20 +80,26 @@ export default {
               break
 
             default:
-              throw new QtiValidationException('Invalid Child Node: "' + slot.componentOptions.tag + '"')
+              throw new QtiValidationException('Invalid Child Node: "' + slot.type.name + '"')
           }
         }
       })
+
       if (countTemplateIf === 0) {
         throw new QtiValidationException('Must have 1 qti-template-if node')
       }
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
-    processChildren () {
-      this.$children.forEach((rule) => {
-        this.templateRules.push(rule)
+    /**
+     * Iterate through the child nodes:
+     * qti-template-if (1)
+     * qti-template-else-if (*)
+     * qti-template-else (0..1)
+     */
+     processChildren () {
+      const children = this.$.subTree.children[0].children
+      children.forEach((rule) => {
+        this.templateRules.push(rule.component.proxy)
       })
     },
 
@@ -114,11 +125,23 @@ export default {
     }
   },
 
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
+    }
+  },
+
   mounted () {
     if (this.isQtiValid) {
       try {
-        // Validate children.
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)

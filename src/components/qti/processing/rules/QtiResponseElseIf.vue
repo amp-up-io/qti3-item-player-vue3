@@ -85,6 +85,7 @@ export default {
 
       let firstRule = true
       children.forEach((rule) => {
+        if (rule.component === null) return
         const node = rule.component.proxy
         if (firstRule) {
           firstRule = false
