@@ -14,9 +14,11 @@
  * results in {A,B,C,D}. All sub-expressions with NULL values are ignored. If no sub-expressions are given (or all are NULL) then the result is NULL.
  */
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
+import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiProcessing from '@/components/qti/processing/utils/QtiProcessing'
 
+const qtiAttributeValidation = new QtiAttributeValidation()
 const qtiProcessing = new QtiProcessing()
 
 export default {
@@ -57,62 +59,56 @@ export default {
     getCardinality () {
       return this.valueCardinality
     },
+    
+    /**
+     * Validate the child nodes:
+     * expressions (0-n)
+     */
+    validateChildren: function () {
+      // May have 0 expressions
+      if (!this.$slots.default) return
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
-        } else {
-          // empty text slot.  not a component, but not an error
-          return false
+      this.$slots.default().forEach((slot) => {
+        if (qtiAttributeValidation.isValidSlot(slot)) {
+          // Detect an expression
+          if (!qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+          }
         }
-      }
+      })
     },
 
     /**
      * Iterate through the child nodes:
      * expressions (0-n)
      */
-    validateChildren: function () {
-      this.$slots.default.forEach((slot) => {
-        if (this.isValidSlot(slot)) {
-          // Detect an expression
-          if (!qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
-          }
-        }
-      })
+    processChildren () {
+      const children = this.$.subTree.children[0].children
+
       // Perform extra semantic validations on the expressions
-      this.validateExpressions()
-      // All good.  Save off our children.
-      this.processChildren()
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        this.expressions.push(expression.component.proxy)
+      })
     },
 
-    validateExpressions () {
+    validateExpressions (expressions) {
       let baseType = null
-      this.$children.forEach((expression) => {
-        let cardinality = expression.getCardinality()
+      expressions.forEach((expression) => {
+        const node = expression.component.proxy
+        const cardinality = node.getCardinality()
         if ((cardinality !== 'single') && (cardinality !== 'multiple')) {
           throw new QtiValidationException('Expressions must be of cardinality="single" or cardinality="multiple"')
         } else {
           if (baseType === null) {
-            baseType = expression.getBaseType()
-          } else if (baseType !== expression.getBaseType()) {
+            baseType = node.getBaseType()
+          } else if (baseType !== node.getBaseType()) {
             throw new QtiValidationException('Expressions not all the same base-type: "' + baseType + '"')
           }
         }
       })
       this.setBaseType(baseType)
-    },
-
-    processChildren () {
-      this.$children.forEach((expression) => {
-        this.expressions.push(expression)
-      })
     },
 
     evaluate () {
@@ -160,10 +156,23 @@ export default {
 
   },
 
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
+    }
+  },
+
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
