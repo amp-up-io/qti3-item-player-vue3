@@ -34,6 +34,7 @@ import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
 import QtiItemBody from '@/components/qti/body/QtiItemBody.vue'
+import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
@@ -163,9 +164,6 @@ export default {
   },
 
   setup (props, context) {
-
-    console.log('player props.suppressInvalidResponseMessages', props.suppressInvalidResponseMessages)
-
     const app = getCurrentInstance().appContext.app
     app.component('qti-assessment-item', QtiAssessmentItem)
 
@@ -176,12 +174,14 @@ export default {
     app.component('qti-value', QtiValue)
     app.component('qti-correct-response', QtiCorrectResponse)
 
-    app.component('qti-item-body', QtiItemBody)
-    app.component('amp-style', AmpStyle)
-    app.component('qti-choice-interaction', QtiChoiceInteraction)
-    app.component('qti-prompt', QtiPrompt)
-    app.component('qti-simple-choice', QtiSimpleChoice)
-    app.component('ChoiceGroup', ChoiceGroup)
+    app
+      .component('qti-item-body', QtiItemBody)
+      .component('qti-printed-variable', QtiPrintedVariable)
+      .component('amp-style', AmpStyle)
+      .component('qti-choice-interaction', QtiChoiceInteraction)
+      .component('qti-prompt', QtiPrompt)
+      .component('qti-simple-choice', QtiSimpleChoice)
+      .component('ChoiceGroup', ChoiceGroup)
 
     // Rules
     app.component('qti-response-condition', QtiResponseCondition)
