@@ -156,6 +156,7 @@ export default {
       const children = this.getChildren()
 
       children.forEach((rule) => {
+        if (rule.component === null) return
         this.responseRules.push(rule.component.proxy)
       })
     },
