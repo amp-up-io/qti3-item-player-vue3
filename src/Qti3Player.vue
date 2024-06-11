@@ -38,6 +38,7 @@ import QtiTemplateInline from '@/components/qti/body/QtiTemplateInline.vue'
 import QtiTemplateBlock from '@/components/qti/body/QtiTemplateBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
+import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
@@ -184,6 +185,7 @@ export default {
       .component('qti-printed-variable', QtiPrintedVariable)
       .component('amp-style', AmpStyle)
       .component('qti-choice-interaction', QtiChoiceInteraction)
+      .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
@@ -204,7 +206,7 @@ export default {
     app.component('qti-template-else-if', QtiTemplateElseIf)
     app.component('qti-template-constraint', QtiTemplateConstraint)
     app.component('qti-exit-template', QtiExitTemplate)
-    
+
     // Pseudo-Expressions
     app.component('qti-set-correct-response', QtiSetCorrectResponse)
     app.component('qti-set-default-value', QtiSetDefaultValue)
