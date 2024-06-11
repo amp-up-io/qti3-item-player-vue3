@@ -79,11 +79,23 @@ export default {
     },
 
     processChildren () {
-      const expression = this.$.subTree.children[0].children[0].component.proxy
-      // Ensure declaration and expression have matching baseType and cardinality
-      this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateOutcomeIdentifierAttribute(store, this.identifier), expression)
-      // All good.  Save off our expression
-      this.expression = expression
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expression
+      this.validateExpressions(children)
+      
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
+      })
+    },
+
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        // Ensure declaration and expression have matching baseType and cardinality
+        this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateOutcomeIdentifierAttribute(store, this.identifier), expression.component.proxy)
+      })
     },
 
     evaluate () {
