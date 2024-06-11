@@ -91,12 +91,12 @@ export default {
       }
       // We know that number-repeats was not an integer value.
       // It must be an identifier that resolves to a properly-declared
-      // template variable.
+      // template variable or outcome variable.
       try {
         qtiAttributeValidation.validateIdentifierAttribute(this.numberRepeats)
-        let declarationNumberRepeats = qtiAttributeValidation.validateTemplateIdentifierAttribute (store, this.numberRepeats)
+        const declarationNumberRepeats = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(store, this.numberRepeats)
         if ((declarationNumberRepeats.baseType !== 'integer') || (declarationNumberRepeats.cardinality !== 'single')) {
-          throw new QtiValidationException('Attribute "number-repeats" template variable must be base-type="integer" and cardinality="single"')
+          throw new QtiValidationException('Attribute "number-repeats" template or outcome variable must be base-type="integer" and cardinality="single"')
         }
       } catch (err) {
         if (err.name === 'QtiValidationException') {
@@ -109,61 +109,66 @@ export default {
       }
     },
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // Check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // Not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
-        } else {
-          // Empty text slot.  Not a component, but not an error.
-          return false
+    /**
+     * Validate the child nodes:
+     * expressions (1-n)
+     */
+    validateChildren: function () {
+      let countExpressions = 0
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have at least one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
+        if (qtiAttributeValidation.isValidSlot(slot)) {
+          // Detect an expression
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            countExpressions += 1
+          } else {
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+          }
         }
+      })
+
+      if (countExpressions === 0) {
+        throw new QtiValidationException('Must have at least one Expression node')
       }
     },
 
     /**
      * Iterate through the child nodes:
-     * expressions (0-n)
+     * expressions (1-n)
      */
-    validateChildren: function () {
-      this.$slots.default.forEach((slot) => {
-        if (this.isValidSlot(slot)) {
-          // Detect an expression
-          if (!qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
-          }
-        }
-      })
+    processChildren () {
+      const children = this.$.subTree.children[0].children
+
       // Perform extra semantic validations on the expressions
-      this.validateExpressions()
-      // All good.  Save off our children.
-      this.processChildren()
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expressions.push(expression.component.proxy)
+      })
     },
 
-    validateExpressions () {
+    validateExpressions (expressions) {
       let baseType = null
-      this.$children.forEach((expression) => {
-        let cardinality = expression.getCardinality()
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        const node = expression.component.proxy
+        const cardinality = node.getCardinality()
         if ((cardinality !== 'single') && (cardinality !== 'ordered')) {
-          throw new QtiValidationException('Expressions must be of cardinality="single" or cardinality="ordered"')
+          throw new QtiValidationException('QtiRepeat Expressions must be of cardinality="single" or cardinality="ordered"')
         } else {
           if (baseType === null) {
-            baseType = expression.getBaseType()
-          } else if (baseType !== expression.getBaseType()) {
-            throw new QtiValidationException('Expressions not all the same base-type: "' + baseType + '"')
+            baseType = node.getBaseType()
+          } else if (baseType !== node.getBaseType()) {
+            throw new QtiValidationException('QtiRepeat expressions not all the same base-type: "' + baseType + '"')
           }
         }
       })
       this.setBaseType(baseType)
-    },
-
-    processChildren () {
-      this.$children.forEach((expression) => {
-        this.expressions.push(expression)
-      })
     },
 
     evaluate () {
@@ -245,6 +250,7 @@ export default {
   created () {
     try {
       this.validateAttributes()
+      this.validateChildren()
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
@@ -260,7 +266,7 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)

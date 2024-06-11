@@ -258,6 +258,19 @@ export default class QtiAttributeValidation {
     return templateDeclaration
   }
 
+  validateTemplateOrOutcomeIdentifierAttribute (store, variableIdentifier) {
+    this.validateIdentifierAttribute(variableIdentifier)
+    let declaration = store.getTemplateDeclaration(variableIdentifier)
+    if (typeof declaration !== 'undefined') {
+      return declaration
+    }
+    declaration = store.getOutcomeDeclaration(variableIdentifier)
+    if (typeof declaration !== 'undefined') {
+      return declaration
+    }
+    throw new QtiValidationException('No outcome or template declaration found for identifier: "' + variableIdentifier + '"')
+  }
+
   validateVariableIdentifierAttribute (store, variableIdentifier) {
     this.validateIdentifierAttribute(variableIdentifier)
     let declaration = store.getOutcomeDeclaration(variableIdentifier)

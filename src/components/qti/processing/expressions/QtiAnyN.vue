@@ -191,10 +191,10 @@ export default {
         if (expression.component === null) return
         const node = expression.component.proxy
         if (node.getCardinality() !== 'single') {
-          throw new QtiValidationException('Expressions must be cardinality="single"')
+          throw new QtiValidationException('QtiAnyN expressions must be cardinality="single"')
         }
         if (node.getBaseType() !== 'boolean') {
-          throw new QtiValidationException('Expressions must be base-type="boolean"')
+          throw new QtiValidationException('QtiAnyN expressions must be base-type="boolean"')
         }
       })
     },
