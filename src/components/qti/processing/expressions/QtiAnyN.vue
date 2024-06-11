@@ -17,6 +17,7 @@
  * whereas {true,false,false,NULL} results in false and {true,true,true,NULL} results in 'true'.
  * The result NULL indicates that the correct value for the operator cannot be determined.
  */
+import { store } from '@/store/store'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -90,7 +91,7 @@ export default {
 
       // Try and resolve attribute as an identifier
       try {
-        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute (this.$store, attributeValue)
+        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute(store, attributeValue)
         // If we get to this line of code then we believe that the attribute is
         // a variable identifier, not an integer value
         isIdentifier = true
@@ -142,18 +143,30 @@ export default {
       }
     },
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
-        } else {
-          // empty text slot.  not a component, but not an error
-          return false
+    /**
+     * Validate the child nodes:
+     * expressions (1-n)
+     */
+     validateChildren: function () {
+      let countExpressions = 0
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have at least one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
+        if (qtiAttributeValidation.isValidSlot(slot)) {
+          // Detect an expression
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            countExpressions += 1
+          } else {
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+          }
         }
+      })
+
+      if (countExpressions === 0) {
+        throw new QtiValidationException('Must have at least one Expression node')
       }
     },
 
@@ -161,41 +174,28 @@ export default {
      * Iterate through the child nodes:
      * expressions (1-n)
      */
-    validateChildren: function () {
-      let countExpression = 0
-      this.$slots.default.forEach((slot) => {
-        if (this.isValidSlot(slot)) {
-          // Detect an expression
-          if (qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            countExpression += 1
-          } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
-          }
-        }
-      })
-      if (countExpression === 0) {
-        throw new QtiValidationException('Must have at least one Expression node')
-      }
-      // Perform extra semantic validations on the expressions
-      this.validateExpressions()
-      // All good.  Save off our children.
-      this.processChildren()
-    },
-
-    validateExpressions () {
-      this.$children.forEach((expression) => {
-        if (expression.getBaseType() !== 'boolean') {
-          throw new QtiValidationException('Expressions must be of base-type="boolean"')
-        }
-        if (expression.getCardinality() !== 'single') {
-          throw new QtiValidationException('Expressions must be of cardinality="single"')
-        }
-      })
-    },
-
     processChildren () {
-      this.$children.forEach((expression) => {
-        this.expressions.push(expression)
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expressions
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expressions.push(expression.component.proxy)
+      })
+    },
+
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        const node = expression.component.proxy
+        if (node.getCardinality() !== 'single') {
+          throw new QtiValidationException('Expressions must be cardinality="single"')
+        }
+        if (node.getBaseType() !== 'boolean') {
+          throw new QtiValidationException('Expressions must be base-type="boolean"')
+        }
       })
     },
 
@@ -217,6 +217,9 @@ export default {
         const minimum = this.getMinValue()
         let maximum = this.getMaxValue()
         maximum = (maximum > 0) ? maximum : 0;
+
+        console.log('min:', minimum, 'max:', maximum)
+        console.log('numberOfTrue:', numberOfTrue, 'numberOfNull:', numberOfNull)
 
         if (minimum > maximum) {
           console.log('[AnyN] value:', false)
@@ -258,7 +261,7 @@ export default {
       if (this.valueMin !== null) {
         return (this.valueMin)
       }
-      let declaration = this.$store.getters.getVariableDeclaration(this.min)
+      let declaration = store.getVariableDeclaration(this.min)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     },
@@ -271,7 +274,7 @@ export default {
       if (this.valueMax !== null) {
         return (this.valueMax)
       }
-      let declaration = this.$store.getters.getVariableDeclaration(this.max)
+      let declaration = store.getVariableDeclaration(this.max)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     }
@@ -280,6 +283,7 @@ export default {
   created () {
     try {
       this.validateAttributes()
+      this.validateChildren()
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
@@ -295,7 +299,7 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
