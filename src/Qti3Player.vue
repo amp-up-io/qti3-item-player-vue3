@@ -58,6 +58,7 @@ import QtiTemplateIf from '@/components/qti/processing/rules/QtiTemplateIf.vue'
 import QtiTemplateElse from '@/components/qti/processing/rules/QtiTemplateElse.vue'
 import QtiTemplateElseIf from '@/components/qti/processing/rules/QtiTemplateElseIf.vue'
 import QtiTemplateConstraint from '@/components/qti/processing/rules/QtiTemplateConstraint.vue'
+import QtiExitTemplate from '@/components/qti/processing/rules/QtiExitTemplate.vue'
 import QtiSetCorrectResponse from '@/components/qti/processing/rules/QtiSetCorrectResponse.vue'
 import QtiSetDefaultValue from '@/components/qti/processing/rules/QtiSetDefaultValue.vue'
 // Expressions
@@ -202,6 +203,8 @@ export default {
     app.component('qti-template-else', QtiTemplateElse)
     app.component('qti-template-else-if', QtiTemplateElseIf)
     app.component('qti-template-constraint', QtiTemplateConstraint)
+    app.component('qti-exit-template', QtiExitTemplate)
+    
     // Pseudo-Expressions
     app.component('qti-set-correct-response', QtiSetCorrectResponse)
     app.component('qti-set-default-value', QtiSetDefaultValue)

@@ -33,16 +33,20 @@ export default {
     }
   },
 
-  mounted () {
-    if (this.isQtiValid) {
-      try {
-        // Validate children.
-        this.validateChildren()
-      } catch (err) {
-        this.isQtiValid = false
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
         throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
       }
     }
+  },
+
+  mounted () {
   }
 }
 </script>
