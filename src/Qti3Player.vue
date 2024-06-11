@@ -39,6 +39,7 @@ import QtiTemplateBlock from '@/components/qti/body/QtiTemplateBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
+import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
@@ -186,6 +187,7 @@ export default {
       .component('amp-style', AmpStyle)
       .component('qti-choice-interaction', QtiChoiceInteraction)
       .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
+      .component('qti-text-entry-interaction', QtiTextEntryInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
