@@ -64,7 +64,7 @@ export default {
      * expression (1)
      */
     validateChildren () {
-      let countExpression = 0
+      let countExpressions = 0
 
       if (!this.$slots.default) {
         throw new QtiValidationException('Must have one Expression node')
@@ -74,24 +74,36 @@ export default {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Detect an expression
           if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
-            countExpression += 1
+            countExpressions += 1
           } else {
             throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
 
-      if (countExpression !== 1) {
+      if (countExpressions !== 1) {
         throw new QtiValidationException('Must have exactly one Expression node')
       }
     },
 
     processChildren () {
-      const expression = this.$.subTree.children[0].children[0].component.proxy
-      // Ensure declaration and expression have matching baseType and cardinality
-      this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier), expression)
-      // All good.  Save off our expression
-      this.expression = expression
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expression
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
+      })
+    },
+
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        // Ensure declaration and expression have matching baseType and cardinality
+        this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier), expression.component.proxy)
+      })
     },
 
     evaluate () {

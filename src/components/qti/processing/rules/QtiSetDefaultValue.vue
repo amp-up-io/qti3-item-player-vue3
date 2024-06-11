@@ -61,32 +61,50 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
+     * Validate the child nodes:
      * expression (1)
      */
-    validateChildren () {
-      let countExpression = 0
-      this.$slots.default.forEach((slot) => {
+     validateChildren () {
+      let countExpressions = 0
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Detect an expression
-          if (qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            countExpression += 1
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            countExpressions += 1
           } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
-      if (countExpression !== 1) {
+
+      if (countExpressions !== 1) {
         throw new QtiValidationException('Must have exactly one Expression node')
       }
-      // Ensure declaration and expression have matching baseType and cardinality
-      this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier), this.$children[0])
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
     processChildren () {
-      this.expression = this.$children[0]
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expression
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
+      })
+    },
+
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        // Ensure declaration and expression have matching baseType and cardinality
+        this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier), expression.component.proxy)
+      })
     },
 
     evaluate () {
@@ -116,6 +134,7 @@ export default {
   created () {
     try {
       qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier)
+      this.validateChildren()
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
@@ -129,7 +148,7 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
