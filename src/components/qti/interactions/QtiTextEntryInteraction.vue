@@ -423,8 +423,6 @@ export default {
   created () {
     try {
       this.responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.responseIdentifier)
-      
-      console.log(this.$attrs['class'])
       this.setInteractionSubType(this.detectInteractionSubType(this.$attrs['class']))
       
       // Set up a presentation factory

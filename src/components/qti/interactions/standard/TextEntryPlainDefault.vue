@@ -119,8 +119,6 @@ export default {
     }
   },
 
-  inheritAttrs: false,
-
   methods: {
 
     /**
