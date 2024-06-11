@@ -105,7 +105,7 @@ export default {
 
       if (isIdentifier) {
         if ((declaration.baseType !== 'integer') || (declaration.cardinality !== 'single')) {
-          throw new QtiValidationException('Invalid "' + attributeName + '" attribute.  The referenced variable must be of base-type "integer" and cardinality "single"')
+          throw new QtiValidationException('[AnyN] Invalid "' + attributeName + '" attribute.  The referenced variable must be of base-type "integer" and cardinality "single"')
         }
 
         if (attributeName === 'min') {
@@ -138,7 +138,7 @@ export default {
       this.validateMinMaxAttribute('max', this.max)
       if (!this.isMinIdentifier && !this.isMaxIdentifier) {
         if (this.valueMax < this.valueMin) {
-          throw new QtiValidationException('Invalid "max" and "min" attributes.  "max" (' + this.max  + ') must be greater than or equal to "min" (' + this.min + ')')
+          throw new QtiValidationException('[AnyN] Invalid "max" and "min" attributes.  "max" (' + this.max  + ') must be greater than or equal to "min" (' + this.min + ')')
         }
       }
     },
@@ -151,7 +151,7 @@ export default {
       let countExpressions = 0
 
       if (!this.$slots.default) {
-        throw new QtiValidationException('Must have at least one Expression node')
+        throw new QtiValidationException('[AnyN] Must have at least one Expression node')
       }
 
       this.$slots.default().forEach((slot) => {
@@ -160,13 +160,13 @@ export default {
           if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
             countExpressions += 1
           } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+            throw new QtiValidationException('[AnyN] Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
 
       if (countExpressions === 0) {
-        throw new QtiValidationException('Must have at least one Expression node')
+        throw new QtiValidationException('[AnyN] Must have at least one Expression node')
       }
     },
 
@@ -191,10 +191,10 @@ export default {
         if (expression.component === null) return
         const node = expression.component.proxy
         if (node.getCardinality() !== 'single') {
-          throw new QtiValidationException('QtiAnyN expressions must be cardinality="single"')
+          throw new QtiValidationException('[AnyN] Expressions must be cardinality="single"')
         }
         if (node.getBaseType() !== 'boolean') {
-          throw new QtiValidationException('QtiAnyN expressions must be base-type="boolean"')
+          throw new QtiValidationException('[AnyN] Expressions must be base-type="boolean"')
         }
       })
     },
@@ -217,9 +217,6 @@ export default {
         const minimum = this.getMinValue()
         let maximum = this.getMaxValue()
         maximum = (maximum > 0) ? maximum : 0;
-
-        console.log('min:', minimum, 'max:', maximum)
-        console.log('numberOfTrue:', numberOfTrue, 'numberOfNull:', numberOfNull)
 
         if (minimum > maximum) {
           console.log('[AnyN] value:', false)

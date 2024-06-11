@@ -96,7 +96,7 @@ export default {
         qtiAttributeValidation.validateIdentifierAttribute(this.numberRepeats)
         const declarationNumberRepeats = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(store, this.numberRepeats)
         if ((declarationNumberRepeats.baseType !== 'integer') || (declarationNumberRepeats.cardinality !== 'single')) {
-          throw new QtiValidationException('Attribute "number-repeats" template or outcome variable must be base-type="integer" and cardinality="single"')
+          throw new QtiValidationException('[Repeat] Attribute "number-repeats" template or outcome variable must be base-type="integer" and cardinality="single"')
         }
       } catch (err) {
         if (err.name === 'QtiValidationException') {
@@ -117,7 +117,7 @@ export default {
       let countExpressions = 0
 
       if (!this.$slots.default) {
-        throw new QtiValidationException('Must have at least one Expression node')
+        throw new QtiValidationException('[Repeat] Must have at least one Expression node')
       }
 
       this.$slots.default().forEach((slot) => {
@@ -126,13 +126,13 @@ export default {
           if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
             countExpressions += 1
           } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+            throw new QtiValidationException('[Repeat] Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
 
       if (countExpressions === 0) {
-        throw new QtiValidationException('Must have at least one Expression node')
+        throw new QtiValidationException('[Repeat] Must have at least one Expression node')
       }
     },
 
@@ -159,12 +159,12 @@ export default {
         const node = expression.component.proxy
         const cardinality = node.getCardinality()
         if ((cardinality !== 'single') && (cardinality !== 'ordered')) {
-          throw new QtiValidationException('QtiRepeat Expressions must be of cardinality="single" or cardinality="ordered"')
+          throw new QtiValidationException('[Repeat] Expressions must be of cardinality="single" or cardinality="ordered"')
         } else {
           if (baseType === null) {
             baseType = node.getBaseType()
           } else if (baseType !== node.getBaseType()) {
-            throw new QtiValidationException('QtiRepeat expressions not all the same base-type: "' + baseType + '"')
+            throw new QtiValidationException('[Repeat] Expressions not all the same base-type: "' + baseType + '"')
           }
         }
       })
