@@ -34,6 +34,8 @@ import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
 import QtiItemBody from '@/components/qti/body/QtiItemBody.vue'
+import QtiTemplateInline from '@/components/qti/body/QtiTemplateInline.vue'
+import QtiTemplateBlock from '@/components/qti/body/QtiTemplateBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
@@ -176,6 +178,8 @@ export default {
 
     app
       .component('qti-item-body', QtiItemBody)
+      .component('qti-template-inline', QtiTemplateInline)
+      .component('qti-template-block', QtiTemplateBlock)
       .component('qti-printed-variable', QtiPrintedVariable)
       .component('amp-style', AmpStyle)
       .component('qti-choice-interaction', QtiChoiceInteraction)
