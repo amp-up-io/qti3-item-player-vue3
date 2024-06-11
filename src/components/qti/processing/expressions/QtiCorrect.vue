@@ -112,13 +112,13 @@ export default {
 
   created () {
     try {
-      let responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute (store, this.identifier)
+      let responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier)
       this.setBaseType(responseDeclaration.baseType)
       this.setCardinality(responseDeclaration.cardinality)
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
-        throw new QtiValidationException(err.message)
+        throw new QtiValidationException(`[Correct] ${err.message}`)
       } else {
         throw new Error(err.message)
       }
@@ -131,7 +131,7 @@ export default {
         this.validateChildren()
       } catch (err) {
         this.isQtiValid = false
-        throw new QtiValidationException(err.message)
+        throw new QtiValidationException(`[Correct] ${err.message}`)
       }
     }
   }

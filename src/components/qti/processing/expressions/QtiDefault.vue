@@ -118,7 +118,7 @@ export default {
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
-        throw new QtiValidationException(err.message)
+        throw new QtiValidationException(`[Default] ${err.message}`)
       } else {
         throw new Error(err.message)
       }
@@ -131,7 +131,7 @@ export default {
         this.validateChildren()
       } catch (err) {
         this.isQtiValid = false
-        throw new QtiValidationException(err.message)
+        throw new QtiValidationException(`[Default] ${err.message}`)
       }
     }
   }
