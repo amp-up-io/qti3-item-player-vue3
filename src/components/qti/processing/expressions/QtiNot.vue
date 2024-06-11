@@ -91,11 +91,15 @@ export default {
       // Perform extra semantic validations on the expressions
       this.validateExpressions(children)
 
-      this.expression = children[0].component.proxy
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
+      })
     },
 
     validateExpressions (expressions) {
       expressions.forEach((expression) => {
+        if (expression.component === null) return
         const node = expression.component.proxy
         if (node.getCardinality() !== 'single') {
           throw new QtiValidationException('Expression must be cardinality="single"')

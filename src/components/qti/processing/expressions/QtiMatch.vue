@@ -89,6 +89,7 @@ export default {
       let first = true
       let firstExpression = null
       expressions.forEach((expression) => {
+        if (expression.component === null) return
         const node = expression.component.proxy
         if (first) {
           first = false
@@ -118,6 +119,7 @@ export default {
       this.validateExpressions(children)
 
       children.forEach((expression) => {
+        if (expression.component === null) return
         this.expressions.push(expression.component.proxy)
       })
     },
