@@ -98,7 +98,9 @@ export default {
      */
      processChildren () {
       const children = this.$.subTree.children[0].children
+
       children.forEach((rule) => {
+        if (rule.component === null) return
         this.templateRules.push(rule.component.proxy)
       })
     },
