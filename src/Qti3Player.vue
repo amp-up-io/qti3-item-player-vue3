@@ -40,6 +40,9 @@ import QtiModalFeedback from '@/components/qti/general/QtiModalFeedback.vue'
 import QtiContentBody from '@/components/qti/body/QtiContentBody.vue'
 import QtiTemplateInline from '@/components/qti/body/QtiTemplateInline.vue'
 import QtiTemplateBlock from '@/components/qti/body/QtiTemplateBlock.vue'
+import QtiFeedbackInline from '@/components/qti/body/QtiFeedbackInline.vue'
+import QtiFeedbackBlock from '@/components/qti/body/QtiFeedbackBlock.vue'
+import QtiRubricBlock from '@/components/qti/body/QtiRubricBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
@@ -209,6 +212,9 @@ export default {
       .component('qti-content-body', QtiContentBody)
       .component('qti-template-inline', QtiTemplateInline)
       .component('qti-template-block', QtiTemplateBlock)
+      .component('qti-feedback-inline', QtiFeedbackInline)
+      .component('qti-feedback-block', QtiFeedbackBlock)
+      .component('qti-rubric-block', QtiRubricBlock)
       .component('qti-printed-variable', QtiPrintedVariable)
       .component('amp-style', AmpStyle)
       .component('qti-choice-interaction', QtiChoiceInteraction)
