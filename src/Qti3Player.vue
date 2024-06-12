@@ -30,10 +30,13 @@ import QtiAssessmentItem from '@/components/qti/QtiAssessmentItem.vue'
 import QtiOutcomeDeclaration from '@/components/qti/declarations/QtiOutcomeDeclaration.vue'
 import QtiResponseDeclaration from '@/components/qti/declarations/QtiResponseDeclaration.vue'
 import QtiTemplateDeclaration from '@/components/qti/declarations/QtiTemplateDeclaration.vue'
+import QtiStylesheet from '@/components/qti/general/QtiStylesheet.vue'
 import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
 import QtiItemBody from '@/components/qti/body/QtiItemBody.vue'
+import QtiModalFeedback from '@/components/qti/general/QtiModalFeedback.vue'
+import QtiContentBody from '@/components/qti/body/QtiContentBody.vue'
 import QtiTemplateInline from '@/components/qti/body/QtiTemplateInline.vue'
 import QtiTemplateBlock from '@/components/qti/body/QtiTemplateBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
@@ -45,6 +48,7 @@ import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
+//import QtiCatalogInfo from '@/components/qti/catalog/QtiCatalogInfo'
 // Rules
 import QtiResponseCondition from '@/components/qti/processing/rules/QtiResponseCondition.vue'
 import QtiResponseProcessingFragment from '@/components/qti/processing/rules/QtiResponseProcessingFragment.vue'
@@ -170,17 +174,27 @@ export default {
 
   setup (props, context) {
     const app = getCurrentInstance().appContext.app
-    app.component('qti-assessment-item', QtiAssessmentItem)
 
-    app.component('qti-response-declaration', QtiResponseDeclaration)
-    app.component('qti-outcome-declaration', QtiOutcomeDeclaration)
-    app.component('qti-template-declaration', QtiTemplateDeclaration)
-    app.component('qti-default-value', QtiDefaultValue)
-    app.component('qti-value', QtiValue)
-    app.component('qti-correct-response', QtiCorrectResponse)
+    // Top-level Item elements
+    app
+      .component('qti-assessment-item', QtiAssessmentItem)
+      .component('qti-response-declaration', QtiResponseDeclaration)
+      .component('qti-outcome-declaration', QtiOutcomeDeclaration)
+      .component('qti-template-declaration', QtiTemplateDeclaration)
+      .component('qti-stylesheet', QtiStylesheet)
+      .component('qti-template-processing', QtiTemplateProcessing)
+      .component('qti-item-body', QtiItemBody)
+      .component('qti-response-processing', QtiResponseProcessing)
+      .component('qti-modal-feedback', QtiModalFeedback)
+
+    // Declaration elements
+    app
+      .component('qti-default-value', QtiDefaultValue)
+      .component('qti-value', QtiValue)
+      .component('qti-correct-response', QtiCorrectResponse)
 
     app
-      .component('qti-item-body', QtiItemBody)
+      .component('qti-content-body', QtiContentBody)
       .component('qti-template-inline', QtiTemplateInline)
       .component('qti-template-block', QtiTemplateBlock)
       .component('qti-printed-variable', QtiPrintedVariable)
@@ -192,7 +206,7 @@ export default {
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
 
-    // Rules
+    // Response and Template Rules
     app.component('qti-response-condition', QtiResponseCondition)
     app.component('qti-response-processing-fragment', QtiResponseProcessingFragment)
     app.component('qti-set-outcome-value', QtiSetOutcomeValue)
@@ -262,9 +276,6 @@ export default {
     app.component('qti-lcm', QtiLcm)
     app.component('qti-power', QtiPower)
     app.component('qti-any-n', QtiAnyN)
-
-    app.component('qti-response-processing', QtiResponseProcessing)
-    app.component('qti-template-processing', QtiTemplateProcessing)
 
     // generate a unique container id for mathjax
     const containerId = getItemContainerId()

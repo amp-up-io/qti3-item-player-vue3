@@ -1,6 +1,6 @@
 <template>
   <transition name="fade">
-    <div ref="mymodal" class="qti3-player-modal">
+    <div ref="mymodal" class="qti3-player-modal" v-if="visible">
       <div class="qti3-player-modal-dialog qti3-player-modal-md qti3-player-modal-dialog-centered">
         <span tabindex="0"></span>
         <div class="qti3-player-modal-content">
@@ -31,6 +31,7 @@ export default {
 
   data() {
     return {
+      visible: true
     }
   },
 
