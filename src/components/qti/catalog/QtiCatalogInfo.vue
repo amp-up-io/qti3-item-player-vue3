@@ -16,14 +16,10 @@
  * reference item content that is presented to candidates based on their
  * candidate profile (PNP) requirements.
  */
-import Vue from 'vue'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
-import QtiCatalog from '@/components/qti/catalog/QtiCatalog'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
-
-Vue.component('qti-catalog', QtiCatalog)
 
 export default {
   name: 'QtiCatalogInfo',
@@ -41,43 +37,49 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
-     * qti-catalog (1-*)
+     * Validate the child nodes:
+     * expressions (1-n)
      */
-    validateChildren () {
+     validateChildren: function () {
+      let countChildren = 0
 
-      if (!('default' in this.$slots)) {
+      if (!this.$slots.default) {
         throw new QtiValidationException('Invalid CatalogInfo.  Must contain at least 1 qti-catalog child node')
       }
 
-      let countChildren = 0
-      this.$slots.default.forEach((slot) => {
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Must be qti-catalog
-          if (!this.isCatalog(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Invalid CatalogInfo child node: "' + slot.componentOptions.tag + '"')
+          if (!this.isCatalog(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            throw new QtiValidationException('Invalid CatalogInfo child node: "' + slot.type.name + '"')
           }
 
           countChildren += 1
         }
       })
 
-      if (countChildren == 0) {
+      if (countChildren === 0) {
         throw new QtiValidationException('Invalid CatalogInfo.  Must contain at least 1 qti-catalog child node')
+      }
+    }
+  },
+
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
       }
     }
   },
 
   mounted () {
     if (this.isQtiValid) {
-      try {
-        this.validateChildren()
-
-        console.log('[QtiCatalogInfo]')
-      } catch (err) {
-        this.isQtiValid = false
-        throw new QtiValidationException(err.message)
-      }
+      console.log('[QtiCatalogInfo]')
     }
   }
 }

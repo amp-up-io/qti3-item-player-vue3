@@ -17,16 +17,10 @@
  *   qti-html-content
  *   qti-file-href
  */
-import Vue from 'vue'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
-import QtiHtmlContent from '@/components/qti/catalog/QtiHtmlContent'
-import QtiFileHref from '@/components/qti/catalog/QtiFileHref'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
-
- Vue.component('qti-html-content', QtiHtmlContent)
- Vue.component('qti-file-href', QtiFileHref)
 
 export default {
   name: 'QtiCardEntry',
@@ -135,16 +129,19 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
-     * qti-html-content or qti-file-href
+     * Validate the child nodes:
+     * qti-card (1-*)
      */
-    validateChildren () {
+    validateChildren: function () {
       let countChildren = 0
-      this.$slots.default.forEach((slot) => {
+
+      if (!this.$slots.default) return
+
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Must be one of qti-html-content, qti-file-href
-          if (!this.isValidCardChild(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Invalid CardEntry Child node: "' + slot.componentOptions.tag + '"')
+          if (!this.isValidCardChild(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            throw new QtiValidationException('Invalid CardEntry Child node: "' + slot.type.name + '"')
           }
 
           if (countChildren > 1) {
@@ -154,23 +151,39 @@ export default {
           countChildren += 1
         }
       })
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
+    /**
+     * Iterate through the child nodes:
+     * qti-html-content or qti-file-href
+     */
     processChildren () {
-      this.$children.forEach((cardChild) => {
-        this.children.push(cardChild)
+      const children = this.$.subTree.children[0].children
+
+      children.forEach((child) => {
+        if (child.component === null) return
+        this.children.push(child.component.proxy)
       })
+    }
+  },
+
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
     }
   },
 
   mounted () {
     if (this.isQtiValid) {
       try {
-        // Validate children.
-        this.validateChildren()
-
+        this.processChildren()
         console.log('[QtiCardEntry][Lang: ' + this.$props['xml:lang'] + ' ]')
       } catch (err) {
         this.isQtiValid = false

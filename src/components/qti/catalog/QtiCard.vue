@@ -16,18 +16,10 @@
  *   qti-html-content
  *   qti-file-href
  */
-import Vue from 'vue'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
-import QtiCardEntry from '@/components/qti/catalog/QtiCardEntry'
-import QtiHtmlContent from '@/components/qti/catalog/QtiHtmlContent'
-import QtiFileHref from '@/components/qti/catalog/QtiFileHref'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
-
-Vue.component('qti-card-entry', QtiCardEntry)
-Vue.component('qti-html-content', QtiHtmlContent)
-Vue.component('qti-file-href', QtiFileHref)
 
 export default {
   name: 'QtiCard',
@@ -79,54 +71,70 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
-     * qti-card-entry, qti-html-content, or qti-file
+     * Validate the child nodes:
+     * children (0-n)
      */
-    validateChildren () {
+    validateChildren: function () {
       let countChildren = 0
       let firstChildTag = null
-      this.$slots.default.forEach((slot) => {
+
+      if (!this.$slots.default) return
+
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Slot must be one of: qti-card-entry, qti-html-content, qti-file-href
-          if (!this.isValidCardChild(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Invalid Card Child node: "' + slot.componentOptions.tag + '"')
+          if (!this.isValidCardChild(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            throw new QtiValidationException('Invalid Card Child node: "' + slot.type.name + '"')
           }
 
-          if ((countChildren > 0) && (slot.componentOptions.tag !== firstChildTag)) {
+          if ((countChildren > 0) && (slot.type.name !== firstChildTag)) {
             throw new QtiValidationException('All Card Child elements must be the same element type: "' + firstChildTag + '"')
           }
 
-          if ((countChildren > 0) && (slot.componentOptions.tag !== 'qti-card-entry')) {
-            throw new QtiValidationException('Multiple Card Child elements of type "' + slot.componentOptions.tag + '" not permitted')
+          if ((countChildren > 0) && (qtiAttributeValidation.kebabCase(slot.type.name) !== 'qti-card-entry')) {
+            throw new QtiValidationException('Multiple Card Child elements of type "' + slot.type.name + '" not permitted')
           }
 
-          if (countChildren == 0) {
-            firstChildTag = slot.componentOptions.tag
+          if (countChildren === 0) {
+            firstChildTag = slot.type.name
           }
 
           countChildren += 1
         }
       })
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
+    /**
+     * Iterate through the child nodes:
+     * children (0-n)
+     */
     processChildren () {
-      this.$children.forEach((cardChild) => {
-        this.children.push(cardChild)
+      const cardChildren = this.$.subTree.children[0].children
+
+      cardChildren.forEach((cardChild) => {
+        if (cardChild.component === null) return
+        this.children.push(cardChild.component.proxy)
       })
+    }
+  },
+
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
     }
   },
 
   mounted () {
     if (this.isQtiValid) {
       try {
-
-        // If any children, validate them
-        if ('default' in this.$slots) {
-          this.validateChildren()
-        }
-
+        this.processChildren()
         console.log('[QtiCard][Support: ' + this.support + ' ]')
       } catch (err) {
         this.isQtiValid = false

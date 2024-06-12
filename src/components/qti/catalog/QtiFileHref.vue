@@ -37,9 +37,6 @@ export default {
     validateChildren () {
       // For now, no validation.
       // @TODO
-
-      // Process children
-      this.processChildren()
     },
 
     processChildren () {
@@ -48,12 +45,14 @@ export default {
 
   },
 
+  created () {
+    this.validateChildren()
+  },
+
   mounted () {
     if (this.isQtiValid) {
       try {
-        // Validate children.
-        this.validateChildren()
-
+        this.processChildren()
         console.log('[' + this.$options.name + ']')
       } catch (err) {
         this.isQtiValid = false

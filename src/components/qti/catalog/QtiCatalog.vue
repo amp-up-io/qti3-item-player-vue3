@@ -15,15 +15,11 @@
  * A catalog contains one or more "cards", each of which address a specific
  * support/feature.
  */
-import Vue from 'vue'
 import { store } from '@/store/store'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
-import QtiCard from '@/components/qti/catalog/QtiCard'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
-
-Vue.component('qti-card', QtiCard)
 
 export default {
   name: 'QtiCatalog',
@@ -54,47 +50,63 @@ export default {
     },
 
     /**
-     * Iterate through the child nodes:
+     * Validate the child nodes:
      * qti-card (1-*)
      */
-    validateChildren () {
+     validateChildren: function () {
+      let countChildren = 0
 
-      if (!('default' in this.$slots)) {
+      if (!this.$slots.default) {
         throw new QtiValidationException('Invalid Catalog.  Must contain at least 1 qti-card child node')
       }
 
-      let countChildren = 0
-      this.$slots.default.forEach((slot) => {
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Must be qti-card
-          if (!this.isCard(slot.componentOptions.tag)) {
-            throw new QtiValidationException('Invalid Catalog child node: "' + slot.componentOptions.tag + '"')
+          if (!this.isCard(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            throw new QtiValidationException('Invalid Catalog child node: "' + slot.type.name + '"')
           }
 
           countChildren += 1
         }
       })
 
-      if (countChildren == 0) {
+      if (countChildren === 0) {
         throw new QtiValidationException('Invalid Catalog.  Must contain at least 1 qti-card child node')
       }
-
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
+    /**
+     * Iterate through the child nodes:
+     * qti-card (1-*)
+     */
     processChildren () {
-      this.$children.forEach((card) => {
-        this.cards.push(card)
+      const children = this.$.subTree.children[0].children
+
+      children.forEach((card) => {
+        if (card.component === null) return
+        this.cards.push(card.component.proxy)
       })
+    }
+  },
+
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
     }
   },
 
   mounted () {
     if (this.isQtiValid) {
       try {
-        // Validate children.
-        this.validateChildren()
+        this.processChildren()
 
         // Notify store of our new catalog
         store.defineCatalog({

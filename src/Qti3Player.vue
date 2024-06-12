@@ -31,6 +31,7 @@ import QtiOutcomeDeclaration from '@/components/qti/declarations/QtiOutcomeDecla
 import QtiResponseDeclaration from '@/components/qti/declarations/QtiResponseDeclaration.vue'
 import QtiTemplateDeclaration from '@/components/qti/declarations/QtiTemplateDeclaration.vue'
 import QtiStylesheet from '@/components/qti/general/QtiStylesheet.vue'
+import QtiCompanionMaterialsInfo from '@/components/qti/companionmaterials/QtiCompanionMaterialsInfo.vue'
 import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
@@ -48,7 +49,15 @@ import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
-//import QtiCatalogInfo from '@/components/qti/catalog/QtiCatalogInfo'
+
+// Catalog Elements
+import QtiCatalogInfo from '@/components/qti/catalog/QtiCatalogInfo.vue'
+import QtiCatalog from '@/components/qti/catalog/QtiCatalog.vue'
+import QtiCard from '@/components/qti/catalog/QtiCard.vue'
+import QtiCardEntry from '@/components/qti/catalog/QtiCardEntry.vue'
+import QtiHtmlContent from '@/components/qti/catalog/QtiHtmlContent.vue'
+import QtiFileHref from '@/components/qti/catalog/QtiFileHref.vue'
+
 // Rules
 import QtiResponseCondition from '@/components/qti/processing/rules/QtiResponseCondition.vue'
 import QtiResponseProcessingFragment from '@/components/qti/processing/rules/QtiResponseProcessingFragment.vue'
@@ -181,9 +190,11 @@ export default {
       .component('qti-response-declaration', QtiResponseDeclaration)
       .component('qti-outcome-declaration', QtiOutcomeDeclaration)
       .component('qti-template-declaration', QtiTemplateDeclaration)
-      .component('qti-stylesheet', QtiStylesheet)
       .component('qti-template-processing', QtiTemplateProcessing)
+      .component('qti-companion-materials-info', QtiCompanionMaterialsInfo)
+      .component('qti-stylesheet', QtiStylesheet)
       .component('qti-item-body', QtiItemBody)
+      .component('qti-catalog-info', QtiCatalogInfo)
       .component('qti-response-processing', QtiResponseProcessing)
       .component('qti-modal-feedback', QtiModalFeedback)
 
@@ -193,6 +204,7 @@ export default {
       .component('qti-value', QtiValue)
       .component('qti-correct-response', QtiCorrectResponse)
 
+    // Item Body or Modal Feedback elements
     app
       .component('qti-content-body', QtiContentBody)
       .component('qti-template-inline', QtiTemplateInline)
@@ -206,7 +218,15 @@ export default {
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
 
-    // Response and Template Rules
+    // Catalog elements
+    app
+      .component('qti-catalog', QtiCatalog)
+      .component('qti-card', QtiCard)
+      .component('qti-card-entry', QtiCardEntry)
+      .component('qti-html-content', QtiHtmlContent)
+      .component('qti-file-href', QtiFileHref)
+
+    // Response Processing and Template Processing Rules
     app.component('qti-response-condition', QtiResponseCondition)
     app.component('qti-response-processing-fragment', QtiResponseProcessingFragment)
     app.component('qti-set-outcome-value', QtiSetOutcomeValue)
@@ -222,10 +242,9 @@ export default {
     app.component('qti-template-else-if', QtiTemplateElseIf)
     app.component('qti-template-constraint', QtiTemplateConstraint)
     app.component('qti-exit-template', QtiExitTemplate)
-
-    // Pseudo-Expressions
     app.component('qti-set-correct-response', QtiSetCorrectResponse)
     app.component('qti-set-default-value', QtiSetDefaultValue)
+
     // Expressions
     app.component('qti-base-value', QtiBaseValue)
     app.component('qti-correct', QtiCorrect)
@@ -613,7 +632,7 @@ export default {
      * @param {Object} catalogEvent - catalog content to be displayed
      */
     function displayCatalogEvent (catalogEvent) {
-      if (!this.suppressCatalogMessages) {
+      if (!props.suppressCatalogMessages) {
         // Only Catalog 'glossary' events handled.
         // Display CatalogDialog.
         if (catalogEvent.type === 'glossary') {
