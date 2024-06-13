@@ -59,21 +59,6 @@ export default {
       return this.valueCardinality
     },
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
-        } else {
-          // empty text slot.  not a component, but not an error
-          return false
-        }
-      }
-    },
-
     /**
      * Validate the child nodes:
      * expressions (1-n)
