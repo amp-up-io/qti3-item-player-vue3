@@ -142,6 +142,7 @@ export default {
 
   emits: [
     'notifyQti3ItemReady',
+    'notifyQti3ItemCompleted',
     'notifyQti3EndAttemptCompleted',
     'notifyQti3SuspendAttemptCompleted',
     'notifyQti3ScoreAttemptCompleted',
