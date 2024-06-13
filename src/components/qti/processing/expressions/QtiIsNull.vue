@@ -26,7 +26,7 @@ export default {
       value: null,
       valueBaseType: 'boolean',
       valueCardinality: 'single',
-      child: null,
+      expression: null,
       isQtiValid: true
     }
   },
@@ -95,8 +95,8 @@ export default {
 
     evaluate () {
       try {
-        this.child.evaluate()
-        this.setValue(this.child.isNull())
+        this.expression.evaluate()
+        this.setValue(this.expression.isNull())
         return this.getValue()
       } catch (err) {
         this.value = null
