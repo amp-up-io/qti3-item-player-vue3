@@ -97,6 +97,7 @@ export default {
       try {
         this.expression.evaluate()
         this.setValue(this.expression.isNull())
+        console.log('[IsNull][Value]', this.getValue())
         return this.getValue()
       } catch (err) {
         this.value = null
