@@ -32,7 +32,7 @@ import { store } from '@/store/store'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
-import printf from 'printf'
+import { printf } from 'fast-printf'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
 
