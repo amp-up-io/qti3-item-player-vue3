@@ -57,7 +57,7 @@ export default {
      * Validate the child node:
      * expressions (1)
      */
-     validateChildren: function () {
+    validateChildren: function () {
       let countExpressions = 0
 
       if (!this.$slots.default) {
