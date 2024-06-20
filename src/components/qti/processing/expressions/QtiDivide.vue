@@ -102,6 +102,19 @@ export default {
       })
     },
 
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        const node = expression.component.proxy
+        if (!qtiProcessing.isBaseTypeNumeric(node.getBaseType())) {
+          throw new QtiValidationException('Expressions must be a numeric base-type')
+        }
+        if (node.getCardinality() !== 'single') {
+          throw new QtiValidationException('Expressions must be cardinality="single"')
+        }
+      })
+    },
+
     evaluate () {
       try {
         let firstValue = this.expressions[0].evaluate()
