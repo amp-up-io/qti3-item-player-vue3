@@ -102,7 +102,8 @@ export default {
      * expressions (1)
      */
     processChildren () {
-      const children = this.$.subTree.children[0].children
+      // Go down two levels
+      const children = this.$.subTree.children[0].children[0].children[0].children
 
       // Perform extra semantic validations on the expressions
       this.validateExpressions(children)
