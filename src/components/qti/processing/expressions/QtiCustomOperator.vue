@@ -127,9 +127,9 @@ export default {
 
   created () {
     try {
-      this.operatorSubType = this.detectOperatorSubType(this.$vnode.data.staticClass)
+      this.operatorSubType = this.detectOperatorSubType(this.$attrs['class'])
       if (this.operatorSubType === null) {
-        throw new QtiValidationException('Unsupported Custom Operator [' + this.$vnode.data.staticClass + ']')
+        throw new QtiValidationException('Unsupported Custom Operator [' + this.$attrs['class'] + ']')
       }
     } catch (err) {
       this.isQtiValid = false
