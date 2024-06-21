@@ -133,7 +133,6 @@ export default {
         console.log('ContextDeclaration, node:', node)
         if (node.component === null) return
         if (node.type.name === 'QtiDefaultValue') {
-          console.log('QtiDefault value, node.component.proxy:', node.component.proxy)
           return this.defaultValue = node.component.proxy.getValue()
         }
 
