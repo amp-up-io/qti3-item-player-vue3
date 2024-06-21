@@ -58,6 +58,7 @@ export default {
     getCardinality () {
       return this.valueCardinality
     },
+
     /**
      * Validate the child nodes:
      * expressions (2)
