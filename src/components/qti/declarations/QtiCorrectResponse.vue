@@ -71,6 +71,7 @@ export default {
       const children = this.$.subTree.children[0].children
 
       children.forEach((child) => {
+        if (child.component === null) return
         const node = child.component.proxy
         switch (this.variableCardinality) {
           case 'record':
