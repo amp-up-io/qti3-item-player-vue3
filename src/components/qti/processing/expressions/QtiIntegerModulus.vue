@@ -60,7 +60,7 @@ export default {
      * Validate the child nodes:
      * expressions (2)
      */
-     validateChildren: function () {
+    validateChildren: function () {
       // Must have 2
       let countExpressions = 0
 
