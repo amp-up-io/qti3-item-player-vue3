@@ -95,12 +95,14 @@ export default {
       this.validateExpressions(children)
 
       children.forEach((expression) => {
+        if (expression.component === null) return
         this.expressions.push(expression.component.proxy)
       })
     },
 
     validateExpressions (expressions) {
       expressions.forEach((expression) => {
+        if (expression.component === null) return
         const node = expression.component.proxy
         if (node.getCardinality() !== 'single') {
           throw new QtiValidationException('Expressions must be cardinality="single"')
