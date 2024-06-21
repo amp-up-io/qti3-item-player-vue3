@@ -27,8 +27,9 @@ import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeVali
 import CatalogDialog from '@/shared/components/catalog/CatalogDialog.vue'
 import AmpStyle from '@/shared/components/AmpStyle.vue'
 import QtiAssessmentItem from '@/components/qti/QtiAssessmentItem.vue'
-import QtiOutcomeDeclaration from '@/components/qti/declarations/QtiOutcomeDeclaration.vue'
+import QtiContextDeclaration from '@/components/qti/declarations/QtiContextDeclaration.vue'
 import QtiResponseDeclaration from '@/components/qti/declarations/QtiResponseDeclaration.vue'
+import QtiOutcomeDeclaration from '@/components/qti/declarations/QtiOutcomeDeclaration.vue'
 import QtiTemplateDeclaration from '@/components/qti/declarations/QtiTemplateDeclaration.vue'
 import QtiStylesheet from '@/components/qti/general/QtiStylesheet.vue'
 import QtiCompanionMaterialsInfo from '@/components/qti/companionmaterials/QtiCompanionMaterialsInfo.vue'
@@ -191,6 +192,7 @@ export default {
     // Top-level Item elements
     app
       .component('qti-assessment-item', QtiAssessmentItem)
+      .component('qti-context-declaration', QtiContextDeclaration)
       .component('qti-response-declaration', QtiResponseDeclaration)
       .component('qti-outcome-declaration', QtiOutcomeDeclaration)
       .component('qti-template-declaration', QtiTemplateDeclaration)
