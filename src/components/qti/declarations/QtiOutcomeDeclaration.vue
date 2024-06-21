@@ -268,8 +268,6 @@ export default {
             throw new QtiValidationException('Maximum of 1 qti-interpolation-table element permitted')
           }
 
-          console.log('slot:', slot)
-
           throw new QtiValidationException('Element must be one of qti-default-value, qti-match-table, qti-interpolation-table: "' + slot.type.name + '"')
         }
       })
