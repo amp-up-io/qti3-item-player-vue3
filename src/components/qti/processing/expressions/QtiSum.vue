@@ -91,7 +91,7 @@ export default {
      * Iterate through the child nodes:
      * expressions (2)
      */
-     processChildren () {
+    processChildren () {
       const children = this.$.subTree.children[0].children
 
       // Perform extra semantic validations on the expressions
