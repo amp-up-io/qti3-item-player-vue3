@@ -93,6 +93,7 @@ export default {
       this.validateExpressions(children)
 
       children.forEach((expression) => {
+        if (expression.component === null) return
         this.expressions.push(expression.component.proxy)
       })
     },
@@ -100,6 +101,7 @@ export default {
     validateExpressions (expressions) {
       let baseType = null
       expressions.forEach((expression) => {
+        if (expression.component === null) return
         const node = expression.component.proxy
         const cardinality = node.getCardinality()
         if ((cardinality !== 'single') && (cardinality !== 'ordered')) {
