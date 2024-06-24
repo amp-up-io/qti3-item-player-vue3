@@ -1,14 +1,23 @@
 export class XmlFilters {
 
+  xmlDeclaration = null
   rxTrackSource = null
 
   /**
    * @description Helper Class for transforming the QTI XML
    */
   constructor() {
+    this.xmlDeclaration = new RegExp(/<\?xml.*?\?>/s)
     // Regex matching closed 'track' and 'source' elements
     this.rxTrackSource = new RegExp(/<(track|source)[^>]+?\/>/g)
 
+  }
+
+  /**
+   * @description Remove <?xml..?> from the XML.
+   */
+  filterXmlDeclaration (xml) {
+    return xml.replace(this.xmlDeclaration, '')
   }
 
   /**

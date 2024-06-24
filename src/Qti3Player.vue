@@ -327,11 +327,13 @@ export default {
     const processedXml = computed(() => {
       let xml = itemXml.value
 
-      // Hack 1: Clean out CDATA (not html5)
+      // Hack 1: Clean out the <?xml..?> declaration
+      xml = xmlFilters.filterXmlDeclaration(xml)
+      // Hack 2: Clean out CDATA (not html5)
       xml = xmlFilters.filterCdata(xml)
-      // Hack 2: Replace <style> tags with <amp-style>
+      // Hack 3: Replace <style> tags with <amp-style>
       xml = xmlFilters.filterStyle(xml)
-      // Hack 3: Replace <audio> tags with <amp-audio>
+      // Hack 4: Replace <audio> tags with <amp-audio>
       xml = xmlFilters.filterAudio(xml)
 
       return {
