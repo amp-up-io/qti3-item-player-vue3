@@ -16,9 +16,12 @@
  */
 import { store } from '@/store/store'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
+import QtiParseException from '@/components/qti/exceptions/QtiParseException'
+import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiProcessing from '@/components/qti/processing/utils/QtiProcessing'
 
+const qtiAttributeValidation = new QtiAttributeValidation()
 const qtiProcessing = new QtiProcessing()
 
 export default {
@@ -73,60 +76,89 @@ export default {
       return this.valueCardinality
     },
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
+    validateAttributes() {
+      // Resolve the n attribute.
+      // First, try to resolve it as an integer.
+      try {
+        this.valueN = qtiAttributeValidation.validateIntegerAttribute('n', this.n, true, 0)
+        return
+      } catch (err) {
+        if (err.name !== 'QtiParseException') {
+          throw new Error(err.message)
+        }
+      }
+      // We know that n was not an integer value.
+      // It must be an identifier that resolves to a properly-declared
+      // template variable or outcome variable.
+      try {
+        qtiAttributeValidation.validateIdentifierAttribute(this.n)
+        const declarationN = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(store, this.n)
+        if ((declarationN.baseType !== 'integer') || (declarationN.cardinality !== 'single')) {
+          throw new QtiValidationException('[Index] Attribute "n" template or outcome variable must be base-type="integer" and cardinality="single"')
+        }
+      } catch (err) {
+        if (err.name === 'QtiValidationException') {
+          throw new QtiValidationException(err.message)
+        } else if (err.name === 'QtiParseException') {
+          throw new QtiParseException(err.message)
         } else {
-          // empty text slot.  not a component, but not an error
-          return false
+          throw new Error(err.message)
         }
       }
     },
 
     /**
-     * Examine the child node:
+     * Validate the child node:
      * expressions (1)
      */
     validateChildren: function () {
-      let countExpression = 0
-      this.$slots.default.forEach((slot) => {
-        if (this.isValidSlot(slot)) {
+      let countExpressions = 0
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have exactly one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
+        if (qtiAttributeValidation.isValidSlot(slot)) {
           // Detect an expression
-          if (qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            countExpression += 1
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            countExpressions += 1
           } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
           }
         }
       })
-      if (countExpression !== 1) {
+
+      if (countExpressions !== 1) {
         throw new QtiValidationException('Must have exactly one Expression node')
       }
-      // Perform extra semantic validations on the expression
-      this.validateExpressions()
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
-    validateExpressions () {
-      if (this.$children.length === 1) {
-        let expression = this.$children[0]
-        if (expression.getCardinality() !== 'ordered') {
+    /**
+     * Get the child node:
+     * expressions (1)
+     */
+    processChildren () {
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expressions
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
+      })
+    },
+
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        const node = expression.component.proxy
+        if (node.getCardinality() !== 'ordered') {
           throw new QtiValidationException('Expression must be of cardinality="ordered"')
         }
-        this.setBaseType(expression.getBaseType())
-      } else {
-        throw new QtiValidationException('Must have exactly one Expression node')
-      }
-    },
-
-    processChildren () {
-      this.expression = this.$children[0]
+        this.setBaseType(node.getBaseType())
+      })
     },
 
     evaluate () {
@@ -181,16 +213,32 @@ export default {
       if (this.valueN !== null) {
         return (this.valueN)
       }
-      let declaration = store.getters.getVariableDeclaration(this.n)
+      let declaration = store.getVariableDeclaration(this.n)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
+    }
+  },
+
+  created () {
+    try {
+      this.validateAttributes()
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else if (err.name === 'QtiParseException') {
+        throw new QtiParseException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
     }
   },
 
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
