@@ -46,9 +46,11 @@ import QtiFeedbackBlock from '@/components/qti/body/QtiFeedbackBlock.vue'
 import QtiRubricBlock from '@/components/qti/body/QtiRubricBlock.vue'
 import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
+import QtiInlineChoiceInteraction from '@/components/qti/interactions/QtiInlineChoiceInteraction.vue'
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
 import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
+import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
@@ -223,9 +225,11 @@ export default {
       .component('qti-choice-interaction', QtiChoiceInteraction)
       .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
       .component('qti-text-entry-interaction', QtiTextEntryInteraction)
+      .component('qti-inline-choice-interaction', QtiInlineChoiceInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
+      .component('qti-inline-choice', QtiInlineChoice)
 
     // Catalog elements
     app
