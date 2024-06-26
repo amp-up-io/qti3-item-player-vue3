@@ -30,7 +30,7 @@ export default {
   data () {
     return {
       value: null,
-      valueBaseType: null,
+      valueBaseType: 'integer',
       valueCardinality: 'single',
       expressions: [],
       isQtiValid: true
