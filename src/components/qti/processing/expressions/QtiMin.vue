@@ -30,7 +30,7 @@ export default {
   data () {
     return {
       value: null,
-      valueBaseType: 'integer',
+      valueBaseType: null,
       valueCardinality: 'single',
       expressions: [],
       isQtiValid: true
@@ -107,6 +107,9 @@ export default {
     },
 
     validateExpressions (expressions) {
+      // Integer base-type unless an expression is float
+      this.setBaseType('integer')
+
       expressions.forEach((expression) => {
         if (expression.component === null) return
         const node = expression.component.proxy
