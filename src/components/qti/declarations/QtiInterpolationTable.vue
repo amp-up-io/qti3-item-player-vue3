@@ -12,13 +12,9 @@
  * also be used to implement numeric transformations such as those from a simple raw score to a value on a
  * calibrated scale.
  */
-import Vue from 'vue'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
-import QtiInterpolationTableEntry from '@/components/qti/declarations/QtiInterpolationTableEntry'
-
-Vue.component('qti-interpolation-table-entry', QtiInterpolationTableEntry)
 
 const qtiAttributeValidation = new QtiAttributeValidation()
 
@@ -99,7 +95,7 @@ export default {
 
       this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
-          // Detect an expression
+          // Detect an interpolation table entry
           if (qtiAttributeValidation.kebabCase(slot.type.name) === 'qti-interpolation-table-entry') {
             countEntries += 1
           } else {
