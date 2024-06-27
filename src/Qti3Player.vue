@@ -56,10 +56,14 @@ import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInterac
 import QtiInlineChoiceInteraction from '@/components/qti/interactions/QtiInlineChoiceInteraction.vue'
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
 import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryInteraction.vue'
+import QtiMatchInteraction from '@/components/qti/interactions/QtiMatchInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
+import QtiSimpleAssociableChoice from '@/components/qti/interactions/QtiSimpleAssociableChoice.vue'
+import QtiSimpleMatchSet from '@/components/qti/interactions/QtiSimpleMatchSet.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
+import MatchGroup from '@/components/qti/interactions/MatchGroup.vue'
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
 
@@ -240,10 +244,14 @@ export default {
       .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
       .component('qti-text-entry-interaction', QtiTextEntryInteraction)
       .component('qti-inline-choice-interaction', QtiInlineChoiceInteraction)
+      .component('qti-match-interaction', QtiMatchInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
       .component('qti-inline-choice', QtiInlineChoice)
+      .component('MatchGroup', MatchGroup)
+      .component('qti-simple-match-set', QtiSimpleMatchSet)
+      .component('qti-simple-associable-choice', QtiSimpleAssociableChoice)
 
     // Catalog elements
     app
