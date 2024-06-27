@@ -155,7 +155,7 @@ export default {
 
       this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
-          // Detect an expression
+          // Detect a map entry
           if (qtiAttributeValidation.kebabCase(slot.type.name) === 'qti-map-entry') {
             countMapEntries += 1
           } else {
