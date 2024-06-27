@@ -33,6 +33,8 @@ import QtiOutcomeDeclaration from '@/components/qti/declarations/QtiOutcomeDecla
 import QtiTemplateDeclaration from '@/components/qti/declarations/QtiTemplateDeclaration.vue'
 import QtiStylesheet from '@/components/qti/general/QtiStylesheet.vue'
 import QtiCompanionMaterialsInfo from '@/components/qti/companionmaterials/QtiCompanionMaterialsInfo.vue'
+import QtiMapping from '@/components/qti/declarations/QtiMapping.vue'
+import QtiMapEntry from '@/components/qti/declarations/QtiMapEntry.vue'
 import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
@@ -211,6 +213,8 @@ export default {
       .component('qti-default-value', QtiDefaultValue)
       .component('qti-value', QtiValue)
       .component('qti-correct-response', QtiCorrectResponse)
+      .component('qti-mapping', QtiMapping)
+      .component('qti-map-entry', QtiMapEntry)
 
     // Item Body or Modal Feedback elements
     app
