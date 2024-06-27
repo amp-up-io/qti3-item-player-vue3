@@ -37,6 +37,8 @@ import QtiMapping from '@/components/qti/declarations/QtiMapping.vue'
 import QtiMapEntry from '@/components/qti/declarations/QtiMapEntry.vue'
 import QtiInterpolationTable from '@/components/qti/declarations/QtiInterpolationTable.vue'
 import QtiInterpolationTableEntry from '@/components/qti/declarations/QtiInterpolationTableEntry.vue'
+import QtiMatchTable from '@/components/qti/declarations/QtiMatchTable.vue'
+import QtiMatchTableEntry from '@/components/qti/declarations/QtiMatchTableEntry.vue'
 import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
 import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
 import QtiValue from '@/components/qti/declarations/QtiValue.vue'
@@ -219,6 +221,8 @@ export default {
       .component('qti-map-entry', QtiMapEntry)
       .component('qti-interpolation-table', QtiInterpolationTable)
       .component('qti-interpolation-table-entry', QtiInterpolationTableEntry)
+      .component('qti-match-table', QtiMatchTable)
+      .component('qti-match-table-entry', QtiMatchTableEntry)
 
     // Item Body or Modal Feedback elements
     app
