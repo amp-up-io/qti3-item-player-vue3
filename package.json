@@ -27,6 +27,7 @@
     "axios": "^1.7.2",
     "bignumber.js": "^9.1.2",
     "fast-printf": "^1.6.9",
+    "sortablejs": "^1.15.2",
     "sweetalert2": "^11.6.13",
     "tippy.js": "^6.3.7",
     "vue": "^3.4.21"
