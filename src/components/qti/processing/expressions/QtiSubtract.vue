@@ -107,11 +107,14 @@ export default {
       expressions.forEach((expression) => {
         if (expression.component === null) return
         const node = expression.component.proxy
-        if (node.getCardinality() !== 'single') {
-          throw new QtiValidationException('Expressions must be cardinality="single"')
-        }
         if (!qtiProcessing.isBaseTypeNumeric(node.getBaseType())) {
           throw new QtiValidationException('Expressions must be a numeric base-type')
+        }
+        if (node.getBaseType() === 'float') {
+          this.setBaseType('float')
+        }
+        if (node.getCardinality() !== 'single') {
+          throw new QtiValidationException('Expressions must be cardinality="single"')
         }
       })
     },
