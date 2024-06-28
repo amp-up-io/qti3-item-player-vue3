@@ -207,28 +207,6 @@ export default {
       })
     },
 
-    /*
-    validateChildren () {
-      let gapChoiceCount = 0
-
-      this.$slots.default.forEach((slot) => {
-        if (qtiAttributeValidation.isValidSlot(slot)) {
-          const tag = slot.componentOptions.tag
-          if ((tag === 'qti-gap-text') || (tag === 'qti-gap-img')) {
-            gapChoiceCount += 1
-          } else if (tag === 'qti-gap') {
-            if (gapChoiceCount == 0)
-              throw new QtiValidationException('qti-gap elements must come after qti-gap-text and qti-gap-img elements')
-          } else {
-            throw new QtiValidationException('Node is not one of qti-gap-text, qti-gap-img, or qti-gap: "' + slot.componentOptions.tag + '"')
-          }
-        }
-      })
-
-      // All good.  Save off our children.
-      this.processChildren()
-    },
-    */
     processChildren () {
       const children = this.$.subTree.children[0].children[0].children
 
@@ -260,11 +238,13 @@ export default {
 
       if (gapChoiceWrapperElement == null) return
 
-      let gapTargetWrapperElement = this.createGapTargetWrapper(gapChoiceWrapperElement)
+      //let gapTargetWrapperElement = this.createGapTargetWrapper(gapChoiceWrapperElement)
 
       let container = this.createContainer(this.priorState)
       this.processContainerChoices(container, gapChoiceWrapperElement)
       this.saveContainerOrder(container)
+
+      let gapTargetWrapperElement = this.createGapTargetWrapper(gapChoiceWrapperElement)
 
       // Other than shuffling, this handles all of the QTI presentation vocab.
       this.presentationFactory
@@ -294,7 +274,7 @@ export default {
      * If successful return the ul.qti-gap-match-source-wrapper.  If not, return null.
      */
     createGapChoiceWrapper () {
-      // Find all the qti-gap-choice's
+      // Find the first qti-gap-choice
       let firstGapChoice = this.$refs.root.querySelector('.qti-gap-choice')
 
       // If there are no qti-gap-choice's, bail.
@@ -309,22 +289,27 @@ export default {
       return gapChoiceWrapper
     },
 
+    /**
+     * @description Create a target wrapper element and append the
+     * element containing the gap content.
+     * @param { DOM Element } gapChoiceWrapperElement 
+     */
     createGapTargetWrapper (gapChoiceWrapperElement) {
-      let children = this.$refs.root.childNodes
-      
-      let gapTargetWrapper = document.createElement('div')
+      // Create the new target wrapper div
+      const gapTargetWrapper = document.createElement('div')
       gapTargetWrapper.classList.add('qti-gap-match-target-wrapper')
 
-      for (let i=0; i < children.length; i++) {
-        // Only append element nodes not equal to the gapChoiceWrapperElement
-        if (children[i].nodeType === 1 && children[i] !== gapChoiceWrapperElement) {
-          gapTargetWrapper.append(children[i])
-        }
+      // Insert the empty target wrapper immediately after the Choice Wrapper
+      this.insertAfter(gapTargetWrapper, gapChoiceWrapperElement)
+
+      // The next element sibling after the target wrapper SHOULD BE the
+      // element containing all gaps.  Append the element to the target wrapper.
+      const gapContentElement = gapTargetWrapper.nextElementSibling
+      if (gapContentElement != null) {
+        gapTargetWrapper.append(gapContentElement)
       }
 
-      // Append the target wrapper
-      this.$refs.root.append(gapTargetWrapper)
-
+      // Return the wrapper
       return gapTargetWrapper
     },
 
@@ -451,7 +436,6 @@ export default {
      * @param {Object} data - object containing a 'response' property
      */
     handleWidgetUpdate (data) {
-      console.log('gap match update, data', data)
       this.setResponse(data.response)
 
       // Notify parent that we have an update
