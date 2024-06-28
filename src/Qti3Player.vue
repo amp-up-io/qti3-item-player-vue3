@@ -57,13 +57,18 @@ import QtiInlineChoiceInteraction from '@/components/qti/interactions/QtiInlineC
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
 import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryInteraction.vue'
 import QtiMatchInteraction from '@/components/qti/interactions/QtiMatchInteraction.vue'
+import QtiGapMatchInteraction from '@/components/qti/interactions/QtiGapMatchInteraction.vue'
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
 import QtiSimpleChoice from '@/components/qti/interactions/QtiSimpleChoice.vue'
 import QtiSimpleAssociableChoice from '@/components/qti/interactions/QtiSimpleAssociableChoice.vue'
 import QtiSimpleMatchSet from '@/components/qti/interactions/QtiSimpleMatchSet.vue'
 import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
+import GapMatchGroup from '@/components/qti/interactions/GapMatchGroup.vue'
 import MatchGroup from '@/components/qti/interactions/MatchGroup.vue'
+import QtiGapText from '@/components/qti/interactions/QtiGapText.vue'
+import QtiGapImg from '@/components/qti/interactions/QtiGapImg.vue'
+import QtiGap from '@/components/qti/interactions/QtiGap.vue'
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
 
@@ -245,6 +250,7 @@ export default {
       .component('qti-text-entry-interaction', QtiTextEntryInteraction)
       .component('qti-inline-choice-interaction', QtiInlineChoiceInteraction)
       .component('qti-match-interaction', QtiMatchInteraction)
+      .component('qti-gap-match-interaction', QtiGapMatchInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
@@ -252,6 +258,10 @@ export default {
       .component('MatchGroup', MatchGroup)
       .component('qti-simple-match-set', QtiSimpleMatchSet)
       .component('qti-simple-associable-choice', QtiSimpleAssociableChoice)
+      .component('GapMatchGroup', GapMatchGroup)
+      .component('qti-gap-text', QtiGapText)
+      .component('qti-gap-img', QtiGapImg)
+      .component('qti-gap', QtiGap)
 
     // Catalog elements
     app
