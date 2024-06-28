@@ -109,8 +109,8 @@ class GapMatchPresentationFactory {
 
   processGaps () {
     for (let i=0; i < this.gaps.length; i++) {
-      this.gaps[i].$refs.gap.classList.add('target')
-    }    
+      this.gaps[i].classList.add('target')
+    }
   }
 
 }
