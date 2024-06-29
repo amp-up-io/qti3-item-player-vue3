@@ -182,7 +182,7 @@ export default {
 
       this.$slots.default()[0].children.forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
-          // Only qti-prompt and qti-simple-match-set's permitted
+          // Only qti-prompt, qti-gap-text, and qti-gap-img's permitted
           if (slot.type.name === 'QtiPrompt') {
             if (gapChoiceCount > 0) {
               throw new QtiValidationException('Invalid element order. qti-prompt must come before qti-gap-text\'s, qti-gap-img\'s, or qti-gap\'s')
@@ -197,12 +197,7 @@ export default {
             return gapChoiceCount += 1
           }
 
-          if (slot.type.name === 'QtiGap') {
-            if (gapChoiceCount == 0)
-              throw new QtiValidationException('qti-gap elements must come after qti-gap-text and qti-gap-img elements')
-          }
-
-          throw new QtiValidationException('Node is not one of qti-gap-text, qti-gap-img, or qti-gap: "' + slot.type.name + '"')
+          throw new QtiValidationException('Node is not one of qti-gap-text or qti-gap-img: "' + slot.type.name + '"')
         }
       })
     },
