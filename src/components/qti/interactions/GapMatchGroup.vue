@@ -573,12 +573,24 @@ div.qti-gap-match-target-wrapper.qti-choices-bottom {
   cursor: none;
 }
 
-.gap-choice-text.draggable.dragging {
+.qti-gap-match-group-wrapper .gap-choice-text.draggable.dragging,
+.qti-gap-match-group-wrapper .gap-choice-img.draggable.dragging {
   position: fixed;
   left: 0;
   top: 0;
   will-change: transform;
   z-index: 1;
+}
+
+.gap-choice-img.draggable {
+  cursor: move;
+	vertical-align: top;
+	text-decoration: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  line-height: 0;
+  user-select: none;
 }
 
 .gap-choice-text.draggable {
@@ -599,6 +611,7 @@ div.qti-gap-match-target-wrapper.qti-choices-bottom {
   min-height: 26px;
 }
 
+.gap-choice-img.draggable.disabled,
 .gap-choice-text.draggable.disabled {
   cursor: default;
 }
