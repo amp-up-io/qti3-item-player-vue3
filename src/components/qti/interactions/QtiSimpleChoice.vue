@@ -36,6 +36,13 @@ const qtiAttributeValidation = new QtiAttributeValidation()
 export default {
   name: 'QtiSimpleChoice',
 
+  emits: [
+    'setChecked',
+    'setFocusPreviousChoice',
+    'setFocusNextChoice',
+    'setActiveDescendant'
+  ],
+
   props: {
     identifier: {
       required: true,
@@ -84,7 +91,8 @@ export default {
       role: 'radio',
       tabIndex: '-1',
       hasMath: false,
-      isDisabled: false
+      isDisabled: false,
+      parentCardinality: 'single'
     }
   },
 
@@ -99,6 +107,9 @@ export default {
         this.$parent.$emit('setChecked', { 'identifier': this.identifier, 'checked': 'true' })
       } else {
         this.toggleChecked()
+
+        if (this.parentCardinality === 'ordered') return
+
         this.$parent.$emit('setChecked', { 'identifier': this.identifier, 'checked': this.checked })
       }
     },
@@ -110,6 +121,9 @@ export default {
         case 'Space':
           if (!this.isDisabled) {
             this.toggleChecked()
+
+            if (this.parentCardinality === 'ordered') return
+
             this.$parent.$emit('setChecked', { 'identifier': this.identifier, 'checked': this.checked })
           }
           flag = true
@@ -118,6 +132,9 @@ export default {
         case 'Enter':
         if (!this.isDisabled) {
             this.toggleChecked()
+
+            if (this.parentCardinality === 'ordered') return
+
             this.$parent.$emit('setChecked', { 'identifier': this.identifier, 'checked': this.checked })
           }
           flag = true
@@ -152,6 +169,7 @@ export default {
     },
 
     handleFocus () {
+      if (this.parentCardinality === 'ordered') return
       // Notify parent that this choice has the focus.
       // In turn, this should set the aria-activedescendant attribute
       // on the choice container to this.id
@@ -219,7 +237,8 @@ export default {
     },
 
     initializeChoice () {
-      switch (this.$parent.cardinality) {
+      this.parentCardinality = this.$parent.cardinality
+      switch (this.parentCardinality) {
         case 'ordered':
           this.role = 'button'
           this.isRadio = false
@@ -544,10 +563,12 @@ export default {
 }
 
 /* Radio/Checkbox control hover */
+/*
 [role="checkbox"]:not(.control-hidden):hover::before,
 [role="radio"]:not(.control-hidden):hover::before {
-  /* border: 1px solid var(--choice-control-hover-bc); */
+  border: 1px solid var(--choice-control-hover-bc);
 }
+*/
 
 /* ===========
    SBAC styles
@@ -596,9 +617,10 @@ export default {
   content: 'F'
 }
 
+/*
 [role="radio"][aria-checked="true"].sbac {
-
 }
+*/
 
 [role="radio"][aria-checked="false"].sbac::before {
   background-color: var(--choice-sbac-control-unchecked-bg);
