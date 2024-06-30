@@ -97,8 +97,6 @@ export default {
     }
   },
 
-  inheritAttrs: false,
-
   data () {
     return {
       response: null,
