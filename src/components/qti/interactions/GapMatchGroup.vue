@@ -123,6 +123,7 @@ export default {
       gaps: [],
       response: null,
       isShuffle: null,
+      hasPrompt: false,
       gapMatchInteractionClassAttribute: null,
       presentationFactory: null,
       matchable: null,

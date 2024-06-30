@@ -124,6 +124,7 @@ export default {
       gaps: [],
       response: null,
       isShuffle: null,
+      hasPrompt: false,
       interactionClassAttribute: null,
       presentationFactory: null,
       matchable: null,
