@@ -298,7 +298,6 @@ export default {
       this.initializeChoiceGroup()
 
       this.validateChildren()
-
     } catch (err) {
       this.isQtiValid = false
       console.log('[QtiChoiceInteraction][ValidationError]', err.name, err.message)
