@@ -52,6 +52,8 @@ class OrderPresentationFactory {
     this.presentation_LabelsSuffix = this.constants.LABELS_SUFFIX_NONE
     this.presentation_Choices_Orientation = null
     this.presentation_IsOrientationVertical = false
+    this.presentation_HasOrientationVerticalClass = false
+    this.presentation_HasOrientationHorizontalClass = false
     this.presentation_MaxSelectionsMessage = ''
     this.presentation_MinSelectionsMessage = ''
     this.presentation_Label_Style = ''
@@ -66,7 +68,6 @@ class OrderPresentationFactory {
   initialize (orderWrapperElement, orderGroupNode) {
     this.orderWrapperElement = orderWrapperElement
     this.orderGroupNode = orderGroupNode
-    console.log('orderGroupNode:',orderGroupNode)
     this.parentClassList = orderGroupNode.orderInteractionClassAttribute
     this.presentation_IsOrientationVertical = orderGroupNode.isOrientationVertical
     this.choices = orderGroupNode.choices
@@ -119,6 +120,16 @@ class OrderPresentationFactory {
           this.presentation_Choices_Orientation = clazz
           break
 
+        case this.constants.QTI_ORIENTATION_VERTICAL:
+          this.presentation_HasOrientationVerticalClass = true
+          this.presentation_HasOrientationHorizontalClass = false
+          break
+
+        case this.constants.QTI_ORIENTATION_HORIZONTAL:
+          this.presentation_HasOrientationVerticalClass = false
+          this.presentation_HasOrientationHorizontalClass = true
+          break
+
         default:
           break
       } // end switch
@@ -153,10 +164,20 @@ class OrderPresentationFactory {
   }
 
   processOrientation () {
-    // Default to vertical orientation.
-    const orientation = this.getOrientationClass(this.presentation_IsOrientationVertical)
+    let orientation = this.computeOrientation()
     // Add the proper orientation to the ordergroup element
     this.orderGroupNode.$refs.ordergroup.classList.add(orientation)
+  }
+
+  computeOrientation () {
+    // Class overrides orientation attribute
+    if (this.presentation_HasOrientationVerticalClass)
+      return this.constants.QTI_ORIENTATION_VERTICAL
+    else if (this.presentation_HasOrientationHorizontalClass)
+      return this.constants.QTI_ORIENTATION_HORIZONTAL
+    else
+      // No explicit orientation class.  Examine the orientation attribute.
+      return this.getOrientationClass(this.presentation_IsOrientationVertical)    
   }
 
   getOrientationClass (isVertical) {
@@ -174,7 +195,7 @@ class OrderPresentationFactory {
       targetWrapper.classList.add(this.constants.QTI_CHOICES_RIGHT)
     }
 
-    targetWrapper.classList.add(this.getOrientationClass(this.presentation_IsOrientationVertical))
+    targetWrapper.classList.add(this.computeOrientation())
 
     for (let i=0; i<this.choices.length; i++) {
       targetWrapper.appendChild(this.createTargetFromChoice(i))
