@@ -66,6 +66,7 @@ class OrderPresentationFactory {
   initialize (orderWrapperElement, orderGroupNode) {
     this.orderWrapperElement = orderWrapperElement
     this.orderGroupNode = orderGroupNode
+    console.log('orderGroupNode:',orderGroupNode)
     this.parentClassList = orderGroupNode.orderInteractionClassAttribute
     this.presentation_IsOrientationVertical = orderGroupNode.isOrientationVertical
     this.choices = orderGroupNode.choices
