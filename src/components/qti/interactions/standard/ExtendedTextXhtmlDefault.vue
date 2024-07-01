@@ -199,6 +199,7 @@ export default {
      * @param {*} data 
      */
     handleInput (data) {
+      // Bail when data is missing the html property
       if (!data.html) return
 
       // IMPORTANT: Do not use setResponse here

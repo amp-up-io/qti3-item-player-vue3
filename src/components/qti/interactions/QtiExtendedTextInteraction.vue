@@ -408,7 +408,6 @@ export default {
     },
 
     handleExtendedTextUpdate (data) {
-      console.log('parent handleExtendedTextUpdate, data:', data)
       this.updateResponse(data.response)
 
       if ('state' in data) {
@@ -420,7 +419,6 @@ export default {
     },
 
     handleExtendedTextReady (interaction) {
-      console.log('parent handleExtendedTextReady, node:', interaction.node)
       // This gives us a handle on the sub-component's methods
       this.node = interaction.node
 
