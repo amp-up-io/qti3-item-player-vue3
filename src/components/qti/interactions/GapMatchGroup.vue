@@ -234,8 +234,6 @@ export default {
 
       if (gapChoiceWrapperElement == null) return
 
-      //let gapTargetWrapperElement = this.createGapTargetWrapper(gapChoiceWrapperElement)
-
       let container = this.createContainer(this.priorState)
       this.processContainerChoices(container, gapChoiceWrapperElement)
       this.saveContainerOrder(container)
