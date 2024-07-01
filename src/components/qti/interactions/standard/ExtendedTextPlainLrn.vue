@@ -251,7 +251,7 @@ export default {
      */
     applyLimitCheck (value) {
       // No hard limit check with lrn
-      if (this.computeWordCount(value) > this.computedExpectedLength) {
+      if (qtiProcessing.computeWordCount(value) > this.computedExpectedLength) {
         // Revert to the prior response
         this.setResponse(this.priorResponse)
         return false
