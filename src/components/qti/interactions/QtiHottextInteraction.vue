@@ -515,9 +515,7 @@ export default {
       qtiAttributeValidation.validateMaxMinChoices(this.maxChoices, this.minChoices)
 
       this.isRadio = (this.getCardinality() !== 'multiple')
-
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
-
       this.computeMinSelectionsMessage()
       this.computeMaxSelectionsMessage()
     } catch (err) {
