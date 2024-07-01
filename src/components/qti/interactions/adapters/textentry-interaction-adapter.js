@@ -109,7 +109,6 @@ function getPassthroughAttrs (attrs) {
   for (const [key, value] of Object.entries(attrs)) {
     result += `${key}="${value}" `
   }
-  console.log('getPassthroughAttrs:', result)
   return result
 }
 
@@ -121,7 +120,10 @@ function isOrientationVertical (clazz) {
     return false
   }
 
-  return findClass('qti-orientation-vertical', clazz)
+  if (findClass('qti-writing-orientation-vertical-rl', clazz))
+    return true
+  else
+    return findClass('qti-orientation-vertical', clazz)
 }
 
 function findClass (needle, clazz) {

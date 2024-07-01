@@ -588,6 +588,7 @@ export default {
 </script>
 
 <style>
+div.qti-text-entry-interaction.qti-writing-orientation-vertical-rl,
 div.qti-text-entry-interaction.qti-orientation-vertical {
   display: inline-block;
   position: relative;
