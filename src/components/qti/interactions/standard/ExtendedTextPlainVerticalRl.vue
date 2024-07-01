@@ -584,6 +584,10 @@ export default {
   cursor: default;
 }
 
+.ext-text-default-vert-rl-label.qti-hidden {
+  display: none;
+}
+
 .ext-text-default-vert-rl:focus,
 .ext-text-default-vert-rl-label:focus {
   color: var(--foreground);
