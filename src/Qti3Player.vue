@@ -55,6 +55,7 @@ import QtiPrintedVariable from '@/components/qti/body/QtiPrintedVariable.vue'
 import QtiChoiceInteraction from '@/components/qti/interactions/QtiChoiceInteraction.vue'
 import QtiInlineChoiceInteraction from '@/components/qti/interactions/QtiInlineChoiceInteraction.vue'
 import QtiEndAttemptInteraction from '@/components/qti/interactions/QtiEndAttemptInteraction.vue'
+import QtiExtendedTextInteraction from '@/components/qti/interactions/QtiExtendedTextInteraction.vue'
 import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryInteraction.vue'
 import QtiMatchInteraction from '@/components/qti/interactions/QtiMatchInteraction.vue'
 import QtiGapMatchInteraction from '@/components/qti/interactions/QtiGapMatchInteraction.vue'
@@ -258,6 +259,7 @@ export default {
       .component('amp-style', AmpStyle)
       .component('qti-choice-interaction', QtiChoiceInteraction)
       .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
+      .component('qti-extended-text-interaction', QtiExtendedTextInteraction)
       .component('qti-text-entry-interaction', QtiTextEntryInteraction)
       .component('qti-inline-choice-interaction', QtiInlineChoiceInteraction)
       .component('qti-match-interaction', QtiMatchInteraction)
