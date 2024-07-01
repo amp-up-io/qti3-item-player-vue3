@@ -61,6 +61,7 @@ import QtiGapMatchInteraction from '@/components/qti/interactions/QtiGapMatchInt
 import QtiGraphicGapMatchInteraction from '@/components/qti/interactions/QtiGraphicGapMatchInteraction.vue'
 import QtiOrderInteraction from '@/components/qti/interactions/QtiOrderInteraction.vue'
 import QtiHottextInteraction from '@/components/qti/interactions/QtiHottextInteraction.vue'
+import QtiHotspotInteraction from '@/components/qti/interactions/QtiHotspotInteraction.vue'
 
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
@@ -77,6 +78,8 @@ import QtiGapText from '@/components/qti/interactions/QtiGapText.vue'
 import QtiGapImg from '@/components/qti/interactions/QtiGapImg.vue'
 import QtiGap from '@/components/qti/interactions/QtiGap.vue'
 import QtiHottext from '@/components/qti/interactions/QtiHottext.vue'
+import QtiHotspotChoice from '@/components/qti/interactions/QtiHotspotChoice.vue'
+
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
 
@@ -262,6 +265,7 @@ export default {
       .component('qti-graphic-gap-match-interaction', QtiGraphicGapMatchInteraction)
       .component('qti-order-interaction', QtiOrderInteraction)
       .component('qti-hottext-interaction', QtiHottextInteraction)
+      .component('qti-hotspot-interaction', QtiHotspotInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
@@ -277,6 +281,7 @@ export default {
       .component('qti-gap-img', QtiGapImg)
       .component('qti-gap', QtiGap)
       .component('qti-hottext', QtiHottext)
+      .component('qti-hotspot-choice', QtiHotspotChoice)
 
     // Catalog elements
     app
