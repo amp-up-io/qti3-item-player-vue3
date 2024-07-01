@@ -109,6 +109,7 @@ function getPassthroughAttrs (attrs) {
   for (const [key, value] of Object.entries(attrs)) {
     result += `${key}="${value}" `
   }
+  console.log('getPassthroughAttrs:', result)
   return result
 }
 

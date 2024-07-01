@@ -423,10 +423,10 @@ export default {
   created () {
     try {
       this.responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.responseIdentifier)
-      this.setInteractionSubType(this.detectInteractionSubType(this.$attrs['class']))
+      this.setInteractionSubType(this.detectInteractionSubType(this.$.vnode.props['class']))
       
       // Set up a presentation factory
-      this.presentationFactory = new TextEntryPresentationFactory(this.$attrs['class'])
+      this.presentationFactory = new TextEntryPresentationFactory(this.$.vnode.props['class'])
 
       // Pull any prior interaction state.
       this.priorState = this.getPriorState(this.responseIdentifier)

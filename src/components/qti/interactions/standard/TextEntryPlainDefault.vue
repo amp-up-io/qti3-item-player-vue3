@@ -36,6 +36,11 @@ const qtiAttributeValidation = new QtiAttributeValidation()
 export default {
   name: 'TextEntryPlainDefault',
 
+  emits: [
+    'textEntryReady',
+    'textEntryUpdate'
+  ],
+
   components: {
     Tooltip
   },

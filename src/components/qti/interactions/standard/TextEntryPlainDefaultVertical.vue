@@ -1,5 +1,7 @@
 <template>
-  <div ref="root" class="text-entry-default-vert-wrapper">
+  <div ref="root" 
+    class="text-entry-default-vert-wrapper"
+    v-bind="$attrs">
     <div ref="label" 
       class="text-entry-default-vert-label qti-hidden"
       @focus="handleFocus"
@@ -8,7 +10,6 @@
     <div 
       ref="input"
       class="text-entry-default-vert"
-      v-bind="$attrs"
       tabindex="0" 
       contenteditable="true"
       autocapitalize="false"
@@ -46,10 +47,16 @@
 import { store } from '@/store/store'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import Tooltip from '@/shared/components/Tooltip.vue'
+
 const qtiAttributeValidation = new QtiAttributeValidation()
 
 export default {
   name: 'TextEntryPlainDefaultVertical',
+
+  emits: [
+    'textEntryReady',
+    'textEntryUpdate'
+  ],
 
   components: {
     Tooltip
@@ -633,6 +640,10 @@ div.text-entry-default-vert-wrapper.focused {
 .text-entry-default-vert-label {
   -webkit-user-modify: unset;
   cursor: default;
+}
+
+.text-entry-default-vert-label.qti-hidden {
+  display: none;
 }
 
 .text-entry-default-vert:focus,
