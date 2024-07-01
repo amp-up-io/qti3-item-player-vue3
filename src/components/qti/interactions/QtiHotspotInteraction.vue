@@ -442,7 +442,7 @@ export default {
     /**
      * @description Basic validation of the children.
      */
-     validateChildren () {
+    validateChildren () {
       // NOOP
     },
 
