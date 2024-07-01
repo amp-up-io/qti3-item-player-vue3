@@ -657,6 +657,10 @@ export default {
     },
 
     processGroupUI () {
+      if (this.isOrientationVertical) {
+        this.presentationFactory.setVerticalOrientation(this.$refs.root)
+      }
+      
       // Handle shuffling - disable this on a response restore.
       if (this.isShuffle) {
         // If this is a new rendering, shuffle the choices.
@@ -804,6 +808,10 @@ export default {
   created () {
     try {
       this.responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.responseIdentifier)
+      
+      // Set up a presentation factory
+      this.presentationFactory = new InlineChoicePresentationFactory(this.$.vnode.props['class'])
+      this.isOrientationVertical = this.presentationFactory.isOrientationVertical()
 
       this.validateChildren()
       
@@ -834,10 +842,6 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        // Set up a presentation factory
-        this.presentationFactory = new InlineChoicePresentationFactory(this.$refs.root.className)
-        this.isOrientationVertical = this.presentationFactory.isOrientationVertical()
-
         this.processChildren()
         
         // Build a UI

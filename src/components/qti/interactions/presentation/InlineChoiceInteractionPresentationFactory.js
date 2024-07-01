@@ -10,7 +10,8 @@ class InlineChoicePresentationFactory {
 
       // Orientation
       QTI_ORIENTATION_HORIZONTAL: 'qti-orientation-horizontal',
-      QTI_ORIENTATION_VERTICAL: 'qti-orientation-vertical'
+      QTI_ORIENTATION_VERTICAL: 'qti-orientation-vertical',
+      QTI_WRITING_ORIENTATION_VERTICAL_RL: 'qti-writing-orientation-vertical-rl'
     }
 
     this.classList = classList
@@ -35,6 +36,7 @@ class InlineChoicePresentationFactory {
     for (let index = 0; index < clazzTokens.length; index++) {
       switch (clazzTokens[index]) {
         case this.constants.QTI_ORIENTATION_VERTICAL:
+        case this.constants.QTI_WRITING_ORIENTATION_VERTICAL_RL:
           this.presentation_OrientationClass = this.constants.QTI_ORIENTATION_VERTICAL
           break
         case this.constants.QTI_ORIENTATION_HORIZONTAL:
@@ -51,6 +53,12 @@ class InlineChoicePresentationFactory {
 
   isOrientationVertical () {
     return (this.presentation_OrientationClass == this.constants.QTI_ORIENTATION_VERTICAL)
+  }
+
+  setVerticalOrientation (element) {
+    if (this.isOrientationVertical()) {
+      element.classList.add(this.constants.QTI_ORIENTATION_VERTICAL)
+    }
   }
 
 }
