@@ -68,72 +68,71 @@ export default {
       return this.valueCardinality
     },
 
-    isValidSlot (slot) {
-      if (typeof slot.componentOptions !== 'undefined') {
-        return true
-      } else {
-        // check if text is something not empty
-        if ((typeof slot.text !== 'undefined') && (slot.text.trim().length > 0)) {
-          // not an empty text slot.  this is an error.
-          throw new QtiValidationException('Invalid Child Node: "' + slot.text.trim() + '"')
-        } else {
-          // empty text slot.  not a component, but not an error
-          return false
+    /**
+     * Validate the child node:
+     * expressions (1)
+     */
+    validateChildren: function () {
+      let countExpressions = 0
+
+      if (!this.$slots.default) {
+        throw new QtiValidationException('Must have exactly one Expression node')
+      }
+
+      this.$slots.default().forEach((slot) => {
+        if (qtiAttributeValidation.isValidSlot(slot)) {
+          // Detect an expression
+          if (qtiProcessing.isExpressionNode(qtiAttributeValidation.kebabCase(slot.type.name))) {
+            countExpressions += 1
+          } else {
+            throw new QtiValidationException('Node is not an Expression: "' + slot.type.name + '"')
+          }
         }
+      })
+
+      if (countExpressions !== 1) {
+        throw new QtiValidationException('Must have exactly one Expression node')
       }
     },
 
     /**
-     * Examine the child node:
+     * Get the child node:
      * expressions (1)
      */
-    validateChildren: function () {
-      let countExpression = 0
-      this.$slots.default.forEach((slot) => {
-        if (this.isValidSlot(slot)) {
-          // Detect an expression
-          if (qtiProcessing.isExpressionNode(slot.componentOptions.tag)) {
-            countExpression += 1
-          } else {
-            throw new QtiValidationException('Node is not an Expression: "' + slot.componentOptions.tag + '"')
-          }
-        }
+    processChildren () {
+      const children = this.$.subTree.children[0].children
+
+      // Perform extra semantic validations on the expressions
+      this.validateExpressions(children)
+
+      children.forEach((expression) => {
+        if (expression.component === null) return
+        this.expression = expression.component.proxy
       })
-      if (countExpression !== 1) {
-        throw new QtiValidationException('Must have exactly one Expression node')
-      }
-      // Perform extra semantic validations on the expression
-      this.validateExpressions()
-      // All good.  Save off our children.
-      this.processChildren()
     },
 
-    validateExpressions () {
-      if (this.$children.length === 1) {
-        let expression = this.$children[0]
-        if (expression.getCardinality() !== 'record') {
+    validateExpressions (expressions) {
+      expressions.forEach((expression) => {
+        if (expression.component === null) return
+        const node = expression.component.proxy
+        if (node.getCardinality() !== 'record') {
           throw new QtiValidationException('Expression must be of cardinality="record"')
         }
         // The expression node is a record.  Get a base-type for this Field.
-        this.setBaseType(this.processFieldBaseType(expression))
-      } else {
-        throw new QtiValidationException('Must have exactly one Expression node')
-      }
-    },
-
-    processChildren () {
-      this.expression = this.$children[0]
+        this.setBaseType(this.processFieldBaseType(node, expression.type.name))
+      })
     },
 
     /**
      * @description Get a base-type for this Field.
      * @param node - Should be an expression resolving to a record variable
      */
-    processFieldBaseType (node) {
-      switch (node.$vnode.componentOptions.tag) {
-        case 'qti-variable':
-        case 'qti-correct':
-          return this.getFieldBaseTypeFromRecordVariable(node.$vnode.componentOptions.propsData.identifier)
+    processFieldBaseType (node, name) {
+      switch (name) {
+        case 'QtiVariable':
+        case 'QtiCorrect':
+        case 'QtiDefault':
+          return this.getFieldBaseTypeFromRecordVariable(node.$props.identifier)
         default:
           // What is the expression node ??
           return null
@@ -180,20 +179,20 @@ export default {
     evaluate () {
       try {
         // The expression should resolve to a Record
-        let value = this.expression.evaluate()
+        const recordValue = this.expression.evaluate()
 
-        if (qtiProcessing.isNullValue(value)) {
+        if (this.expression.getCardinality() !== 'record') {
+          throw new QtiEvaluationException('qti-field-value expression is not cardinality="record"')
+        }
+
+        if (qtiProcessing.isNullValue(recordValue)) {
           console.log('[FieldValue][' + this.fieldIdentifier + ']', null)
           this.setValue(qtiProcessing.nullValue())
           return this.getValue()
         }
 
-        if (value.getCardinality() !== 'record') {
-          throw new QtiEvaluationException('qti-field-value expression is not cardinality="record"')
-        }
-
         // Get the field value component from the record hashmap
-        let fieldValue = value.get(this.fieldIdentifier)
+        let fieldValue = recordValue.get(this.fieldIdentifier)
 
         // Will be undefined if record does not have the field
         if (typeof fieldValue === 'undefined') {
@@ -217,10 +216,23 @@ export default {
     }
   },
 
+  created () {
+    try {
+      this.validateChildren()
+    } catch (err) {
+      this.isQtiValid = false
+      if (err.name === 'QtiValidationException') {
+        throw new QtiValidationException(err.message)
+      } else {
+        throw new Error(err.message)
+      }
+    }
+  },
+
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.processChildren()
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
