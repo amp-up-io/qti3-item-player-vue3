@@ -23,12 +23,7 @@ import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationExc
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiProcessing from '@/components/qti/processing/utils/QtiProcessing'
-//import QtiInterpolationTable from '@/components/qti/declarations/QtiInterpolationTable'
-//import QtiMatchTable from '@/components/qti/declarations/QtiMatchTable'
 import BigNumber from 'bignumber.js'
-
-//Vue.component('qti-interpolation-table', QtiInterpolationTable)
-//Vue.component('qti-match-table', QtiMatchTable)
 
 const qtiAttributeValidation = new QtiAttributeValidation()
 const qtiProcessing = new QtiProcessing()
