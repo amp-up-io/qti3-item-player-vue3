@@ -20,6 +20,11 @@ import Quill from 'quill'
 
 export default {
 
+  emits: [
+    'input',
+    'editorReady'
+  ],
+
   props: {
 
     content: {
@@ -280,7 +285,7 @@ export default {
       })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.$el.remove()
     this.quill = undefined
   }

@@ -47,6 +47,11 @@ const qtiProcessing = new QtiProcessing()
 export default {
   name: 'ExtendedTextPlainDefault',
 
+  emits: [
+    'extendedTextReady',
+    'extendedTextUpdate'
+  ],
+
   components: {
     Tooltip
   },

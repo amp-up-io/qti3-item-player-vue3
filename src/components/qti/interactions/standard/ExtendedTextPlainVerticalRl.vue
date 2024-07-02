@@ -42,6 +42,11 @@ const qtiAttributeValidation = new QtiAttributeValidation()
 export default {
   name: 'ExtendedTextPlainVerticalRl',
 
+  emits: [
+    'extendedTextReady',
+    'extendedTextUpdate'
+  ],
+
   components: {
     Tooltip
   },

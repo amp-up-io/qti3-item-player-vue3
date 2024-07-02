@@ -177,8 +177,23 @@ export default {
     setIsDisabled (isDisabled) {
       this.isDisabled = isDisabled
     },
-
+    
+    /**
+     * @description Handle the input event from Quill.  With 1.3.7 Quill, the input
+     * event is fired twice:  Once with html and text properties in the data object;
+     * e.g., {
+     *         html: "<p>hello world</p>"",
+     *         text: "hello world"
+     *       }
+     * 
+     * ...and once with just a simple InputEvent.
+     * Skip the input event if it does not contain an html property.
+     * @param {*} data 
+     */
     handleInput (data) {
+      // Bail when data is missing the html property
+      if (!data.html) return
+
       // IMPORTANT: Do not use setResponse here
       this.updateResponse(data.html)
       // Save the raw text in state
