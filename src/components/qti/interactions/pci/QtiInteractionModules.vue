@@ -73,7 +73,7 @@ export default {
 
       if (!this.$slots.default) return
 
-      this.$slots.default().children.forEach((slot) => {
+      this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Only qti-interaction-module permitted
           if (slot.type.name === 'QtiInteractionModule') return
