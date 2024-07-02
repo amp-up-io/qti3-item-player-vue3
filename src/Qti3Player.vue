@@ -63,6 +63,7 @@ import QtiGraphicGapMatchInteraction from '@/components/qti/interactions/QtiGrap
 import QtiOrderInteraction from '@/components/qti/interactions/QtiOrderInteraction.vue'
 import QtiHottextInteraction from '@/components/qti/interactions/QtiHottextInteraction.vue'
 import QtiHotspotInteraction from '@/components/qti/interactions/QtiHotspotInteraction.vue'
+import QtiPortableCustomInteraction from '@/components/qti/interactions/QtiPortableCustomInteraction.vue'
 
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
@@ -80,6 +81,11 @@ import QtiGapImg from '@/components/qti/interactions/QtiGapImg.vue'
 import QtiGap from '@/components/qti/interactions/QtiGap.vue'
 import QtiHottext from '@/components/qti/interactions/QtiHottext.vue'
 import QtiHotspotChoice from '@/components/qti/interactions/QtiHotspotChoice.vue'
+import QtiInteractionModules from '@/components/qti/interactions/pci/QtiInteractionModules.vue'
+import QtiInteractionModule from '@/components/qti/interactions/pci/QtiInteractionModule.vue'
+import QtiInteractionMarkup from '@/components/qti/interactions/pci/QtiInteractionMarkup.vue'
+import QtiTemplateVariable from '@/components/qti/interactions/pci/QtiTemplateVariable.vue'
+import QtiContextVariable from '@/components/qti/interactions/pci/QtiContextVariable.vue'
 
 import QtiResponseProcessing from '@/components/qti/processing/QtiResponseProcessing.vue'
 import QtiTemplateProcessing from '@/components/qti/processing/QtiTemplateProcessing.vue'
@@ -268,6 +274,7 @@ export default {
       .component('qti-order-interaction', QtiOrderInteraction)
       .component('qti-hottext-interaction', QtiHottextInteraction)
       .component('qti-hotspot-interaction', QtiHotspotInteraction)
+      .component('qti-portable-custom-interaction', QtiPortableCustomInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
       .component('ChoiceGroup', ChoiceGroup)
@@ -284,6 +291,11 @@ export default {
       .component('qti-gap', QtiGap)
       .component('qti-hottext', QtiHottext)
       .component('qti-hotspot-choice', QtiHotspotChoice)
+      .component('qti-interaction-modules', QtiInteractionModules)
+      .component('qti-interaction-module', QtiInteractionModule)
+      .component('qti-interaction-markup', QtiInteractionMarkup)
+      .component('qti-template-variable', QtiTemplateVariable)
+      .component('qti-context-variable', QtiContextVariable)
 
     // Catalog elements
     app
