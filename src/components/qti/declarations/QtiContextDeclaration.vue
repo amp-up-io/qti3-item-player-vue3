@@ -77,6 +77,10 @@ export default {
       return this.cardinality
     },
 
+    getDefaultValue () {
+      return this.defaultValue
+    },
+
     /**
      * Utility method to resets value of this variable to default.
      */
@@ -130,7 +134,6 @@ export default {
       const children = this.$.subTree.children[0].children
       
       children.forEach((node) => {
-        console.log('ContextDeclaration, node:', node)
         if (node.component === null) return
         if (node.type.name === 'QtiDefaultValue') {
           return this.defaultValue = node.component.proxy.getValue()
