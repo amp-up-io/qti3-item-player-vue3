@@ -323,18 +323,57 @@ export default {
       this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Only the following permitted:
-          // qti-prompt,
-          // qti-stylesheet,
-          // qti-interaction-modules,
-          // qti-interaction-markup,
-          // qti-context-variable,
+          // qti-prompt
+          // qti-interaction-modules
+          // qti-interaction-markup
           // qti-template-variable
-          // For now, ignore order.
-          if (slot.type.name === 'QtiPrompt') return hasPrompt = true
-          if (slot.type.name === 'QtiInteractionModules') return hasModules = true
-          if (slot.type.name === 'QtiInteractionMarkup') return hasMarkup = true
-          if (slot.type.name === 'QtiTemplateVariable') return hasTemplateVariable = true
+          // qti-context-variable
+          //
+          // New addition to the QTI 3 PCI schema:  qti-stylesheet
+          if (slot.type.name === 'QtiPrompt') {
+            if (hasMarkup || hasModules || hasContextVariable || hasTemplateVariable) {
+              throw new QtiValidationException('Invalid element order. qti-prompt must be the first element')
+            }
+
+            if (!hasPrompt) return hasPrompt = true
+
+            throw new QtiValidationException('Maximum of 1 qti-prompt element permitted')
+          }
+
+          if (slot.type.name === 'QtiInteractionModules') {
+            if (hasMarkup || hasContextVariable || hasTemplateVariable) {
+              throw new QtiValidationException('Invalid element order: qti-interaction-modules')
+            }
+
+            if (!hasModules) return hasModules = true
+
+            throw new QtiValidationException('Maximum of 1 qti-interaction-modules element permitted')
+          }
+
+          if (slot.type.name === 'QtiInteractionMarkup') {
+            if (hasContextVariable || hasTemplateVariable) {
+              throw new QtiValidationException('Invalid element order: qti-interaction-markup')
+            }
+
+            if (!hasMarkup) return hasMarkup = true
+
+            throw new QtiValidationException('Maximum of 1 qti-interaction-markup element permitted')
+          }
+
+          if (slot.type.name === 'QtiTemplateVariable') {
+            if (hasContextVariable) {
+              throw new QtiValidationException('Invalid element order: qti-template-variable')
+            }
+
+            if (!hasTemplateVariable) return hasTemplateVariable = true
+
+            throw new QtiValidationException('Maximum of 1 qti-interaction-markup element permitted')
+          }
+
           if (slot.type.name === 'QtiContextVariable') return hasContextVariable = true
+
+          // We do not yet know in which order QtiStylesheet will appear in the schema.
+          // For now, permit it in any order.
           if (slot.type.name === 'QtiStylesheet') return hasStylesheet = true
 
           throw new QtiValidationException('Node is not permitted inside QtiPortableCustomInteraction: "' + slot.type.name + '"')
