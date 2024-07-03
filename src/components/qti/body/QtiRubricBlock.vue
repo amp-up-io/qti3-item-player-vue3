@@ -91,6 +91,7 @@ export default {
   created () {
     try {
       qtiAttributeValidation.validateRubricBlockViewAttribute(this.view)
+      this.validateChildren()
     } catch (err) {
       this.isQtiValid = false
       if (err.name === 'QtiValidationException') {
@@ -104,7 +105,6 @@ export default {
   mounted () {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
 
         if (this.isScoringRubricBlock) {
           // Notify store of our new scoring rubric block
