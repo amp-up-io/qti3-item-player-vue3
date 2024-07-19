@@ -1,7 +1,7 @@
 <template>
   <div
     ref="player"
-    v-bind:class="[cssContainerClass, cssContainerPaddingClass, cssColorClass]">
+    :class="[cssContainerClass, cssContainerPaddingClass, cssColorClass]">
     <component
       ref="itemcomponent"
       @itemReady="handleItemReady"
@@ -26,6 +26,8 @@ import Swal from 'sweetalert2'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import CatalogDialog from '@/shared/components/catalog/CatalogDialog.vue'
 import AmpStyle from '@/shared/components/AmpStyle.vue'
+import AmpAudio from '@/components/qti/html/AmpAudio.vue'
+import AmpVideo from '@/components/qti/html/AmpVideo.vue'
 import QtiAssessmentItem from '@/components/qti/QtiAssessmentItem.vue'
 import QtiContextDeclaration from '@/components/qti/declarations/QtiContextDeclaration.vue'
 import QtiResponseDeclaration from '@/components/qti/declarations/QtiResponseDeclaration.vue'
@@ -263,6 +265,8 @@ export default {
       .component('qti-rubric-block', QtiRubricBlock)
       .component('qti-printed-variable', QtiPrintedVariable)
       .component('amp-style', AmpStyle)
+      .component('amp-audio', AmpAudio)
+      .component('amp-video', AmpVideo)
       .component('qti-choice-interaction', QtiChoiceInteraction)
       .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
       .component('qti-extended-text-interaction', QtiExtendedTextInteraction)
