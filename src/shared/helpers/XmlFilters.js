@@ -36,11 +36,19 @@ export class XmlFilters {
   }
 
   /**
-   * @description Transform an audio element to an amp-audio element which loads
-   * the custom amp-up.io audio player instead of the the default html5 audio player.
+   * @description Transform a media element to an amp-audio or amp-video element which loads
+   * the custom amp-up.io audio/video player instead of the the default html5 audio/video player.
    * @NOTE UPDATE: transform any closed <source> or <track> elements.
    */
   filterAudio (xml) {
+    //return this.filterTrackSource(xml)
+    xml = xml
+      .replaceAll('<video>','<amp-video>')
+      .replaceAll('<video ','<amp-video ')
+      .replaceAll('</video>','</amp-video>')
+      .replaceAll('<audio>','<amp-audio>')
+      .replaceAll('<audio ','<amp-audio ')
+      .replaceAll('</audio>','</amp-audio>')
     return this.filterTrackSource(xml)
   }
 

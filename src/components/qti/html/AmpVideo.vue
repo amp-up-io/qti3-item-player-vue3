@@ -1,0 +1,827 @@
+<template>
+  <div ref="videocontainer" class="amp-video">
+    <div class="amp-video__holder">
+      <video
+        ref="player"
+        tabIndex="-1"
+        @ended="handleEnded"
+        v-bind="$attrs">
+        <slot></slot>
+      </video>
+    </div>
+
+    <div class="amp-video__container">
+      <div
+        @click="handlePlayPauseClick"
+        @keydown="handlePlayPauseKeydown"
+        tabIndex="0"
+        class="amp-video-playpause__container">
+        <svg
+          v-show="!isPlaying"
+          class="amp-playpause-button"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <svg
+          v-show="isPlaying"
+          class="amp-playpause-button"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+
+      <div class="amp-playtimer__container" v-show="showPlayTimer">
+        <span>{{displayCurrentTime}}</span>
+        <span> / </span>
+        <span>{{displayDuration}}</span>
+      </div>
+
+      <div class="amp-progress__container" v-show="showProgress">
+        <input
+          v-model="currentTime"
+          @input="handleProgressInput"
+          @change="handleProgressChange"
+          @mousedown="handleProgressMouseDown"
+          type="range"
+          min="0"
+          :max="duration"
+          class="slider"
+        />
+      </div>
+
+      <div
+        @click="handleCaptionsClick"
+        @keydown="handleCaptionsKeydown"
+        tabIndex="0"
+        class="amp-video-cc__container"
+        v-show="showCaptions"
+        aria-label="Captions Menu">
+        CC
+      </div>
+
+      <div
+        @click="handleVolumeMuteClick"
+        @keydown="handleVolumeMuteKeydown"
+        tabIndex="0"
+        class="amp-video-volumemute__container" v-show="showVolumeMute">
+        <svg
+          v-show="!isMuted"
+          class="amp-volumemute-button"
+          aria-hidden="true"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 576 512">
+          <path fill="currentColor" d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zm233.32-51.08c-11.17-7.33-26.18-4.24-33.51 6.95-7.34 11.17-4.22 26.18 6.95 33.51 66.27 43.49 105.82 116.6 105.82 195.58 0 78.98-39.55 152.09-105.82 195.58-11.17 7.32-14.29 22.34-6.95 33.5 7.04 10.71 21.93 14.56 33.51 6.95C528.27 439.58 576 351.33 576 256S528.27 72.43 448.35 19.97zM480 256c0-63.53-32.06-121.94-85.77-156.24-11.19-7.14-26.03-3.82-33.12 7.46s-3.78 26.21 7.41 33.36C408.27 165.97 432 209.11 432 256s-23.73 90.03-63.48 115.42c-11.19 7.14-14.5 22.07-7.41 33.36 6.51 10.36 21.12 15.14 33.12 7.46C447.94 377.94 480 319.54 480 256zm-141.77-76.87c-11.58-6.33-26.19-2.16-32.61 9.45-6.39 11.61-2.16 26.2 9.45 32.61C327.98 228.28 336 241.63 336 256c0 14.38-8.02 27.72-20.92 34.81-11.61 6.41-15.84 21-9.45 32.61 6.43 11.66 21.05 15.8 32.61 9.45 28.23-15.55 45.77-45 45.77-76.88s-17.54-61.32-45.78-76.86z"></path>
+        </svg>
+        <svg
+          v-show="isMuted"
+          class="amp-volumemute-button"
+          aria-hidden="true"
+          role="img"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512">
+          <path fill="currentColor" d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256l45.64-45.64c6.3-6.3 6.3-16.52 0-22.82l-22.82-22.82c-6.3-6.3-16.52-6.3-22.82 0L416 210.36l-45.64-45.64c-6.3-6.3-16.52-6.3-22.82 0l-22.82 22.82c-6.3 6.3-6.3 16.52 0 22.82L370.36 256l-45.63 45.63c-6.3 6.3-6.3 16.52 0 22.82l22.82 22.82c6.3 6.3 16.52 6.3 22.82 0L416 301.64l45.64 45.64c6.3 6.3 16.52 6.3 22.82 0l22.82-22.82c6.3-6.3 6.3-16.52 0-22.82L461.64 256z"></path>
+        </svg>
+      </div>
+    </div>
+    <!-- For captions -->
+    <div class="amp-video-captions__container hidden">
+      <div class="amp-video-captions" ref="captions">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
+import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
+
+const qtiAttributeValidation = new QtiAttributeValidation()
+
+export default {
+  name: 'AmpVideo',
+
+  props: {
+  },
+
+  data () {
+    return {
+      video: null,
+      playerSubType: null,
+      currentTime: 0,
+      duration: 0,
+      displayCurrentTime: '00:00',
+      displayDuration: '00:00',
+      videoLoaded: false,
+      isPlaying: false,
+      isMuted: false,
+      isTimeUpdateListening: true,
+      showPlayTimer: false,
+      showVolumeMute: false,
+      showProgress: false,
+      showCaptions: false,
+      textTracksMap: null,
+      subtitlesMenu: null,
+      subtitleMenuButtons: [],
+      isQtiValid: true
+    }
+  },
+
+  methods: {
+
+    handleLoaded () {
+      if (this.video) {
+        this.duration = Math.round(this.video.duration)
+        this.displayDuration = this.convertTime(this.duration)
+      }
+    },
+
+    handleEnded () {
+      this.isPlaying = false
+    },
+
+    handleCanPlay () {
+      this.videoLoaded = true
+    },
+
+    handleTimeUpdate () {
+      if (!this.isTimeUpdateListening) return
+      if (!this.video) return
+
+      let currTime = Math.round(this.video.currentTime)
+      // Update the progress bar model
+      this.currentTime = currTime
+      // Update the visible display time
+      this.displayCurrentTime = this.convertTime(currTime)
+    },
+
+    handlePlayPauseClick () {
+      this.toggleVideo()
+    },
+
+    handlePlayPauseKeydown (event) {
+      let flag = false
+
+      switch (event.code) {
+        case 'Space':
+        case 'Enter':
+          this.toggleVideo()
+          flag = true
+          break
+        default:
+          break
+      }
+
+      if (flag) {
+        event.stopPropagation()
+        event.preventDefault()
+      }
+    },
+
+    handleProgressMouseDown () {
+      // Mouse down on the slider we pause the player and
+      // suspend the TimeUpdate listener
+      this.isTimeUpdateListening = false
+      if (!this.video.paused) {
+        this.wasPlaying = true
+        this.video.pause()
+        this.isPlaying = false
+      } else {
+        this.wasPlaying = false
+      }
+    },
+
+    handleProgressInput (event) {
+      // Audio should be paused.  Just update the time.  No setPosition.
+      this.displayCurrentTime = this.convertTime(event.target.valueAsNumber)
+    },
+
+    handleProgressChange (event) {
+      this.setPosition(event.target.valueAsNumber)
+      this.isTimeUpdateListening = true
+
+      // Play the video if it was playing when the progress slider change began.
+      if (this.wasPlaying && this.video.paused) {
+        this.wasPlaying = false
+        this.toggleVideo()
+      }
+    },
+
+    handleCaptionsClick () {
+      this.toggleCaptionsMenu()
+    },
+
+    handleCaptionsKeydown (event) {
+      let flag = false
+
+      switch (event.code) {
+        case 'Space':
+        case 'Enter':
+          this.toggleCaptionsMenu()
+          flag = true
+          break
+        default:
+          break
+      }
+
+      if (flag) {
+        event.stopPropagation()
+        event.preventDefault()
+      }
+    },
+
+    toggleCaptionsMenu () {
+      this.subtitlesMenu.style.display =
+        (this.subtitlesMenu.style.display === 'block')
+          ? 'none' 
+          : 'block'
+    },
+
+    handleVolumeMuteClick () {
+      this.toggleVolume()
+    },
+
+    handleVolumeMuteKeydown (event) {
+      let flag = false
+
+      switch (event.code) {
+        case 'Space':
+        case 'Enter':
+          this.toggleVolume()
+          flag = true
+          break
+        default:
+          break
+      }
+
+      if (flag) {
+        event.stopPropagation()
+        event.preventDefault()
+      }
+    },
+
+    handleCueChange (event) {
+      const cues = event.target.activeCues
+      if ((cues.length > 0) && this.showCaptions) {
+        const currentCue = cues[0].text.replace(/\n/g, '<br/>')
+        console.log('[AmpVideo][currentCue]', currentCue)
+        this.$refs.captions.innerHTML = currentCue
+      }
+    },
+
+    setPosition (position) {
+      this.video.currentTime = position
+      this.displayCurrentTime = this.convertTime(position)
+    },
+
+    toggleVideo () {
+      if (!this.video) return
+
+      if (this.video.paused) {
+          this.video.play()
+          this.isPlaying = true
+      } else {
+          this.video.pause()
+          this.isPlaying = false
+      }
+    },
+
+    toggleVolume () {
+      if (!this.video) return
+
+      if (this.video.muted) {
+          this.video.muted = false
+          this.isMuted = false
+      } else {
+          this.video.muted = true
+          this.isMuted = true
+      }
+    },
+
+    initSlider () {
+      if (this.video) {
+        this.duration = Math.round(this.video.duration)
+      }
+    },
+
+    convertTime (seconds) {
+      let hhmmss = new Date(seconds * 1000).toISOString().substr(11, 8)
+      if (hhmmss.indexOf('00:') === 0) {
+        hhmmss = hhmmss.substr(3)
+      }
+      return hhmmss
+    },
+
+    /**
+     * @description Turn most controls on and return the default player.
+     */
+    getPlayerSubType () {
+      this.showProgress = true
+      this.showPlayTimer = true
+      this.showVolumeMute = true
+      return 'ampvideo-default' 
+    },
+
+    /**
+     * @description attempt to parse the video subtype
+     * from the staticClass property of this $vnode.
+     * @param staticClass property of the $vnode.data object
+     */
+    detectPlayerSubType (staticClass) {
+      return this.getPlayerSubType(staticClass)
+    },
+
+    /**
+     * Iterate through the child nodes
+     */
+    processChildren () {
+      this.video = this.$refs.player
+      // Disable controls on the video player.  We add our own controller.
+      this.video.removeAttribute('controls')
+      if (this.video.hasAttribute('width')) {
+        this.$refs.videocontainer.setAttribute('width', this.video.getAttribute('width'))
+      } else {
+        this.video.setAttribute('width', '100%')
+      }
+      this.textTracksMap = this.filterTextTracks(this.video.querySelectorAll('track'))
+    },
+
+    /**
+     * @description Iterate through all the text tracks - looking for captions
+     * and subtitle tracks.  Build a hashmap of tracks.
+     * @return (Map) - textTracksMap
+     */
+    filterTextTracks (tracks) {
+      let textTracksMap = new Map()
+      tracks.forEach((track) => {
+        switch (track.getAttribute('kind')) {
+          case 'subtitles':
+          case 'captions':
+            // Generate an id if track element has none.  Use the id as hashkey
+            if (!track.hasAttribute('id')) {
+              track.setAttribute('id', 'track-' + qtiAttributeValidation.randomString (5, 'a'))
+            }
+            textTracksMap.set(track.getAttribute('id'), track)
+            break
+
+          default:
+        }
+      }, this)
+
+      return (textTracksMap)
+    },
+
+    isDefaultTextTrack (trackElement) {
+      return (trackElement.hasAttribute('default'))
+    },
+
+    addTextTrackCueEventListener () {
+      if (!this.video) return
+      if (this.video.textTracks.length === 0) return
+
+      // We have textTracks.  Show the CC control.  Create the CC menu.
+      this.showCaptions = true
+      this.initializeSubtitlesMenu()
+
+      for (let i=0; i<this.video.textTracks.length; i++) {
+        // Captions and subtitles added to textTracksMap during validation
+        const textTrack = this.video.textTracks[i]
+        // Hide the track by default
+        textTrack.mode = 'hidden'
+        // Add the track to the Subtitles menu
+        this.addSubtitlesMenuItem(textTrack)
+        // Set up a cuechange listener
+        const trackElement = this.textTracksMap.get(textTrack.id)
+        if (typeof trackElement !== 'undefined') {
+          textTrack.addEventListener('cuechange', this.handleCueChange)
+        }
+      }
+
+      // Dock the subtitles menu to the video container
+      this.$refs.videocontainer.appendChild(this.subtitlesMenu)
+    },
+
+    removeTextTrackCueEventListener () {
+      if (!this.video) return
+      if (this.video.textTracks.length === 0) return
+
+      // Remove the button click listener
+      this.subtitleMenuButtons.forEach((button) => {
+        button.removeEventListener('click', this.handleSubtitleButtonClick)
+      })
+
+      for (let i=0; i<this.video.textTracks.length; i++) {
+        const textTrack = this.video.textTracks[i]
+        const trackElement = this.textTracksMap.get(textTrack.id)
+        if (typeof trackElement !== 'undefined') {
+          textTrack.removeEventListener('cuechange', this.handleCueChange)
+        }
+      }
+    },
+
+    initializeSubtitlesMenu () {
+      const df = document.createDocumentFragment()
+      this.subtitlesMenu = df.appendChild(document.createElement('ul'))
+      this.subtitlesMenu.className = 'ampvideo-subtitles-menu'
+      this.subtitlesMenu.appendChild(this.createMenuItem('subtitles-off', '', 'Off'))      
+    },
+
+    addSubtitlesMenuItem (textTrack) {
+      this.subtitlesMenu
+          .appendChild(
+            this.createMenuItem(
+              `subtitles-${textTrack.language}`,
+              textTrack.language,
+              textTrack.label,
+            ),
+          )
+    },
+
+    createMenuItem (id, lang, label) {
+      const li = document.createElement('li')
+      const button = li.appendChild(document.createElement('button'))
+      button.setAttribute('id', id)
+      button.className = 'ampvideo-subtitles-button'
+      if (lang.length > 0) {
+        button.setAttribute('lang', lang)
+      }
+      button.value = label
+
+      // If this is the Off button, make it active
+      // because subtitles are off by default.
+      if (lang === '')
+        button.setAttribute('data-state', 'active')
+      else
+        button.setAttribute('data-state', 'inactive')
+
+      button.appendChild(document.createTextNode(label))
+      button.addEventListener('click', this.handleSubtitleButtonClick)
+      this.subtitleMenuButtons.push(button)
+      return li
+    },
+
+    handleSubtitleButtonClick (event) {
+      const button = event.currentTarget
+
+      // Set all buttons to inactive
+      this.subtitleMenuButtons.forEach((button) => {
+        button.setAttribute('data-state', 'inactive')
+      })
+
+      // Find the language to activate
+      const lang = button.getAttribute('lang')
+      for (let i=0; i<this.video.textTracks.length; i++) {
+          // For the 'subtitles-off' button, the first condition will never 
+          // match so all subtitles be turned off
+          if (this.video.textTracks[i].language === lang) {
+            this.video.textTracks[i].mode = 'showing'
+            button.setAttribute('data-state', 'active')
+          } else {
+            this.video.textTracks[i].mode = 'hidden'
+          }
+      }
+
+      // If this is the Off button, activate it.
+      if (lang === null) {
+        button.setAttribute('data-state', 'active')
+      }
+
+      // Hide the subtitles menu
+      this.subtitlesMenu.style.display = 'none'
+    }
+
+  },
+
+  created() {
+    // This simply returns a default player
+    this.playerSubType = this.detectPlayerSubType(this.$.vnode.props['class'])
+  },
+
+  mounted() {
+    if (this.isQtiValid) {
+      try {
+        this.processChildren()
+
+        // nextTick code will run only after the entire view has been rendered
+        this.$nextTick(function() {
+          if (this.video) {
+            this.video.addEventListener('loadedmetadata', this.handleLoaded)
+            this.video.addEventListener('canplay', this.handleCanPlay)
+            this.video.addEventListener('timeupdate', this.handleTimeUpdate)
+            this.addTextTrackCueEventListener()
+          }
+        })
+
+      } catch (err) {
+        this.isQtiValid = false
+        throw new QtiValidationException(err.message)
+      }
+    }
+  },
+
+  beforeUnmount () {
+    if (this.video) {
+      this.video.removeEventListener('loadedmetadata', this.handleLoaded)
+      this.video.removeEventListener('canplay', this.handleCanPlay)
+      this.video.removeEventListener('timeupdate', this.handleTimeUpdate)
+      this.removeTextTrackCueEventListener()
+    }
+  }
+}
+</script>
+
+<style>
+.amp-video {
+  position: relative;
+	max-width:1024px;
+	max-width:64rem;
+	width:100%;
+	height:100%;
+	max-height:494px;
+	max-height:30.875rem;
+	margin:8px auto;
+	margin:.5rem auto;
+	padding: 0;
+  --black: #000;
+  --white: #fff;
+  --light: #eff2f7;
+  --lightgray: #ddd;
+  --focusgray: #ccc;
+  --gray: #7c8a96;
+  --dark: #343a40;
+  --primary: #3d8ef8;
+  --focusblue: rgba(82, 168, 236, 0.8);
+}
+
+.amp-video__holder {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-size: 0;
+  line-height: 0;
+}
+
+.amp-video__container,
+.amp-video-captions__container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  border: 1px solid var(--dark);
+  border-radius: 2px;
+  width: 100%;
+}
+
+.amp-video-captions__container.hidden {
+  display: none;
+}
+
+.amp-video-playpause__container,
+.amp-video-volumemute__container {
+  outline: none;
+  border: 1px solid transparent;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+}
+
+.amp-video-cc__container {
+  outline: none;
+  border: 1px solid transparent;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+}
+
+.amp-video-playpause__container:focus,
+.amp-video-volumemute__container:focus,
+.amp-video-cc__container:focus
+ {
+  border: 1px solid transparent;
+  border-radius: 2px;
+  border-color: var(--focusblue);
+}
+
+.amp-playpause-button {
+  height: 2.0rem;
+  width: 2.0rem;
+}
+
+.amp-volumemute-button {
+  height: 1.6rem;
+  width: 1.6rem;
+}
+
+.amp-playtimer__container {
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.0rem;
+  height: 2.5rem;
+  pointer-events: none;
+  margin-right: 0.5rem;
+  margin-left: 0.2rem;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
+
+.amp-progress__container {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 1;
+  height: 2.5rem;
+  border: 1px solid transparent;
+}
+
+.amp-video-captions {
+  font-size: .8rem;
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  height: 5rem;
+  border: 1px solid transparent;
+  padding: 0.2rem;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+  overflow-y: scroll;
+}
+
+input[type=range]{
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  margin-right: 4px;
+  width: 100%;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 11px;
+  background: var(--lightgray);
+  border: none;
+  border-radius: 10px;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: var(--dark);
+  margin-top: -2.5px;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid var(--dark);
+  background: var(--primary);
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: var(--focusgray);
+}
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 11px;
+  background: var(--lightgray);
+  border: none;
+  border-radius: 10px;
+}
+
+input[type=range]::-moz-range-thumb {
+  border: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: var(--dark);
+}
+
+input[type=range]:focus::-moz-range-thumb {
+  border: 1px solid var(--dark);
+  background: var(--primary);
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+  outline: 1px solid var(--white);
+  outline-offset: -1px;
+}
+
+input[type=range]:focus::-moz-range-track {
+  background: var(--focusgray);
+}
+
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 5px;
+  /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+  background: transparent;
+  /*leave room for the larger thumb to overflow with a transparent border */
+  border-color: transparent;
+  border-width: 6px 0;
+  /*remove default tick marks*/
+  color: transparent;
+}
+
+input[type=range]::-ms-fill-lower {
+  background: #777;
+  border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+  background: #ddd;
+  border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+  border: none;
+  height: 15px;
+  width: 15px;
+  border-radius: 50%;
+  background: var(--dark);
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #888;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #ddd;
+}
+
+/* subtitles menu */
+.ampvideo-subtitles-menu {
+	display:none;
+	position:absolute;
+	bottom:14.8%;
+	right:20px;
+	background: var(--lightgray);
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	width:100px;
+	padding:10px;
+}
+.ampvideo-subtitles-menu li {
+	padding:0;
+	text-align:center;
+  margin-bottom: 4px;
+}
+
+.ampvideo-subtitles-menu li:last-child {
+  margin-bottom: 0;
+}
+
+.ampvideo-subtitles-menu li button {
+	border:none;
+	background:#000;
+	color:#fff;
+	cursor:pointer;
+	width:90%;
+	padding:2px 5px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+  font-size: small;
+}
+
+.ampvideo-subtitles-menu li button:hover,
+.ampvideo-subtitles-menu li button:focus,
+.ampvideo-subtitles-menu li button[data-state="active"] {
+	opacity:0.5;
+}
+</style>
