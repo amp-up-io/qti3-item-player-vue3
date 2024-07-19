@@ -650,10 +650,10 @@ export default {
 
       // Perform basic consistency checking on this priorState
       if (!('value' in priorState)) {
-        throw new QtiEvaluationException('Hottext Interaction State Invalid.  "value" property not found.')
+        throw new QtiEvaluationException('Hotspot Interaction State Invalid.  "value" property not found.')
       }
       if (!('state' in priorState)) {
-        throw new QtiEvaluationException('Hottext Interaction State Invalid.  "state" property not found.')
+        throw new QtiEvaluationException('Hotspot Interaction State Invalid.  "state" property not found.')
       }
 
       return priorState
