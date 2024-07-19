@@ -23,6 +23,15 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
+  "files": ["dist"],
+  "main": "./dist/qti3-item-player-vue3.umd.cjs",
+  "module": "./dist/qti3-item-player-vue3.js",
+  "exports": {
+    ".": {
+      "import": "./dist/qti3-item-player-vue3.js",
+      "require": "./dist/qti3-item-player-vue3.umd.cjs"
+    }
+  },
   "dependencies": {
     "axios": "^1.7.2",
     "bignumber.js": "^9.1.2",
