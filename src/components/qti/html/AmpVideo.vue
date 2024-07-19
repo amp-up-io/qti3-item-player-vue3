@@ -581,7 +581,10 @@ export default {
   flex-wrap: wrap;
   align-items: center;
   border: 1px solid var(--dark);
-  border-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
   width: 100%;
 }
 
