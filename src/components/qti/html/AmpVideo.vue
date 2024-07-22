@@ -141,13 +141,12 @@ export default {
     disable () {
       this.isDisabled = true
       this.pauseVideo()
-
       this.disableController()
     },
 
     enable () {
       this.isDisabled = false
-      // TODO Enable buttons
+      this.enableController()
     },
 
     disableController () {
