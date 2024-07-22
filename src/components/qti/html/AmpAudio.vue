@@ -10,11 +10,9 @@
       </audio>
     </div>
 
-    <div class="amp-audio__container">
+    <div ref="controller" class="amp-audio__container">
       <div
-        @click="handlePlayPauseClick"
-        @keydown="handlePlayPauseKeydown"
-        tabIndex="0"
+        ref="playpause"
         class="amp-audio-playpause__container">
         <svg
           v-show="!isPlaying"
@@ -44,7 +42,7 @@
         </svg>
       </div>
 
-      <div class="amp-playtimer__container" v-show="showPlayTimer">
+      <div ref="playtimer" class="amp-playtimer__container" v-show="showPlayTimer">
         <span>{{displayCurrentTime}}</span>
         <span> / </span>
         <span>{{displayDuration}}</span>
@@ -52,10 +50,8 @@
 
       <div class="amp-progress__container" v-show="showProgress">
         <input
+          ref="progress"
           v-model="currentTime"
-          @input="handleProgressInput"
-          @change="handleProgressChange"
-          @mousedown="handleProgressMouseDown"
           type="range"
           min="0"
           :max="duration"
@@ -64,10 +60,10 @@
       </div>
 
       <div
-        @click="handleVolumeMuteClick"
-        @keydown="handleVolumeMuteKeydown"
-        tabIndex="0"
-        class="amp-audio-volumemute__container" v-show="showVolumeMute">
+        ref="volume"
+        class="amp-video-volumemute__container" 
+        v-show="showVolumeMute"
+        aria-label="Volume mute or unmute">
         <svg
           v-show="!isMuted"
           class="amp-volumemute-button"
@@ -105,6 +101,11 @@ const qtiAttributeValidation = new QtiAttributeValidation()
 export default {
   name: 'AmpAudio',
 
+  emits: [
+    'mediaEnded',
+    'mediaMounted'
+  ],
+
   props: {
   },
 
@@ -125,11 +126,43 @@ export default {
       showProgress: false,
       showCaptions: false,
       textTracksMap: null,
+      isDisabled: false,
       isQtiValid: true
     }
   },
 
   methods: {
+
+    disable () {
+      this.isDisabled = true
+      this.pauseVideo()
+      this.disableController()
+    },
+
+    enable () {
+      this.isDisabled = false
+      this.enableController()
+    },
+
+    disableController () {
+      this.$refs.playpause.setAttribute('tabindex', '-1')
+      this.$refs.playpause.classList.add('disabled')
+      this.$refs.progress.setAttribute('tabindex', '-1')
+      this.$refs.progress.classList.add('disabled')
+      this.$refs.volume.setAttribute('tabindex', '-1')
+      this.$refs.volume.classList.add('disabled')
+      this.$refs.playtimer.classList.add('disabled')
+    },
+
+    enableController () {
+      this.$refs.playpause.setAttribute('tabindex', '0')
+      this.$refs.playpause.classList.remove('disabled')
+      this.$refs.progress.setAttribute('tabindex', '0')
+      this.$refs.progress.classList.remove('disabled')
+      this.$refs.volume.setAttribute('tabindex', '0')
+      this.$refs.volume.classList.remove('disabled')
+      this.$refs.playtimer.classList.remove('disabled')
+    },
 
     handleLoaded () {
       if (this.audio) {
@@ -140,10 +173,12 @@ export default {
 
     handleEnded () {
       this.isPlaying = false
+      this.$parent.$emit('mediaEnded', {})
     },
 
     handleCanPlay () {
       this.audioLoaded = true
+      this.addControllerEventListeners()
     },
 
     handleTimeUpdate () {
@@ -157,10 +192,13 @@ export default {
     },
 
     handlePlayPauseClick () {
+      if (this.isDisabled) return
       this.toggleAudio()
     },
 
     handlePlayPauseKeydown (event) {
+      if (this.isDisabled) return
+
       let flag = false
 
       switch (event.code) {
@@ -180,6 +218,8 @@ export default {
     },
 
     handleProgressMouseDown () {
+      if (this.isDisabled) return
+
       // Mouse down on the slider we pause the player and
       // suspend the TimeUpdate listener
       this.isTimeUpdateListening = false
@@ -193,11 +233,15 @@ export default {
     },
 
     handleProgressInput (event) {
+      if (this.isDisabled) return
+
       // Audio should be paused.  Just update the time.  No setPosition.
       this.displayCurrentTime = this.convertTime(event.target.valueAsNumber)
     },
 
     handleProgressChange (event) {
+      if (this.isDisabled) return
+
       this.setPosition(event.target.valueAsNumber)
       this.isTimeUpdateListening = true
 
@@ -209,10 +253,13 @@ export default {
     },
 
     handleVolumeMuteClick () {
+      if (this.isDisabled) return
       this.toggleVolume()
     },
 
     handleVolumeMuteKeydown (event) {
+      if (this.isDisabled) return
+
       let flag = false
 
       switch (event.code) {
@@ -246,6 +293,8 @@ export default {
     },
 
     toggleAudio () {
+      if (!this.audio) return
+
       if (this.audio.paused) {
           this.audio.play()
           this.isPlaying = true
@@ -255,7 +304,15 @@ export default {
       }
     },
 
+    pauseVideo () {
+      if (!this.audio) return
+      this.audio.pause()
+      this.isPlaying = false
+    },
+
     toggleVolume () {
+      if (!this.audio) return
+
       if (this.audio.muted) {
           this.audio.muted = false
           this.isMuted = false
@@ -373,6 +430,26 @@ export default {
           return
         }
       }, this)
+    },
+
+    addControllerEventListeners () {
+      this.$refs.playpause.addEventListener('click', this.handlePlayPauseClick)
+      this.$refs.playpause.addEventListener('keydown', this.handlePlayPauseKeydown)
+      this.$refs.progress.addEventListener('input', this.handleProgressInput)
+      this.$refs.progress.addEventListener('change',this.handleProgressChange)
+      this.$refs.progress.addEventListener('mousedown', this.handleProgressMouseDown)
+      this.$refs.volume.addEventListener('click', this.handleVolumeMuteClick)
+      this.$refs.volume.addEventListener('keydown', this.handleVolumeMuteKeydown)
+    },
+
+    removeControllerEventListeners () {
+      this.$refs.playpause.removeEventListener('click', this.handlePlayPauseClick)
+      this.$refs.playpause.removeEventListener('keydown', this.handlePlayPauseKeydown)
+      this.$refs.progress.removeEventListener('input', this.handleProgressInput)
+      this.$refs.progress.removeEventListener('change',this.handleProgressChange)
+      this.$refs.progress.removeEventListener('mousedown', this.handleProgressMouseDown)
+      this.$refs.volume.removeEventListener('click', this.handleVolumeMuteClick)
+      this.$refs.volume.removeEventListener('keydown', this.handleVolumeMuteKeydown)
     }
 
   },
@@ -392,10 +469,16 @@ export default {
             this.audio.addEventListener('loadedmetadata', this.handleLoaded)
             this.audio.addEventListener('canplay', this.handleCanPlay)
             this.audio.addEventListener('timeupdate', this.handleTimeUpdate)
+            this.audio.addEventListener('ended', this.handleEnded)
             this.addTextTrackCueEventListener()
+
+            // Important:
+            // controllerEventListeners are added upon completion of the audio's 
+            // 'canplay' event
           }
         })
 
+        this.$parent.$emit('mediaMounted', { node: this, mediaType: 'audio' })
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
@@ -408,8 +491,10 @@ export default {
       this.audio.removeEventListener('loadedmetadata', this.handleLoaded)
       this.audio.removeEventListener('canplay', this.handleCanPlay)
       this.audio.removeEventListener('timeupdate', this.handleTimeUpdate)
+      this.audio.removeEventListener('ended', this.handleEnded)
       this.removeTextTrackCueEventListener()
     }
+    this.removeControllerEventListeners()
   }
 }
 </script>
@@ -418,14 +503,11 @@ export default {
 .amp-audio {
   display: inline-block;
   position: relative;
-  --white: #fff;
-  --light: #eff2f7;
-  --lightgray: #ddd;
-  --focusgray: #ccc;
-  --gray: #7c8a96;
-  --dark: #343a40;
-  --primary: #3d8ef8;
-  --focusblue: rgba(82, 168, 236, 0.8);
+  margin-top:8px;
+	margin-top:.5rem;
+  margin-bottom:8px;
+	margin-bottom:.5rem;
+	padding: 0;
 }
 
 .amp-audio__holder {
@@ -443,7 +525,7 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  border: 1px solid var(--dark);
+  border: 1px solid var(--table-border-color);
   border-radius: 2px;
 }
 
@@ -465,11 +547,18 @@ export default {
   cursor: pointer;
 }
 
+.amp-audio-playpause__container.disabled,
+.amp-audio-volumemute__container.disabled,
+.amp-audio-cc__container.disabled {
+  pointer-events: none;
+  color: var(--well-bg);
+}
+
 .amp-audio-playpause__container:focus,
 .amp-audio-volumemute__container:focus {
   border: 1px solid transparent;
   border-radius: 2px;
-  border-color: var(--focusblue);
+  border-color: var(--choice-focus-border);
 }
 
 .amp-playpause-button {
@@ -531,12 +620,20 @@ input[type=range]{
   width: 100%;
 }
 
+input[type=range].disabled {
+  pointer-events: none;
+}
+
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11px;
-  background: var(--lightgray);
+  background: var(--ea-button-secondary-focus-bgc);
   border: none;
   border-radius: 10px;
+}
+
+input[type=range].disabled::-webkit-slider-runnable-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -550,11 +647,22 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -2.5px;
 }
 
+input[type=range].disabled::-webkit-slider-thumb {
+  background: var(--well-bg);
+}
+
 input[type=range]:focus::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  border: 1px solid var(--dark);
-  background: var(--primary);
+  border: 1px solid var(--well-border);
+  background: var(--foreground);
+}
+
+input[type=range].disabled:focus::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  background: var(--well-bg);
 }
 
 input[type=range]:focus {
@@ -562,7 +670,11 @@ input[type=range]:focus {
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--focusgray);
+  background: var(--choice-focus-border);
+}
+
+input[type=range].disabled:focus::-webkit-slider-runnable-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-moz-range-track {
