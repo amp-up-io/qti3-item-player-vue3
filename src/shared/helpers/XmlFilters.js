@@ -40,8 +40,7 @@ export class XmlFilters {
    * the custom amp-up.io audio/video player instead of the the default html5 audio/video player.
    * @NOTE UPDATE: transform any closed <source> or <track> elements.
    */
-  filterAudio (xml) {
-    //return this.filterTrackSource(xml)
+  filterMedia (xml) {
     xml = xml
       .replaceAll('<video>','<amp-video>')
       .replaceAll('<video ','<amp-video ')
@@ -49,6 +48,7 @@ export class XmlFilters {
       .replaceAll('<audio>','<amp-audio>')
       .replaceAll('<audio ','<amp-audio ')
       .replaceAll('</audio>','</amp-audio>')
+
     return this.filterTrackSource(xml)
   }
 

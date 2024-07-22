@@ -62,6 +62,7 @@ import QtiTextEntryInteraction from '@/components/qti/interactions/QtiTextEntryI
 import QtiMatchInteraction from '@/components/qti/interactions/QtiMatchInteraction.vue'
 import QtiGapMatchInteraction from '@/components/qti/interactions/QtiGapMatchInteraction.vue'
 import QtiGraphicGapMatchInteraction from '@/components/qti/interactions/QtiGraphicGapMatchInteraction.vue'
+import QtiMediaInteraction from '@/components/qti/interactions/QtiMediaInteraction.vue'
 import QtiOrderInteraction from '@/components/qti/interactions/QtiOrderInteraction.vue'
 import QtiHottextInteraction from '@/components/qti/interactions/QtiHottextInteraction.vue'
 import QtiHotspotInteraction from '@/components/qti/interactions/QtiHotspotInteraction.vue'
@@ -77,6 +78,7 @@ import ChoiceGroup from '@/components/qti/interactions/ChoiceGroup.vue'
 import GapMatchGroup from '@/components/qti/interactions/GapMatchGroup.vue'
 import GraphicGapMatchGroup from '@/components/qti/interactions/GraphicGapMatchGroup.vue'
 import MatchGroup from '@/components/qti/interactions/MatchGroup.vue'
+import MediaGroup from '@/components/qti/interactions/MediaGroup.vue'
 import OrderGroup from '@/components/qti/interactions/OrderGroup.vue'
 import QtiGapText from '@/components/qti/interactions/QtiGapText.vue'
 import QtiGapImg from '@/components/qti/interactions/QtiGapImg.vue'
@@ -278,6 +280,7 @@ export default {
       .component('qti-order-interaction', QtiOrderInteraction)
       .component('qti-hottext-interaction', QtiHottextInteraction)
       .component('qti-hotspot-interaction', QtiHotspotInteraction)
+      .component('qti-media-interaction', QtiMediaInteraction)
       .component('qti-portable-custom-interaction', QtiPortableCustomInteraction)
       .component('qti-prompt', QtiPrompt)
       .component('qti-simple-choice', QtiSimpleChoice)
@@ -289,6 +292,7 @@ export default {
       .component('qti-associable-hotspot', QtiAssociableHotspot)
       .component('GapMatchGroup', GapMatchGroup)
       .component('GraphicGapMatchGroup', GraphicGapMatchGroup)
+      .component('MediaGroup', MediaGroup)
       .component('OrderGroup', OrderGroup)
       .component('qti-gap-text', QtiGapText)
       .component('qti-gap-img', QtiGapImg)
@@ -407,8 +411,8 @@ export default {
       xml = xmlFilters.filterCdata(xml)
       // Hack 3: Replace <style> tags with <amp-style>
       xml = xmlFilters.filterStyle(xml)
-      // Hack 4: Replace <audio> tags with <amp-audio>
-      xml = xmlFilters.filterAudio(xml)
+      // Hack 4: Replace <audio> tags with <amp-audio>, <video> tags with <amp-video
+      xml = xmlFilters.filterMedia(xml)
 
       return {
         template: `<div id="${containerId}">${xml}</div>`

@@ -4,17 +4,15 @@
       <video
         ref="player"
         tabIndex="-1"
-        @ended="handleEnded"
+        class="amp-video__video"
         v-bind="$attrs">
         <slot></slot>
       </video>
     </div>
 
-    <div class="amp-video__container">
+    <div ref="controller" class="amp-video__container">
       <div
-        @click="handlePlayPauseClick"
-        @keydown="handlePlayPauseKeydown"
-        tabIndex="0"
+        ref="playpause"
         class="amp-video-playpause__container">
         <svg
           v-show="!isPlaying"
@@ -44,7 +42,7 @@
         </svg>
       </div>
 
-      <div class="amp-playtimer__container" v-show="showPlayTimer">
+      <div ref="playtimer" class="amp-playtimer__container" v-show="showPlayTimer">
         <span>{{displayCurrentTime}}</span>
         <span> / </span>
         <span>{{displayDuration}}</span>
@@ -52,10 +50,8 @@
 
       <div class="amp-progress__container" v-show="showProgress">
         <input
+          ref="progress"
           v-model="currentTime"
-          @input="handleProgressInput"
-          @change="handleProgressChange"
-          @mousedown="handleProgressMouseDown"
           type="range"
           min="0"
           :max="duration"
@@ -64,20 +60,18 @@
       </div>
 
       <div
-        @click="handleCaptionsClick"
-        @keydown="handleCaptionsKeydown"
-        tabIndex="0"
+        ref="cc"
         class="amp-video-cc__container"
         v-show="showCaptions"
-        aria-label="Captions Menu">
+        aria-label="Captions menu">
         CC
       </div>
 
       <div
-        @click="handleVolumeMuteClick"
-        @keydown="handleVolumeMuteKeydown"
-        tabIndex="0"
-        class="amp-video-volumemute__container" v-show="showVolumeMute">
+        ref="volume"
+        class="amp-video-volumemute__container" 
+        v-show="showVolumeMute"
+        aria-label="Volume mute or unmute">
         <svg
           v-show="!isMuted"
           class="amp-volumemute-button"
@@ -98,11 +92,6 @@
         </svg>
       </div>
     </div>
-    <!-- For captions -->
-    <div class="amp-video-captions__container hidden">
-      <div class="amp-video-captions" ref="captions">
-      </div>
-    </div>
   </div>
 </template>
 
@@ -114,6 +103,11 @@ const qtiAttributeValidation = new QtiAttributeValidation()
 
 export default {
   name: 'AmpVideo',
+
+  emits: [
+    'mediaEnded',
+    'mediaMounted'
+  ],
 
   props: {
   },
@@ -137,11 +131,48 @@ export default {
       textTracksMap: null,
       subtitlesMenu: null,
       subtitleMenuButtons: [],
+      isDisabled: false,
       isQtiValid: true
     }
   },
 
   methods: {
+
+    disable () {
+      this.isDisabled = true
+      this.pauseVideo()
+
+      this.disableController()
+    },
+
+    enable () {
+      this.isDisabled = false
+      // TODO Enable buttons
+    },
+
+    disableController () {
+      this.$refs.playpause.setAttribute('tabindex', '-1')
+      this.$refs.playpause.classList.add('disabled')
+      this.$refs.progress.setAttribute('tabindex', '-1')
+      this.$refs.progress.classList.add('disabled')
+      this.$refs.cc.setAttribute('tabindex', '-1')
+      this.$refs.cc.classList.add('disabled')
+      this.$refs.volume.setAttribute('tabindex', '-1')
+      this.$refs.volume.classList.add('disabled')
+      this.$refs.playtimer.classList.add('disabled')
+    },
+
+    enableController () {
+      this.$refs.playpause.setAttribute('tabindex', '0')
+      this.$refs.playpause.classList.remove('disabled')
+      this.$refs.progress.setAttribute('tabindex', '0')
+      this.$refs.progress.classList.remove('disabled')
+      this.$refs.cc.setAttribute('tabindex', '0')
+      this.$refs.cc.classList.remove('disabled')
+      this.$refs.volume.setAttribute('tabindex', '0')
+      this.$refs.volume.classList.remove('disabled')
+      this.$refs.playtimer.classList.remove('disabled')
+    },
 
     handleLoaded () {
       if (this.video) {
@@ -152,10 +183,12 @@ export default {
 
     handleEnded () {
       this.isPlaying = false
+      this.$parent.$emit('mediaEnded', {})
     },
 
     handleCanPlay () {
       this.videoLoaded = true
+      this.addControllerEventListeners()
     },
 
     handleTimeUpdate () {
@@ -170,10 +203,13 @@ export default {
     },
 
     handlePlayPauseClick () {
+      if (this.isDisabled) return
       this.toggleVideo()
     },
 
     handlePlayPauseKeydown (event) {
+      if (this.isDisabled) return
+
       let flag = false
 
       switch (event.code) {
@@ -193,6 +229,8 @@ export default {
     },
 
     handleProgressMouseDown () {
+      if (this.isDisabled) return
+
       // Mouse down on the slider we pause the player and
       // suspend the TimeUpdate listener
       this.isTimeUpdateListening = false
@@ -206,11 +244,15 @@ export default {
     },
 
     handleProgressInput (event) {
+      if (this.isDisabled) return
+
       // Audio should be paused.  Just update the time.  No setPosition.
       this.displayCurrentTime = this.convertTime(event.target.valueAsNumber)
     },
 
     handleProgressChange (event) {
+      if (this.isDisabled) return
+
       this.setPosition(event.target.valueAsNumber)
       this.isTimeUpdateListening = true
 
@@ -222,10 +264,14 @@ export default {
     },
 
     handleCaptionsClick () {
+      if (this.isDisabled) return
+
       this.toggleCaptionsMenu()
     },
 
     handleCaptionsKeydown (event) {
+      if (this.isDisabled) return
+
       let flag = false
 
       switch (event.code) {
@@ -252,10 +298,13 @@ export default {
     },
 
     handleVolumeMuteClick () {
+      if (this.isDisabled) return
       this.toggleVolume()
     },
 
     handleVolumeMuteKeydown (event) {
+      if (this.isDisabled) return
+
       let flag = false
 
       switch (event.code) {
@@ -274,13 +323,8 @@ export default {
       }
     },
 
-    handleCueChange (event) {
-      const cues = event.target.activeCues
-      if ((cues.length > 0) && this.showCaptions) {
-        const currentCue = cues[0].text.replace(/\n/g, '<br/>')
-        console.log('[AmpVideo][currentCue]', currentCue)
-        this.$refs.captions.innerHTML = currentCue
-      }
+    handleCueChange () {
+      // NOOP
     },
 
     setPosition (position) {
@@ -298,6 +342,12 @@ export default {
           this.video.pause()
           this.isPlaying = false
       }
+    },
+
+    pauseVideo () {
+      if (!this.video) return
+      this.video.pause()
+      this.isPlaying = false
     },
 
     toggleVolume () {
@@ -352,8 +402,12 @@ export default {
       this.video = this.$refs.player
       // Disable controls on the video player.  We add our own controller.
       this.video.removeAttribute('controls')
+      // Fuss around with width, if video has a width attribute.
       if (this.video.hasAttribute('width')) {
-        this.$refs.videocontainer.setAttribute('width', this.video.getAttribute('width'))
+        const width = `${this.video.getAttribute('width')}`
+        const widthStyle = !width.endsWith('%') ? `width:${width}px` : `width:${width}`
+        this.$refs.videocontainer.setAttribute('style', widthStyle)
+        this.$refs.controller.setAttribute('style', widthStyle)
       } else {
         this.video.setAttribute('width', '100%')
       }
@@ -404,9 +458,10 @@ export default {
         textTrack.mode = 'hidden'
         // Add the track to the Subtitles menu
         this.addSubtitlesMenuItem(textTrack)
-        // Set up a cuechange listener
+        // Set up a cuechange listener.
         const trackElement = this.textTracksMap.get(textTrack.id)
         if (typeof trackElement !== 'undefined') {
+          // handleCueChange is a noop for now, but set it up anyway.
           textTrack.addEventListener('cuechange', this.handleCueChange)
         }
       }
@@ -502,6 +557,30 @@ export default {
 
       // Hide the subtitles menu
       this.subtitlesMenu.style.display = 'none'
+    },
+
+    addControllerEventListeners () {
+      this.$refs.playpause.addEventListener('click', this.handlePlayPauseClick)
+      this.$refs.playpause.addEventListener('keydown', this.handlePlayPauseKeydown)
+      this.$refs.progress.addEventListener('input', this.handleProgressInput)
+      this.$refs.progress.addEventListener('change',this.handleProgressChange)
+      this.$refs.progress.addEventListener('mousedown', this.handleProgressMouseDown)
+      this.$refs.cc.addEventListener('click', this.handleCaptionsClick)
+      this.$refs.cc.addEventListener('keydown', this.handleCaptionsKeydown)
+      this.$refs.volume.addEventListener('click', this.handleVolumeMuteClick)
+      this.$refs.volume.addEventListener('keydown', this.handleVolumeMuteKeydown)
+    },
+
+    removeControllerEventListeners () {
+      this.$refs.playpause.removeEventListener('click', this.handlePlayPauseClick)
+      this.$refs.playpause.removeEventListener('keydown', this.handlePlayPauseKeydown)
+      this.$refs.progress.removeEventListener('input', this.handleProgressInput)
+      this.$refs.progress.removeEventListener('change',this.handleProgressChange)
+      this.$refs.progress.removeEventListener('mousedown', this.handleProgressMouseDown)
+      this.$refs.cc.removeEventListener('click', this.handleCaptionsClick)
+      this.$refs.cc.removeEventListener('keydown', this.handleCaptionsKeydown)
+      this.$refs.volume.removeEventListener('click', this.handleVolumeMuteClick)
+      this.$refs.volume.removeEventListener('keydown', this.handleVolumeMuteKeydown)
     }
 
   },
@@ -522,10 +601,16 @@ export default {
             this.video.addEventListener('loadedmetadata', this.handleLoaded)
             this.video.addEventListener('canplay', this.handleCanPlay)
             this.video.addEventListener('timeupdate', this.handleTimeUpdate)
+            this.video.addEventListener('ended', this.handleEnded)
             this.addTextTrackCueEventListener()
+
+            // Important:
+            // controllerEventListeners are added upon completion of the video's 
+            // 'canplay' event
           }
         })
 
+        this.$parent.$emit('mediaMounted', { node: this, mediaType: 'video' })
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
@@ -538,8 +623,10 @@ export default {
       this.video.removeEventListener('loadedmetadata', this.handleLoaded)
       this.video.removeEventListener('canplay', this.handleCanPlay)
       this.video.removeEventListener('timeupdate', this.handleTimeUpdate)
+      this.video.removeEventListener('ended', this.handleEnded)
       this.removeTextTrackCueEventListener()
     }
+    this.removeControllerEventListeners()
   }
 }
 </script>
@@ -553,18 +640,11 @@ export default {
 	height:100%;
 	max-height:494px;
 	max-height:30.875rem;
-	margin:8px auto;
-	margin:.5rem auto;
+	margin-top:8px;
+	margin-top:.5rem;
+  margin-bottom:8px;
+	margin-bottom:.5rem;
 	padding: 0;
-  --black: #000;
-  --white: #fff;
-  --light: #eff2f7;
-  --lightgray: #ddd;
-  --focusgray: #ccc;
-  --gray: #7c8a96;
-  --dark: #343a40;
-  --primary: #3d8ef8;
-  --focusblue: rgba(82, 168, 236, 0.8);
 }
 
 .amp-video__holder {
@@ -575,12 +655,17 @@ export default {
   line-height: 0;
 }
 
+/* Disable right-click */
+video.amp-video__video {
+  pointer-events: none;
+}
+
 .amp-video__container,
 .amp-video-captions__container {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  border: 1px solid var(--dark);
+  border: 1px solid var(--table-border-color);
   border-bottom-left-radius: 2px;
   border-bottom-right-radius: 2px;
   border-top-left-radius: 0;
@@ -619,13 +704,21 @@ export default {
   cursor: pointer;
 }
 
+
+.amp-video-playpause__container.disabled,
+.amp-video-volumemute__container.disabled,
+.amp-video-cc__container.disabled {
+  pointer-events: none;
+  color: var(--well-bg);
+}
+
 .amp-video-playpause__container:focus,
 .amp-video-volumemute__container:focus,
 .amp-video-cc__container:focus
  {
   border: 1px solid transparent;
   border-radius: 2px;
-  border-color: var(--focusblue);
+  border-color: var(--choice-focus-border);
 }
 
 .amp-playpause-button {
@@ -652,6 +745,10 @@ export default {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
+}
+
+.amp-playtimer__container.disabled {
+  color: var(--well-bg);
 }
 
 .amp-progress__container {
@@ -687,12 +784,20 @@ input[type=range]{
   width: 100%;
 }
 
+input[type=range].disabled {
+  pointer-events: none;
+}
+
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11px;
-  background: var(--lightgray);
+  background: var(--ea-button-secondary-focus-bgc);
   border: none;
   border-radius: 10px;
+}
+
+input[type=range].disabled::-webkit-slider-runnable-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -706,11 +811,22 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: -2.5px;
 }
 
+input[type=range].disabled::-webkit-slider-thumb {
+  background: var(--well-bg);
+}
+
 input[type=range]:focus::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  border: 1px solid var(--dark);
-  background: var(--primary);
+  border: 1px solid var(--well-border);
+  background: var(--foreground);
+}
+
+input[type=range].disabled:focus::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  background: var(--well-bg);
 }
 
 input[type=range]:focus {
@@ -718,13 +834,17 @@ input[type=range]:focus {
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--focusgray);
+  background: var(--choice-focus-border);
+}
+
+input[type=range].disabled:focus::-webkit-slider-runnable-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-moz-range-track {
   width: 100%;
   height: 11px;
-  background: var(--lightgray);
+  background: var(--well-bg);
   border: none;
   border-radius: 10px;
 }
@@ -744,7 +864,7 @@ input[type=range]:focus::-moz-range-thumb {
 
 /*hide the outline behind the border*/
 input[type=range]:-moz-focusring{
-  outline: 1px solid var(--white);
+  outline: 1px solid var(--background);
   outline-offset: -1px;
 }
 

@@ -441,7 +441,7 @@ export default {
 .amp-audio__container,
 .amp-audio-captions__container {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   border: 1px solid var(--dark);
   border-radius: 2px;
