@@ -129,6 +129,7 @@ export default {
       showProgress: false,
       showCaptions: false,
       textTracksMap: null,
+      mediaInteractionChild: false,
       subtitlesMenu: null,
       subtitleMenuButtons: [],
       isDisabled: false,
@@ -182,7 +183,11 @@ export default {
 
     handleEnded () {
       this.isPlaying = false
-      this.$parent.$emit('mediaEnded', {})
+
+      // Only emit mediaEnded when we are nested inside a Media Interaction.
+      if (this.isMediaInteractionChild()) {
+        this.$parent.$emit('mediaEnded', {})
+      }
     },
 
     handleCanPlay () {
@@ -386,12 +391,23 @@ export default {
     },
 
     /**
-     * @description attempt to parse the video subtype
-     * from the staticClass property of this $vnode.
-     * @param staticClass property of the $vnode.data object
+     * @description Try to detect a class of video player that we recognoze.
+     * @param {*} props - vnode props
      */
-    detectPlayerSubType (staticClass) {
-      return this.getPlayerSubType(staticClass)
+    detectPlayerSubType (props) {
+      return this.getPlayerSubType(props)
+    },
+
+    isMediaInteractionChild () {
+      return this.mediaInteractionChild
+    },
+
+    /**
+     * @description Examine the parent element to determine
+     * if the parent has the proper class.
+     */
+    detectMediaInteractionChild () {
+      this.mediaInteractionChild = this.$parent.$el.classList.contains('qti3-player-media-group')
     },
 
     /**
@@ -586,12 +602,14 @@ export default {
 
   created() {
     // This simply returns a default player
-    this.playerSubType = this.detectPlayerSubType(this.$.vnode.props['class'])
+    this.playerSubType = this.detectPlayerSubType(this.$.vnode.props)
   },
 
   mounted() {
     if (this.isQtiValid) {
       try {
+        this.detectMediaInteractionChild()
+
         this.processChildren()
 
         // nextTick code will run only after the entire view has been rendered
@@ -609,7 +627,11 @@ export default {
           }
         })
 
-        this.$parent.$emit('mediaMounted', { node: this, mediaType: 'video' })
+        // Only emit mediaMounted when we are nested inside a Media Interaction.
+        if (this.isMediaInteractionChild()) {
+          this.$parent.$emit('mediaMounted', { node: this, mediaType: 'video' })
+        }
+
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)

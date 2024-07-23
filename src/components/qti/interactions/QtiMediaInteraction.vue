@@ -82,6 +82,10 @@ export default {
       type: String,
       default: 'false'
     },
+    /*
+     * This provides the coordinates that determine the size and location of an area defined 
+     * by a corresponding rectange as defined by: left-x, top-y, right-x, bottom-y.
+     */
     coords: {
       required: false,
       type: String
@@ -265,6 +269,10 @@ export default {
     handleMediaMounted (node) {
       this.node = node.node
       this.mediaType = node.mediaType
+      if (node.mediaType === 'audio') {
+        this.node.setAudioSubType('audioprogress')
+      }
+      this.evaluateMaxPlays()
     },
 
     handleMediaEnded () {
@@ -336,9 +344,10 @@ export default {
     },
 
     evaluateMaxPlays () {
-      if (this.checkMaxPlaysLimit()) {
+      if (this.checkMaxPlaysLimit())
         this.disable()
-      }
+      else
+        this.enable()
     },
 
     /**
@@ -511,4 +520,10 @@ export default {
 </script>
 
 <style>
+div.qti-media-interaction {
+  display: block;
+  padding: 0;
+  margin: .5rem 0;
+  width: 100%;
+}
 </style>

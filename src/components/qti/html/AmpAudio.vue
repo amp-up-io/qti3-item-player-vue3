@@ -4,7 +4,6 @@
       <audio
         ref="player"
         tabIndex="-1"
-        @ended="handleEnded"
         v-bind="$attrs">
         <slot></slot>
       </audio>
@@ -126,6 +125,7 @@ export default {
       showProgress: false,
       showCaptions: false,
       textTracksMap: null,
+      mediaInteractionChild: false,
       isDisabled: false,
       isQtiValid: true
     }
@@ -135,7 +135,7 @@ export default {
 
     disable () {
       this.isDisabled = true
-      this.pauseVideo()
+      this.pauseAudio()
       this.disableController()
     },
 
@@ -173,7 +173,11 @@ export default {
 
     handleEnded () {
       this.isPlaying = false
-      this.$parent.$emit('mediaEnded', {})
+
+      // Only emit mediaEnded when we are nested inside a Media Interaction.
+      if (this.isMediaInteractionChild()) {
+        this.$parent.$emit('mediaEnded', {})
+      }
     },
 
     handleCanPlay () {
@@ -304,7 +308,7 @@ export default {
       }
     },
 
-    pauseVideo () {
+    pauseAudio () {
       if (!this.audio) return
       this.audio.pause()
       this.isPlaying = false
@@ -337,8 +341,28 @@ export default {
       return hhmmss
     },
 
-    getAudioSubType (clazz) {
-      if ((clazz === null) || clazz.length == 0) return null
+    setAudioSubType (subtype) {
+      this.audioSubType = subtype
+      if (this.audioSubType === 'audioprogress') {
+        this.showProgress = true
+        this.showPlayTimer = true
+        this.showVolumeMute = true
+      }
+    },
+
+    /**
+     * @description Try to detect a class of audio player that we recognoze.
+     * @param {*} props - vnode props
+     */
+    getAudioSubType (props) {
+      // Bail if there are no props
+      if (props === null) return null
+
+      // We have props, examine the class prop
+      const clazz = props['class']
+
+      // Bail if there is no class or an empty class
+      if ((typeof clazz === 'undefined') || (clazz === null) || clazz.length == 0) return null
 
       // Return the first supported audio player subtype we find
       const clazzTokens = clazz.split(' ')
@@ -349,7 +373,6 @@ export default {
             this.showProgress = true
             this.showPlayTimer = true
             this.showVolumeMute = true
-            this.showCaptions = true
             return 'audioprogress'
 
           default:
@@ -368,11 +391,25 @@ export default {
       return audioSubType
     },
 
+    isMediaInteractionChild () {
+      return this.mediaInteractionChild
+    },
+
+    /**
+     * @description Examine the parent element to determine
+     * if the parent has the proper class.
+     */
+    detectMediaInteractionChild () {
+      this.mediaInteractionChild = this.$parent.$el.classList.contains('qti3-player-media-group')
+    },
+
     /**
      * Iterate through the child nodes
      */
-    validateChildren () {
+    processChildren () {
       this.audio = this.$refs.player
+      // Disable controls on the audio player.  We add our own controller.
+      this.audio.removeAttribute('controls')
       this.textTracksMap = this.filterTextTracks(this.audio.querySelectorAll('track'))
     },
 
@@ -406,7 +443,10 @@ export default {
     },
 
     addTextTrackCueEventListener () {
+      if (!this.audio) return
       if (this.audio.textTracks.length === 0) return
+
+      //this.showCaptions = true
 
       this.audio.textTracks.forEach((track) => {
         // captions and subtitles added to textTracksMap during validation
@@ -419,6 +459,7 @@ export default {
     },
 
     removeTextTrackCueEventListener () {
+      if (!this.audio) return
       if (this.audio.textTracks.length === 0) return
 
       this.audio.textTracks.forEach((track) => {
@@ -455,13 +496,15 @@ export default {
   },
 
   created() {
-    this.audioSubType = this.detectAudioSubType(this.$.vnode.props['class'])
+    this.audioSubType = this.detectAudioSubType(this.$.vnode.props)
   },
 
   mounted() {
     if (this.isQtiValid) {
       try {
-        this.validateChildren()
+        this.detectMediaInteractionChild()
+
+        this.processChildren()
 
         // nextTick code will run only after the entire view has been rendered
         this.$nextTick(function() {
@@ -478,7 +521,11 @@ export default {
           }
         })
 
-        this.$parent.$emit('mediaMounted', { node: this, mediaType: 'audio' })
+        // Only emit mediaMounted when we are nested inside a Media Interaction.
+        if (this.isMediaInteractionChild()) {
+          this.$parent.$emit('mediaMounted', { node: this, mediaType: 'audio' })
+        }
+
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
@@ -499,14 +546,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .amp-audio {
   display: inline-block;
   position: relative;
-  margin-top:8px;
-	margin-top:.5rem;
-  margin-bottom:8px;
-	margin-bottom:.5rem;
+  margin: 0;
 	padding: 0;
 }
 
