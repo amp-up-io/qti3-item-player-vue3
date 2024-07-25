@@ -933,6 +933,9 @@ export default {
   --order-target-active-color: var(--foreground);
   --order-target-active-bgc: #bbcef1;
   --order-placeholder-color: #d3d5d7;
+  /* Audio/Video slider */
+  --slider-track: var(--gray);
+  --slider-focus-track: #86b7fe;
 }
 
 /* Default foreground / background colors */
@@ -1521,6 +1524,8 @@ export default {
   --order-target-active-color: var(--darker);
   --order-target-active-bgc: #d8ade6;
   --order-placeholder-color: #bbcef1;
+  /* Audio/Video slider */
+  --slider-focus-track: rgba(13, 110, 253, 0.5);
 }
 
 .qti3-player-color-cyanblack {
@@ -1581,6 +1586,8 @@ export default {
   --order-target-active-color: var(--darker);
   --order-target-active-bgc: #d8ade6;
   --order-placeholder-color: var(--foreground);
+  /* Audio/Video slider */
+  --slider-focus-track: rgba(13, 110, 253, 0.95);
 }
 
 .qti3-player-color-blackcream {

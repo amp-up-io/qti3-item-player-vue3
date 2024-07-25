@@ -546,7 +546,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .amp-audio {
   display: inline-block;
   position: relative;
@@ -662,22 +662,33 @@ input[type=range]{
   cursor: pointer;
   margin-right: 4px;
   width: 100%;
+  background: transparent;
 }
 
 input[type=range].disabled {
   pointer-events: none;
 }
 
+input[type=range]:focus {
+  outline: none;
+}
+
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11px;
-  background: var(--ea-button-secondary-focus-bgc);
+  background: var(--slider-track);
   border: none;
   border-radius: 10px;
 }
 
 input[type=range].disabled::-webkit-slider-runnable-track {
   background: var(--well-bg);
+}
+
+input[type=range]:focus::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--slider-focus-track);
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -687,7 +698,7 @@ input[type=range]::-webkit-slider-thumb {
   height: 15px;
   width: 15px;
   border-radius: 50%;
-  background: var(--dark);
+  background: var(--foreground);
   margin-top: -2.5px;
 }
 
@@ -709,14 +720,6 @@ input[type=range].disabled:focus::-webkit-slider-thumb {
   background: var(--well-bg);
 }
 
-input[type=range]:focus {
-  outline: none;
-}
-
-input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--choice-focus-border);
-}
-
 input[type=range].disabled:focus::-webkit-slider-runnable-track {
   background: var(--well-bg);
 }
@@ -724,7 +727,7 @@ input[type=range].disabled:focus::-webkit-slider-runnable-track {
 input[type=range]::-moz-range-track {
   width: 100%;
   height: 11px;
-  background: var(--lightgray);
+  background: var(--slider-track);
   border: none;
   border-radius: 10px;
 }
@@ -734,12 +737,12 @@ input[type=range]::-moz-range-thumb {
   height: 15px;
   width: 15px;
   border-radius: 50%;
-  background: var(--dark);
+  background: var(--foreground);
 }
 
 input[type=range]:focus::-moz-range-thumb {
-  border: 1px solid var(--dark);
-  background: var(--primary);
+  border: 1px solid var(--well-border);
+  background: var(--foreground);
 }
 
 /*hide the outline behind the border*/
@@ -749,7 +752,13 @@ input[type=range]:-moz-focusring{
 }
 
 input[type=range]:focus::-moz-range-track {
-  background: var(--focusgray);
+  background: var(--slider-focus-track);
+}
+
+input[type=range].disabled::-moz-range-thumb,
+input[type=range].disabled::-moz-range-track,
+input[type=range].disabled:focus::-moz-range-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-ms-track {

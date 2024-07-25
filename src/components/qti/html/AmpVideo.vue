@@ -803,6 +803,7 @@ input[type=range]{
   cursor: pointer;
   margin-right: 4px;
   width: 100%;
+  background: var(--background);
 }
 
 input[type=range].disabled {
@@ -812,7 +813,7 @@ input[type=range].disabled {
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 11px;
-  background: var(--ea-button-secondary-focus-bgc);
+  background: var(--slider-track);
   border: none;
   border-radius: 10px;
 }
@@ -828,8 +829,8 @@ input[type=range]::-webkit-slider-thumb {
   height: 15px;
   width: 15px;
   border-radius: 50%;
-  background: var(--dark);
   margin-top: -2.5px;
+  background: var(--foreground);
 }
 
 input[type=range].disabled::-webkit-slider-thumb {
@@ -855,7 +856,7 @@ input[type=range]:focus {
 }
 
 input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--choice-focus-border);
+  background: var(--slider-track);
 }
 
 input[type=range].disabled:focus::-webkit-slider-runnable-track {
@@ -865,7 +866,7 @@ input[type=range].disabled:focus::-webkit-slider-runnable-track {
 input[type=range]::-moz-range-track {
   width: 100%;
   height: 11px;
-  background: var(--well-bg);
+  background: var(--slider-track);
   border: none;
   border-radius: 10px;
 }
@@ -875,12 +876,12 @@ input[type=range]::-moz-range-thumb {
   height: 15px;
   width: 15px;
   border-radius: 50%;
-  background: var(--dark);
+  background: var(--foreground);
 }
 
 input[type=range]:focus::-moz-range-thumb {
-  border: 1px solid var(--dark);
-  background: var(--primary);
+  border: 1px solid var(--well-border);
+  background: var(--foreground);
 }
 
 /*hide the outline behind the border*/
@@ -890,7 +891,11 @@ input[type=range]:-moz-focusring{
 }
 
 input[type=range]:focus::-moz-range-track {
-  background: var(--focusgray);
+  background: var(--slider-track);
+}
+
+input[type=range].disabled:focus::-moz-range-track {
+  background: var(--well-bg);
 }
 
 input[type=range]::-ms-track {
