@@ -630,7 +630,10 @@ export default {
         // Only emit mediaMounted when we are nested inside a Media Interaction.
         if (this.isMediaInteractionChild()) {
           this.$parent.$emit('mediaMounted', { node: this, mediaType: 'video' })
+          return
         }
+
+        this.enable()
 
       } catch (err) {
         this.isQtiValid = false

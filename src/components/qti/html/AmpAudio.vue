@@ -157,11 +157,15 @@ export default {
     enableController () {
       this.$refs.playpause.setAttribute('tabindex', '0')
       this.$refs.playpause.classList.remove('disabled')
-      this.$refs.progress.setAttribute('tabindex', '0')
-      this.$refs.progress.classList.remove('disabled')
-      this.$refs.volume.setAttribute('tabindex', '0')
-      this.$refs.volume.classList.remove('disabled')
-      this.$refs.playtimer.classList.remove('disabled')
+
+      // Enable these if this is a full controller
+      if (this.isMediaInteractionChild() || (this.audioSubType === 'audioprogress')) {
+        this.$refs.progress.setAttribute('tabindex', '0')
+        this.$refs.progress.classList.remove('disabled')
+        this.$refs.volume.setAttribute('tabindex', '0')
+        this.$refs.volume.classList.remove('disabled')
+        this.$refs.playtimer.classList.remove('disabled')
+      }
     },
 
     handleLoaded () {
@@ -383,12 +387,11 @@ export default {
 
     /**
      * @description attempt to parse the audio subtype
-     * from the staticClass property of this $vnode.
-     * @param staticClass property of the $vnode.data object
+     * from the props of this $vnode.
+     * @param props props of the $vnode object
      */
-    detectAudioSubType (staticClass) {
-      const audioSubType = this.getAudioSubType(staticClass)
-      return audioSubType
+    detectAudioSubType (props) {
+      return this.getAudioSubType(props)
     },
 
     isMediaInteractionChild () {
@@ -496,7 +499,7 @@ export default {
   },
 
   created() {
-    this.audioSubType = this.detectAudioSubType(this.$.vnode.props)
+    this.setAudioSubType(this.detectAudioSubType(this.$.vnode.props))
   },
 
   mounted() {
@@ -521,10 +524,12 @@ export default {
           }
         })
 
-        // Only emit mediaMounted when we are nested inside a Media Interaction.
         if (this.isMediaInteractionChild()) {
           this.$parent.$emit('mediaMounted', { node: this, mediaType: 'audio' })
+          return
         }
+
+        this.enable()
 
       } catch (err) {
         this.isQtiValid = false
