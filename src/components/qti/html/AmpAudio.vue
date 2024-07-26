@@ -10,7 +10,7 @@
     </div>
 
     <div ref="controller" class="amp-audio__container">
-      <div
+      <button
         ref="playpause"
         class="amp-audio-playpause__container">
         <svg
@@ -39,7 +39,7 @@
             clip-rule="evenodd"
           />
         </svg>
-      </div>
+      </button>
 
       <div ref="playtimer" class="amp-playtimer__container" v-show="showPlayTimer">
         <span>{{displayCurrentTime}}</span>
@@ -168,8 +168,14 @@ export default {
       }
     },
 
+    /**
+     * @description Handler for the 'loadedmetadata' event.
+     */
     handleLoaded () {
       if (this.audio) {
+        // Bind the controller's listeners
+        this.addControllerEventListeners()
+        // Display duration
         this.duration = Math.round(this.audio.duration)
         this.displayDuration = this.convertTime(this.duration)
       }
@@ -184,9 +190,13 @@ export default {
       }
     },
 
+    /**
+     * @description This is here for legacy reasons.  
+     * Caution: the 'canplay' event does not fire
+     * on Safari iOS.
+     */
     handleCanPlay () {
       this.audioLoaded = true
-      this.addControllerEventListeners()
     },
 
     handleTimeUpdate () {
@@ -303,12 +313,12 @@ export default {
     toggleAudio () {
       if (!this.audio) return
 
-      if (this.audio.paused) {
-          this.audio.play()
-          this.isPlaying = true
+      if (this.isPlaying) {
+        this.isPlaying = false
+        this.audio.pause()
       } else {
-          this.audio.pause()
-          this.isPlaying = false
+        this.isPlaying = true
+        this.audio.play()
       }
     },
 
@@ -597,6 +607,7 @@ export default {
 }
 
 .amp-audio-playpause__container.disabled,
+.amp-playtimer__container.disabled,
 .amp-audio-volumemute__container.disabled,
 .amp-audio-cc__container.disabled {
   pointer-events: none;
@@ -634,6 +645,13 @@ export default {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
+}
+
+/* Timer disappears on big zooming */
+@media screen and (max-width:576px) {
+  .amp-playtimer__container {
+    display: none;
+  }
 }
 
 .amp-progress__container {

@@ -11,7 +11,7 @@
     </div>
 
     <div ref="controller" class="amp-video__container">
-      <div
+      <button
         ref="playpause"
         class="amp-video-playpause__container">
         <svg
@@ -40,7 +40,7 @@
             clip-rule="evenodd"
           />
         </svg>
-      </div>
+      </button>
 
       <div ref="playtimer" class="amp-playtimer__container" v-show="showPlayTimer">
         <span>{{displayCurrentTime}}</span>
@@ -176,6 +176,9 @@ export default {
 
     handleLoaded () {
       if (this.video) {
+        // Bind the controller's listeners
+        this.addControllerEventListeners()
+        // Display duration
         this.duration = Math.round(this.video.duration)
         this.displayDuration = this.convertTime(this.duration)
       }
@@ -190,9 +193,13 @@ export default {
       }
     },
 
+    /**
+     * @description This is here for legacy reasons.  
+     * Caution: the 'canplay' event does not fire
+     * on Safari iOS.
+     */
     handleCanPlay () {
       this.videoLoaded = true
-      this.addControllerEventListeners()
     },
 
     handleTimeUpdate () {
@@ -339,12 +346,12 @@ export default {
     toggleVideo () {
       if (!this.video) return
 
-      if (this.video.paused) {
-          this.video.play()
-          this.isPlaying = true
+      if (this.isPlaying) {
+        this.isPlaying = false
+        this.video.pause()
       } else {
-          this.video.pause()
-          this.isPlaying = false
+        this.isPlaying = true
+        this.video.play()
       }
     },
 
@@ -730,6 +737,7 @@ video.amp-video__video {
 
 
 .amp-video-playpause__container.disabled,
+.amp-playtimer__container.disabled,
 .amp-video-volumemute__container.disabled,
 .amp-video-cc__container.disabled {
   pointer-events: none;
@@ -771,8 +779,11 @@ video.amp-video__video {
   user-select: none; /* Standard */
 }
 
-.amp-playtimer__container.disabled {
-  color: var(--well-bg);
+/* Timer disappears on big zooming */
+@media screen and (max-width:576px) {
+  .amp-playtimer__container {
+    display: none;
+  }
 }
 
 .amp-progress__container {
@@ -806,11 +817,15 @@ input[type=range]{
   cursor: pointer;
   margin-right: 4px;
   width: 100%;
-  background: var(--background);
+  background: transparent;
 }
 
 input[type=range].disabled {
   pointer-events: none;
+}
+
+input[type=range]:focus {
+  outline: none;
 }
 
 input[type=range]::-webkit-slider-runnable-track {
@@ -825,6 +840,12 @@ input[type=range].disabled::-webkit-slider-runnable-track {
   background: var(--well-bg);
 }
 
+input[type=range]:focus::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--slider-focus-track);
+}
+
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -832,8 +853,8 @@ input[type=range]::-webkit-slider-thumb {
   height: 15px;
   width: 15px;
   border-radius: 50%;
-  margin-top: -2.5px;
   background: var(--foreground);
+  margin-top: -2.5px;
 }
 
 input[type=range].disabled::-webkit-slider-thumb {
@@ -852,14 +873,6 @@ input[type=range].disabled:focus::-webkit-slider-thumb {
   appearance: none;
   border: none;
   background: var(--well-bg);
-}
-
-input[type=range]:focus {
-  outline: none;
-}
-
-input[type=range]:focus::-webkit-slider-runnable-track {
-  background: var(--slider-track);
 }
 
 input[type=range].disabled:focus::-webkit-slider-runnable-track {
@@ -889,14 +902,16 @@ input[type=range]:focus::-moz-range-thumb {
 
 /*hide the outline behind the border*/
 input[type=range]:-moz-focusring{
-  outline: 1px solid var(--background);
+  outline: 1px solid var(--white);
   outline-offset: -1px;
 }
 
 input[type=range]:focus::-moz-range-track {
-  background: var(--slider-track);
+  background: var(--slider-focus-track);
 }
 
+input[type=range].disabled::-moz-range-thumb,
+input[type=range].disabled::-moz-range-track,
 input[type=range].disabled:focus::-moz-range-track {
   background: var(--well-bg);
 }
