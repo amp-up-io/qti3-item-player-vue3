@@ -382,7 +382,10 @@ export default {
     },
 
     processChildren () {
-      const children = this.$.subTree.children[1].children[0].dynamicChildren
+      const children = this.$.subTree.children[1].children[0].children
+
+      if (children === null) return
+
       children.forEach((child) => {
         if (child.component === null) return
         const node = child.component.proxy
