@@ -391,7 +391,7 @@ export default {
       this.minPlaysMessage = 
         (numericMinPlays === 0) 
           ? '' 
-          : `You must play this ${this.mediaType} at least ${this.minPlays} time${numericMinPlays > 1 ? 's' : ''}.`
+          : `You must play this ${this.mediaType} to the end at least ${this.minPlays} time${numericMinPlays > 1 ? 's' : ''}.`
     },
 
     /**
