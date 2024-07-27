@@ -8,11 +8,17 @@
 <img align="right" src="https://site.imsglobal.org/sites/default/files/media/images/logo_ims/1edtech_trusted-apps-certified.svg" width="187" height="200" border="1" alt="1EdTech Certified">
 </a>
 
-The Amp-up.io QTI 3 Player Component ("QTI 3 Player") is a 100% JavaScript component that aims to encapsulate the best practices and behaviors of the IMS Global/1EdTech QTI 3 Assessment Item specification.  A conforming QTI 3 authoring or exporting system can construct a QTI 3 Item XML solution that will "play" authentically and reliably in the QTI 3 Player - according to the Best Practices Implementation Guide which can be found here:
+
+
+The Amp-up.io QTI 3 Player Component ("QTI 3 Player") is a 100% JavaScript component that aims to encapsulate the best practices and behaviors of the IMS Global/1EdTech QTI 3 Assessment Item specification.  
+
+**This is the Vue 3 version** of the original Amp-up.io QTI 3 Player which was built with Vue 2.6.
+
+A conforming QTI 3 authoring or exporting system can construct a QTI 3 Item XML solution that will "play" authentically and reliably in the QTI 3 Player - according to the Best Practices Implementation Guide which can be found here:
 
 [1EdTech QTI v3 Best Practices and Implementation Guide](https://www.imsglobal.org/spec/qti/v3p0/impl)
 
-QTI 3 Player has achieved both <a href="https://site.imsglobal.org/certifications/amp-upio/amp-upio-qti-3-test-player" target="_blank">QTI 3 Basic and QTI 3 Advanced "Delivery" Conformance</a> Certification from 1EdTech.  Furthermore, QTI 3 Player supports many so-called "Elective" capabilities that go beyond Advanced delivery conformance.
+QTI 3 Player has achieved both <a href="https://site.imsglobal.org/certifications/amp-upio/amp-upio-qti-3-test-player" target="_blank">QTI 3 Basic and QTI 3 Advanced "Delivery" Conformance</a> Certification from 1EdTech.  Furthermore, QTI 3 Player supports many so-called "Elective" capabilities that go beyond Advanced delivery conformance. 
 
 For a complete list of the QTI3 XML elements supported by the QTI 3 Player component, please refer to the [QTI 3 Player Item Reference](https://docs.google.com/document/d/1KCImUAk-2uBqSOHRO1lJa1orrzF4b8cl/#heading=h.gjdgxs).
 
@@ -41,7 +47,7 @@ The QTI 3 Player has API's, interfaces, and capabilities which are optimized for
 
 ### 1. Clone the repo
 ```sh
-git clone https://github.com/amp-up-io/qti3-item-player.git
+git clone https://github.com/amp-up-io/qti3-item-player-vue3.git
 ```
 
 ### 2. Install Node.js >= 20
@@ -77,8 +83,8 @@ The [Demo TestRunner](https://github.com/amp-up-io/qti3-item-player-controller) 
 
 ```js
 // The Qti3Player component and built-in CSS
-import Qti3Player from 'qti3-item-player'
-import 'qti3-item-player/dist/qti3Player.css'
+import Qti3Player from 'qti3-item-player-vue3'
+import 'qti3-item-player-vue3/dist/qti3Player.css'
 ```
 <p align="right">(<a href="#top">back to top</a>)</p>
 
