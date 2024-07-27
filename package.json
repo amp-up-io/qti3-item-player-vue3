@@ -1,13 +1,13 @@
 {
   "name": "qti3-item-player-vue3",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "QTI 3 Item Player implemented with Vue 3",
   "author": {
     "name": "Paul Grudnitski",
     "email": "paul.grudnitski@amp-up.io"
   },
   "license": "MIT",
-  "private": true,
+  "private": false,
   "keywords": [
     "QTI3",
     "QTI 3",
