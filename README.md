@@ -705,6 +705,7 @@ The QTI3 Item Player 2022-2024 development roadmap includes all features and cap
 - [x] Support for Interaction "Review" Status
 - [x] Improved Audio Player
 - [x] Improved Video Player
+- [ ] Update Quill.js to version 2.x
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -721,7 +722,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Built With
 
-The QTI3 Item Player is built with the Vue.js (v2.6) framework.
+The QTI3 Item Player is built with the Vue 3 (v3.4.34) framework.
 
 * [Vue.js](https://vuejs.org/)
 
@@ -734,7 +735,7 @@ The QTI3 Item Player is built with the Vue.js (v2.6) framework.
 
 Paul Grudnitski - paul.grudnitski@amp-up.io
 
-Project Link: [https://github.com/amp-up-io/qti3-item-player](https://github.com/amp-up-io/qti3-item-player)
+Project Link: [https://github.com/amp-up-io/qti3-item-player-vue3](https://github.com/amp-up-io/qti3-item-player-vue3)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -743,7 +744,7 @@ Project Link: [https://github.com/amp-up-io/qti3-item-player](https://github.com
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-This component would not be possible were it not for a fortuitous decision by the aQTI Task Force (the original name of the QTI 3 Working Group) - meeting at CITO headquarters in Arnhem, NE, January 2015 - to make the aQTI / QTI 3 specification "web component friendly".  
+This component would not be possible were it not for a fortuitous decision by the aQTI Task Force (the original name of the QTI 3 Working Group) - meeting at CITO headquarters in Arnhem, NE, January 2015 - to make the aQTI / QTI 3 specification "web component friendly".
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

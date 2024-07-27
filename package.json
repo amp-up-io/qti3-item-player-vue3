@@ -1,6 +1,6 @@
 {
   "name": "qti3-item-player-vue3",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "QTI 3 Item Player implemented with Vue 3",
   "author": {
     "name": "Paul Grudnitski",
@@ -17,7 +17,9 @@
     "Vue 3"
   ],
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/qti3-item-player-vue3.umd.js",
   "module": "./dist/qti3-item-player-vue3.js",
   "exports": {
@@ -25,7 +27,7 @@
       "import": "./dist/qti3-item-player-vue3.js",
       "require": "./dist/qti3-item-player-vue3.umd.js"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./dist/qti3Player.css": "./dist/qti3Player.css"
   },
   "scripts": {
     "dev": "vite",
@@ -41,7 +43,7 @@
     "sortablejs": "^1.15.2",
     "sweetalert2": "^11.6.13",
     "tippy.js": "^6.3.7",
-    "vue": "^3.4.21"
+    "vue": "^3.4.34"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
@@ -53,5 +55,6 @@
     "eslint": {
       "file-entry-cache": "8.x"
     }
-  }
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }
