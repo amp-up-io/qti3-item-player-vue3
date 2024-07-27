@@ -722,7 +722,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Built With
 
-The QTI3 Item Player is built with the Vue 3 (v3.4.34) framework.
+The QTI3 Item Player is built with the Vue 3.4 (v3.4.34) framework.
 
 * [Vue.js](https://vuejs.org/)
 
