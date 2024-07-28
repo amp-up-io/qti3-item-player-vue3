@@ -501,8 +501,9 @@ export default {
       store.NotifyItemReady({
           item: param.item
         })
-      // Notify listener that the qti-assessment-item component is loaded and ready.
-      context.emit('notifyQti3ItemReady', param.item)
+      // Notify listener that the qti-assessment-item component is loaded 
+      // and ready.  IMPORTANT: Pass the item.value (the proxy)
+      context.emit('notifyQti3ItemReady', item.value)
     }
 
     /**
@@ -600,7 +601,7 @@ export default {
      * @return {Component} a qti-assessment-item component
      */
     function getItem () {
-      return item
+      return item.value
     }
 
     function loadItemContextFromConfiguration (configuration) {
@@ -814,7 +815,12 @@ export default {
       displayAlertMessage,
       displayInvalidResponseMessages,
       displayCatalogEvent,
-      bindCatalog
+      bindCatalog,
+      setItemContextPnp,
+      setItemContextSessionControl,
+      setItemContextGuid,
+      setItemContextState,
+      setItemLifecycleStatus
     }
 
   }, // setup
