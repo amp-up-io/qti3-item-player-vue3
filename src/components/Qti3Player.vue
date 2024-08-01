@@ -604,6 +604,18 @@ export default {
       return item.value
     }
 
+    /**
+     * @description Method to empty the item's XML and reset the store.
+     */
+    function resetItem () {
+      // Step 1: clear out the existing store
+      store.resetAll()
+      // Step 2: reset (close, re-center, etc) Catalog Dialog
+      resetCatalogComponents()
+      // Step 3: load empty xml
+      itemXml.value = ''
+    }
+
     function loadItemContextFromConfiguration (configuration) {
       if (typeof configuration === 'undefined') return
 
@@ -804,6 +816,7 @@ export default {
       scoreAttempt,
       newTemplate,
       getItem,
+      resetItem,
       handleItemReady,
       handleItemCompleted,
       handleSuspendAttemptReady,
@@ -816,6 +829,7 @@ export default {
       displayInvalidResponseMessages,
       displayCatalogEvent,
       bindCatalog,
+      loadItemContextFromConfiguration,
       setItemContextPnp,
       setItemContextSessionControl,
       setItemContextGuid,
