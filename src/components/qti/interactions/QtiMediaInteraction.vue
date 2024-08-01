@@ -523,7 +523,7 @@ export default {
 div.qti-media-interaction {
   display: block;
   padding: 0;
-  margin: .5rem 0;
+  margin: 0 0 .5rem 0;
   width: 100%;
 }
 </style>
