@@ -26,9 +26,11 @@ import QtiValidationException from '@/components/qti/exceptions/QtiValidationExc
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
+import NodeUtils from '@/shared/helpers/NodeUtils'
 import HottextPresentationFactory from '@/components/qti/interactions/presentation/HottextInteractionPresentationFactory'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
+const nodeUtils = new NodeUtils()
 
 export default {
   name: 'QtiHottextInteraction',
@@ -437,15 +439,13 @@ export default {
 
     processChildren () {
       // children[1] is the hottextgroup child
-      const children = this.$.subTree.children[1].children
-      children.forEach((node) => {
-        if (node.dynamicChildren === null) return
-        node.dynamicChildren.forEach((dynamicChild) => {
-          if (dynamicChild.component === null) return
-          if (dynamicChild.type.name === 'QtiHottext')
-            this.choices.push(dynamicChild.component.proxy)
-        })
-      })
+      const children = 
+        this.$.subTree === null 
+          ? null 
+          : this.$.subTree.children[1].children
+      
+      // Sniff for all nested QtiHottext nodes
+      this.choices = nodeUtils.findNodes('QtiHottext', { within: children })
 
       // Build a UI
       this.processGroupUI()
