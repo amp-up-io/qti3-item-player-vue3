@@ -14,12 +14,12 @@ export default {
 div.qti-prompt {
   display: block;
   width: 100%;
-  margin: 8px 0;
+  margin: 0 0 .5rem 0;
 }
 
 .qti3-player-writing-mode-vertical-rl div.qti-prompt {
   display: block;
   height: 100%;
-  margin: 0 8px;
+  margin: 0 0 8px 0;
 }
 </style>
