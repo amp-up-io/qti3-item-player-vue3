@@ -179,7 +179,9 @@ export default {
       let prompt = null
       if (this.hasPrompt) {
         const promptEl = this.$refs.choicegroup.querySelector('.qti-prompt')
-        prompt = promptEl.cloneNode(true)
+        if (promptEl !== null) {
+          prompt = promptEl.cloneNode(true)
+        }
       }
 
       // Clean out the dom and the original choices array

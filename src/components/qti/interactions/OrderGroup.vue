@@ -210,7 +210,9 @@ export default {
       // component.
       if (this.hasPrompt) {
         const promptEl = this.$refs.ordergroup.querySelector('.qti-prompt')
-        this.setPromptElement(promptEl.cloneNode(true))
+        if (promptEl !== null) {
+          this.setPromptElement(promptEl.cloneNode(true))
+        }
       }
 
       const container = this.createContainer(this.choices, this.priorState)
