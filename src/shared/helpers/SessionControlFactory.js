@@ -15,7 +15,7 @@ export class SessionControlFactory {
   }
 
   defaultSessionControl () {
-    let sc = {
+    this.sc = {
       allow_comment: false,
       allow_review: true,
       allow_skipping: true,
@@ -36,15 +36,13 @@ export class SessionControlFactory {
        */
       validate_responses: false
     }
-    return sc
+    return this.sc
   }
 
   setSessionControl (sc) {
     if (typeof sc === 'undefined') return
 
-    if (sc === null) {
-      this.sc = this.defaultSessionControl()
-    }
+    if (sc === null) return this.sc = this.defaultSessionControl()
 
     if (('allow_comment' in sc) && (sc.allow_comment !== null)) {
       this.setAllowComment(sc.allow_comment)
@@ -122,7 +120,7 @@ export class SessionControlFactory {
   }
 
   setAllowSkipping (allow_skipping) {
-    this.allow_skipping = allow_skipping
+    this.sc.allow_skipping = allow_skipping
   }
 
   getMaxAttempts () {
