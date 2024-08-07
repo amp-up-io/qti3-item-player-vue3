@@ -6,6 +6,7 @@
     <MediaGroup
       ref="mediagroup"
       @mediaMounted="handleMediaMounted"
+      @mediaLoaded="handleMediaLoaded"
       @mediaEnded="handleMediaEnded">
       <slot></slot>
     </MediaGroup>
@@ -110,6 +111,7 @@ export default {
       maxPlaysMessage: '',
       responseDeclaration: null,
       mediaType: 'media',
+      isAutostart: false,
       isLoop: false,
       isDisabled: false,
       isQtiValid: true,
@@ -276,6 +278,12 @@ export default {
       this.evaluateMaxPlays()
     },
 
+    handleMediaLoaded (node) {
+      this.node = node.node
+      this.evaluateMaxPlays()
+      this.evaluateAutostart()
+    },
+
     handleMediaEnded () {
       this.incrementPlays()
       this.evaluateValidity()
@@ -358,6 +366,14 @@ export default {
       if (!this.isLoop) return
       if (this.checkMaxPlaysLimit()) return
       if (this.isDisabled) return
+      this.playMedia()
+    },
+
+    evaluateAutostart () {
+      if (!this.isAutostart) return
+      if (this.checkMaxPlaysLimit()) return
+      if (this.isDisabled) return
+      console.log(`[${this.$options.name}][Identifier=${this.responseIdentifier}][AutoStart]`)
       this.playMedia()
     },
 
@@ -491,6 +507,7 @@ export default {
       qtiAttributeValidation.validateMaxMinPlays(this.maxPlays, this.minPlays)
 
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
+      this.isAutostart = (this.autostart === 'true' ? true : false)
       this.isLoop = (this.loop === 'true' ? true : false)
 
       this.computeMaxPlaysMessage()

@@ -105,6 +105,7 @@ export default {
   name: 'AmpVideo',
 
   emits: [
+    'mediaLoaded',
     'mediaEnded',
     'mediaMounted'
   ],
@@ -181,6 +182,12 @@ export default {
         // Display duration
         this.duration = Math.round(this.video.duration)
         this.displayDuration = this.convertTime(this.duration)
+
+        // Only emit mediaLoaded when we are nested inside a Media Interaction,
+        // in which case we might be asked to autostart.
+        if (this.isMediaInteractionChild()) {
+          this.$parent.$emit('mediaLoaded', { node: this })
+        }
       }
     },
 
@@ -430,6 +437,8 @@ export default {
       this.video = this.$refs.player
       // Disable controls on the video player.  We add our own controller.
       this.video.removeAttribute('controls')
+      // Remove the horrible autoplay
+      this.video.removeAttribute('autoplay')
       // Fuss around with width, if video has a width attribute.
       if (this.video.hasAttribute('width')) {
         const width = `${this.video.getAttribute('width')}`
