@@ -1,6 +1,6 @@
 {
   "name": "qti3-item-player-vue3",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "QTI 3 Item Player implemented with Vue 3",
   "author": {
     "name": "Paul Grudnitski",
