@@ -322,6 +322,12 @@ export default {
       }
     },
 
+    playAudio () {
+      if (!this.audio) return
+      this.audio.play()
+      this.isPlaying = true
+    },
+
     pauseAudio () {
       if (!this.audio) return
       this.audio.pause()

@@ -110,6 +110,7 @@ export default {
       maxPlaysMessage: '',
       responseDeclaration: null,
       mediaType: 'media',
+      isLoop: false,
       isDisabled: false,
       isQtiValid: true,
       hasPrompts: false,
@@ -279,6 +280,9 @@ export default {
       this.incrementPlays()
       this.evaluateValidity()
       this.evaluateMaxPlays()
+      // Check loop="true"...restart the media if there is 
+      // no maxPlays constraint.
+      this.evaluateLoop()
     },
 
     /**
@@ -348,6 +352,19 @@ export default {
         this.disable()
       else
         this.enable()
+    },
+
+    evaluateLoop () {
+      if (!this.isLoop) return
+      if (this.checkMaxPlaysLimit()) return
+      if (this.isDisabled) return
+      this.playMedia()
+    },
+
+    playMedia () {
+      if (this.node == null) return
+      if (this.mediaType === 'audio') return this.node.playAudio()
+      this.node.playVideo()
     },
 
     /**
@@ -474,6 +491,7 @@ export default {
       qtiAttributeValidation.validateMaxMinPlays(this.maxPlays, this.minPlays)
 
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
+      this.isLoop = (this.loop === 'true' ? true : false)
 
       this.computeMaxPlaysMessage()
     } catch (err) {

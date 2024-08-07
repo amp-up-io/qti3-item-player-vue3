@@ -355,6 +355,12 @@ export default {
       }
     },
 
+    playVideo () {
+      if (!this.video) return
+      this.video.play()
+      this.isPlaying = true
+    },
+
     pauseVideo () {
       if (!this.video) return
       this.video.pause()
