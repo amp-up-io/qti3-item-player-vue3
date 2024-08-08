@@ -748,6 +748,7 @@ export default {
 
   beforeUnmount () {
     // Unbind all Catalogs to avoid memory leaks
+    if (this.catalogFactory === null) return
     this.catalogFactory.resetAll()
   }
 }
