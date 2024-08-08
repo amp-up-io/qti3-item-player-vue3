@@ -334,7 +334,7 @@ export const store = {
     this.itemContext.guid = null
     this.itemContext.state = null
     this.itemContext.validationMessages.splice(0, this.itemContext.validationMessages.length)
-    this.itemContext.lifecycleState = null
+    this.itemContext.lifecycleStatus = null
     // For now, do not reset pnp and sessionControl
     // this.itemContext.pnp = null
     // this.itemContext.sc = null
