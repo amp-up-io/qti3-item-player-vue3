@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, nextTick, onBeforeUnmount, getCurrentInstance } from 'vue'
+import { ref, computed, watch, nextTick, onBeforeUnmount, onErrorCaptured, getCurrentInstance } from 'vue'
 import { store } from '@/store/store'
 import { XmlFilters } from '@/shared/helpers/XmlFilters'
 import Swal from 'sweetalert2'
@@ -815,6 +815,11 @@ export default {
     onBeforeUnmount (() => {
       // Tear down the PciMessageListener
       store.removePciMessageListener()
+    })
+
+    onErrorCaptured((err, vm) => {
+      console.log('[' + err.name + '][' + vm.$options.name + '] ' + err.message)
+      return false
     })
 
     return {
