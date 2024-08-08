@@ -94,6 +94,8 @@ export default {
     validateChildren () {
       let hasSimpleChoice = false
 
+      if (!this.$slots.default) return
+
       this.$slots.default()[0].children.forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Only qti-prompt and qti-simple-choices permitted
