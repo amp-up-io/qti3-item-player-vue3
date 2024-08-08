@@ -17,15 +17,6 @@ import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationExc
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiProcessing from '@/components/qti/processing/utils/QtiProcessing'
-//import QtiDefaultValue from '@/components/qti/declarations/QtiDefaultValue.vue'
-//import QtiCorrectResponse from '@/components/qti/declarations/QtiCorrectResponse.vue'
-//import QtiMapping from '@/components/qti/declarations/QtiMapping.vue'
-//import QtiAreaMapping from '@/components/qti/declarations/QtiAreaMapping.vue'
-
-//Vue.component('qti-default-value', QtiDefaultValue)
-//Vue.component('qti-correct-response', QtiCorrectResponse)
-//Vue.component('qti-mapping', QtiMapping)
-//Vue.component('qti-area-mapping', QtiAreaMapping)
 
 const qtiAttributeValidation = new QtiAttributeValidation()
 const qtiProcessing = new QtiProcessing()
@@ -194,20 +185,21 @@ export default {
       const children = this.$.subTree.children[0].children
       
       children.forEach((node) => {
-        if ((node.type.name === 'QtiCorrectResponse') && (node.component !== null)) {
+        if (node.component === null) return
+        if (node.type.name === 'QtiCorrectResponse') {
           return this.correctResponse = node.component.proxy.getValue()
         }
 
-        if ((node.type.name === 'QtiDefaultValue') && (node.component !== null)) {
+        if (node.type.name === 'QtiDefaultValue') {
           return this.defaultValue = node.component.proxy.getValue()
         }
 
-        if ((node.type.name === 'QtiMapping') && (node.component !== null)) {
+        if (node.type.name === 'QtiMapping') {
           return this.mapping = node.component.proxy
         }
 
         // Unsupported
-        //if ((node.type.name === 'QtiAreaMapping') && (node.component !== null)) {
+        //if (node.type.name === 'QtiAreaMapping') {
         //  return this.areaMapping = node.component.proxy
         //}
 

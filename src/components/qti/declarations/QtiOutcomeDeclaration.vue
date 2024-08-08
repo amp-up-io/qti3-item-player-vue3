@@ -277,11 +277,13 @@ export default {
       const children = this.$.subTree.children[0].children
       
       children.forEach((node) => {
-        if ((node.type.name === 'QtiDefaultValue') && (node.component !== null)) {
+        if (node.component === null) return
+
+        if (node.type.name === 'QtiDefaultValue') {
           return this.defaultValue = node.component.proxy.getValue()
         }
 
-        if (((node.type.name === 'QtiMatchTable') || (node.type.name === 'QtiLookupTable')) && (node.component !== null)) {
+        if ((node.type.name === 'QtiMatchTable') || (node.type.name === 'QtiInterpolationTable')) {
           return this.lookupTable = node.component.proxy
         }
 
