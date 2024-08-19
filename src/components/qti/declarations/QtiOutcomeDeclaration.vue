@@ -237,9 +237,7 @@ export default {
           //   qti-default-value
           //   qti-match-table || qti-interpolation-table
           if (slot.type.name === 'QtiDefaultValue') {
-            if (!hasDefaultValue) {
-              return hasDefaultValue = true
-            }
+            if (!hasDefaultValue) return hasDefaultValue = true
             throw new QtiValidationException('Maximum of 1 qti-default-value element permitted')
           }
 
@@ -247,9 +245,8 @@ export default {
             if (hasInterpolationTable) {
               throw new QtiValidationException('Maximum of 1 lookupTable permitted')
             }
-            if (!hasMatchTable) {
-              return hasMatchTable = true
-            }
+
+            if (!hasMatchTable) return hasMatchTable = true
             throw new QtiValidationException('Maximum of 1 qti-match-table element permitted')
           }
 
@@ -257,9 +254,8 @@ export default {
             if (hasMatchTable) {
               throw new QtiValidationException('Maximum of 1 lookupTable permitted')
             }
-            if (!hasInterpolationTable) {
-              return hasInterpolationTable = true
-            }
+            
+            if (!hasInterpolationTable) return hasInterpolationTable = true
             throw new QtiValidationException('Maximum of 1 qti-interpolation-table element permitted')
           }
 
