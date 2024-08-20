@@ -17,6 +17,7 @@
  * case it is initialized to 0. Declared outcomes with numeric types should indicate their range of possible values using normalMaximum
  * and normalMinimum, especially if this range differs from [0,1].
  */
+import { teststore } from '@/store/teststore'
 import { store } from '@/store/store'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -137,7 +138,9 @@ export default {
       // normalMinimum float value
       normalMinimumValue: null,
       // masteryValue float value
-      masteryValueValue: null
+      masteryValueValue: null,
+      // default declaration context: TEST or ITEM
+      declarationContext: 'ITEM'
     }
   },
 
@@ -213,10 +216,21 @@ export default {
     reset () {
       this.initializeValue()
       // Notify store of our value
-      store.setOutcomeVariableValue({
+      teststore.setOutcomeVariableValue({
           identifier: this.identifier,
           value: this.getValue()
         })
+    },
+
+    /**
+     * @description Determine if we are declared inside of a 
+     * QtiAssessmentTest or a QtiAssessmentItem.
+     */
+    computeDeclarationContext () {
+      this.declarationContext =
+            (this.$parent?.$parent?.$options?.name === 'QtiAssessmentTest')
+              ? 'TEST' 
+              : 'ITEM'
     },
 
     /**
@@ -237,7 +251,9 @@ export default {
           //   qti-default-value
           //   qti-match-table || qti-interpolation-table
           if (slot.type.name === 'QtiDefaultValue') {
-            if (!hasDefaultValue) return hasDefaultValue = true
+            if (!hasDefaultValue) {
+              return hasDefaultValue = true
+            }
             throw new QtiValidationException('Maximum of 1 qti-default-value element permitted')
           }
 
@@ -245,8 +261,9 @@ export default {
             if (hasInterpolationTable) {
               throw new QtiValidationException('Maximum of 1 lookupTable permitted')
             }
-
-            if (!hasMatchTable) return hasMatchTable = true
+            if (!hasMatchTable) {
+              return hasMatchTable = true
+            }
             throw new QtiValidationException('Maximum of 1 qti-match-table element permitted')
           }
 
@@ -254,8 +271,9 @@ export default {
             if (hasMatchTable) {
               throw new QtiValidationException('Maximum of 1 lookupTable permitted')
             }
-            
-            if (!hasInterpolationTable) return hasInterpolationTable = true
+            if (!hasInterpolationTable) {
+              return hasInterpolationTable = true
+            }
             throw new QtiValidationException('Maximum of 1 qti-interpolation-table element permitted')
           }
 
@@ -274,7 +292,6 @@ export default {
       
       children.forEach((node) => {
         if (node.component === null) return
-
         if (node.type.name === 'QtiDefaultValue') {
           return this.defaultValue = node.component.proxy.getValue()
         }
@@ -283,38 +300,17 @@ export default {
           return this.lookupTable = node.component.proxy
         }
 
-        throw new QtiValidationException('[' + node.type.name + '][Unhandled Child Node]: "' + node.type.name + '"')
+        throw new QtiValidationException('[' + this.$options.name + '][Unhandled Child Node]: "' + node.type.name + '"')
       })
-    },
-
-    /**
-     * @description Retrieve this variable's prior state.
-     * When not null, has this schema:
-     * {
-     *   identifier: [String],
-     *   value: [Value saved from last attempt]
-     * }
-     * @param {String} identifier - of an outcome variable
-     */
-    getPriorState (identifier) {
-      const priorState = store.getItemContextStateVariable(identifier)
-      console.log('[OutcomeDeclaration][' + identifier + '][priorState]', priorState)
-
-      // If priorState is null, we are not restoring anything
-      if (priorState === null) return null
-
-      // Perform basic consistency checking on this priorState
-      if (!('value' in priorState)) {
-        throw new QtiEvaluationException('Variable Restore State Invalid.  "value" property not found.')
-      }
-
-      this.setValue(priorState.value)
-      return priorState
     }
+
   },
 
   created () {
     try {
+      // Compute our context: TEST or ITEM
+      this.computeDeclarationContext()
+
       qtiAttributeValidation.validateCardinality(this.cardinality)
       qtiAttributeValidation.validateBaseTypeAndCardinality(this.baseType, this.cardinality === 'record')
       qtiAttributeValidation.validateIdentifierAttribute(this.identifier)
@@ -343,10 +339,7 @@ export default {
         }
       }
 
-      // Notify store of our initial model.  We need this Initial
-      // definition before we can properly parse outcome variable references
-      // in the rest of the item.
-      store.defineOutcomeDeclaration({
+      const obj = {
           identifier: this.identifier,
           baseType: this.getBaseType(),
           cardinality: this.getCardinality(),
@@ -361,7 +354,15 @@ export default {
           value: null,
           defaultValue: null,
           node: this
-        })
+        }
+
+      // Notify store or teststore of our initial model.  We need this Initial
+      // definition before we can properly parse outcome variable references
+      // in the rest of the test or item.
+      if (this.declarationContext === 'TEST')
+        teststore.defineOutcomeDeclaration(obj)
+      else
+        store.defineOutcomeDeclaration(obj)
 
     } catch (err) {
       this.isQtiValid = false
@@ -380,12 +381,9 @@ export default {
       try {
         this.processChildren()
 
-        if (this.getPriorState(this.identifier) === null) {
-          // Initialize a value when no prior state
-          this.initializeValue()
-        }
+        this.initializeValue()
 
-        store.defineOutcomeDeclaration({
+        const obj = {
             identifier: this.identifier,
             baseType: this.getBaseType(),
             cardinality: this.getCardinality(),
@@ -402,10 +400,16 @@ export default {
             lookupTable: this.lookupTable,
             lookupTableType: this.lookupTableType,
             node: this
-          })
+          }
 
-        console.log('[' + this.$options.name + '][' + this.identifier + '][DefaultValue]', this.defaultValue, '[lookupTable]', this.lookupTable)
-      } catch (err) {
+        // Notify store or teststore of our updated model.
+        if (this.declarationContext === 'TEST')
+          teststore.defineOutcomeDeclaration(obj)
+        else
+          store.defineOutcomeDeclaration(obj)
+
+        console.log('[' + this.$options.name + '][' + this.identifier + '][' + this.declarationContext + '][DefaultValue]', this.defaultValue, '[lookupTable]', this.lookupTable)
+        } catch (err) {
         this.isQtiValid = false
         if (err.name === 'QtiValidationException') {
           throw new QtiValidationException(err.message)
