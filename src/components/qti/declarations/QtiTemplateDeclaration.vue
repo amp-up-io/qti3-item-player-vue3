@@ -73,7 +73,9 @@ export default {
       /* [0-1] multiplicity */
       defaultValue: null,
       // internal validation status
-      isQtiValid: true
+      isQtiValid: true,
+      // default declaration context: ITEM
+      declarationContext: 'ITEM'
     }
   },
 
@@ -105,6 +107,13 @@ export default {
 
     getDefaultValue () {
       return this.defaultValue
+    },
+
+    /*
+     * Template declarations only occur in items
+     */
+    getDeclarationContext () {
+      return 'ITEM'
     },
 
     /**

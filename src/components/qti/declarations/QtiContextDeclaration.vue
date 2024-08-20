@@ -11,8 +11,8 @@
  * Context variables are initialized at the start of a test session.  They can have their
  * values retrieved during outcomeProcessing.
  */
-import { teststore } from '@/store/teststore'
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
@@ -84,6 +84,13 @@ export default {
       return this.defaultValue
     },
 
+    /*
+     * Context declarations occur in items and tests
+     */
+    getDeclarationContext () {
+      return this.declarationContext
+    },
+
     /**
      * Utility method to resets value of this variable to default.
      */
@@ -113,6 +120,10 @@ export default {
             (this.$parent?.$parent?.$options?.name === 'QtiAssessmentTest')
               ? 'TEST' 
               : 'ITEM'
+    },
+
+    getStore () {
+      return (this.declarationContext === 'TEST') ? teststore : store
     },
 
     /**
@@ -170,22 +181,17 @@ export default {
 
       this.validateChildren()
 
-      const obj = {
+      // Notify store or teststore of our initial model.  We need this Initial
+      // definition before we can properly parse template variable references
+      // in the rest of the test
+      this.getStore().defineContextDeclaration({
           identifier: this.identifier,
           baseType: this.getBaseType(),
           cardinality: this.getCardinality(),
           value: null,
           resetValue: this.reset,
           defaultValue: null
-        }
-
-      // Notify store or teststore of our initial model.  We need this Initial
-      // definition before we can properly parse template variable references
-      // in the rest of the test
-      if (this.declarationContext === 'TEST')
-        teststore.defineContextDeclaration(obj)
-      else
-        store.defineContextDeclaration(obj)
+        })
 
     } catch (err) {
       this.isQtiValid = false

@@ -17,8 +17,8 @@
  * case it is initialized to 0. Declared outcomes with numeric types should indicate their range of possible values using normalMaximum
  * and normalMinimum, especially if this range differs from [0,1].
  */
-import { teststore } from '@/store/teststore'
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
@@ -186,6 +186,13 @@ export default {
       return this.defaultValue
     },
 
+    /*
+     * Outcome declarations occur in items and tests
+     */
+    getDeclarationContext () {
+      return this.declarationContext
+    },
+
     /**
      * Utility method to reset value of this variable to default.
      */
@@ -216,7 +223,7 @@ export default {
     reset () {
       this.initializeValue()
       // Notify store of our value
-      teststore.setOutcomeVariableValue({
+      this.getStore().setOutcomeVariableValue({
           identifier: this.identifier,
           value: this.getValue()
         })
@@ -231,6 +238,10 @@ export default {
             (this.$parent?.$parent?.$options?.name === 'QtiAssessmentTest')
               ? 'TEST' 
               : 'ITEM'
+    },
+
+    getStore () {
+      return (this.declarationContext === 'TEST') ? teststore : store
     },
 
     /**
@@ -339,7 +350,10 @@ export default {
         }
       }
 
-      const obj = {
+      // Notify store or teststore of our initial model.  We need this Initial
+      // definition before we can properly parse outcome variable references
+      // in the rest of the test or item.
+      this.getStore().defineOutcomeDeclaration({
           identifier: this.identifier,
           baseType: this.getBaseType(),
           cardinality: this.getCardinality(),
@@ -354,15 +368,7 @@ export default {
           value: null,
           defaultValue: null,
           node: this
-        }
-
-      // Notify store or teststore of our initial model.  We need this Initial
-      // definition before we can properly parse outcome variable references
-      // in the rest of the test or item.
-      if (this.declarationContext === 'TEST')
-        teststore.defineOutcomeDeclaration(obj)
-      else
-        store.defineOutcomeDeclaration(obj)
+        })
 
     } catch (err) {
       this.isQtiValid = false

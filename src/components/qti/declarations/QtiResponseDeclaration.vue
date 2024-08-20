@@ -55,7 +55,9 @@ export default {
       /* [0-1] multiplicity */
       areaMapping: null,
       // internal validation status
-      isQtiValid: true
+      isQtiValid: true,
+      // default declaration context: ITEM
+      declarationContext: 'ITEM'
     }
   },
 
@@ -107,6 +109,13 @@ export default {
 
     getAreaMapping() {
       return this.areaMapping
+    },
+
+    /*
+     * Response declarations only occur in items
+     */
+     getDeclarationContext () {
+      return 'ITEM'
     },
 
     /**

@@ -23,6 +23,7 @@
  * type promotion and the result of the expression has base type float.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -50,7 +51,8 @@ export default {
       value: null,
       valueBaseType: null,
       valueCardinality: null,
-      isQtiValid: true
+      isQtiValid: true,
+      processingContext: null
     }
   },
 
@@ -84,6 +86,10 @@ export default {
       this.valueCardinality = cardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     /**
      * Iterate through the child nodes:
      * There should be zero child nodes of this component.
@@ -94,7 +100,7 @@ export default {
 
     evaluate () {
       try {
-        let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute (store, this.identifier)
+        let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.identifier)
 
         if (typeof declaration === 'undefined') {
           this.setValue(qtiProcessing.nullValue())
@@ -125,7 +131,8 @@ export default {
 
   created () {
     try {
-      let variableDeclaration = qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier)
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
+      const variableDeclaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.identifier)
       this.valueBaseType = variableDeclaration.baseType
       this.valueCardinality = variableDeclaration.cardinality
     } catch (err) {

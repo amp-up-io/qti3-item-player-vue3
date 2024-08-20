@@ -15,6 +15,7 @@
  * round or integerToFloat operators must be used to achieve numeric type conversion.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -36,11 +37,16 @@ export default {
   data () {
     return {
       isQtiValid: true,
-      expression: null
+      expression: null,
+      processingContext: null
     }
   },
 
   methods: {
+
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
 
     validateRequiredBaseTypeAndCardinality (declaration, expression) {
       if (declaration.baseType !== expression.getBaseType()) {
@@ -94,7 +100,11 @@ export default {
       expressions.forEach((expression) => {
         if (expression.component === null) return
         // Ensure declaration and expression have matching baseType and cardinality
-        this.validateRequiredBaseTypeAndCardinality(qtiAttributeValidation.validateOutcomeIdentifierAttribute(store, this.identifier), expression.component.proxy)
+        this.validateRequiredBaseTypeAndCardinality(
+              qtiAttributeValidation.validateOutcomeIdentifierAttribute(
+                this.getStore(), 
+                this.identifier), 
+              expression.component.proxy)
       })
     },
 
@@ -102,13 +112,13 @@ export default {
       try {
         let value = this.expression.evaluate()
 
-        let declaration = qtiAttributeValidation.validateOutcomeIdentifierAttribute(store, this.identifier)
+        let declaration = qtiAttributeValidation.validateOutcomeIdentifierAttribute(this.getStore(), this.identifier)
         if (typeof declaration === 'undefined') {
           throw new QtiEvaluationException('Outcome variable not found for identifier: "' + this.identifier + '"')
         }
 
         // Notify store of our value
-        store.setOutcomeVariableValue({
+        this.getStore().setOutcomeVariableValue({
             identifier: this.identifier,
             value: value
           })
@@ -129,7 +139,8 @@ export default {
 
   created () {
     try {
-      qtiAttributeValidation.validateOutcomeIdentifierAttribute(store, this.identifier)
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
+      qtiAttributeValidation.validateOutcomeIdentifierAttribute(this.getStore(), this.identifier)
       this.validateChildren()
     } catch (err) {
       this.isQtiValid = false

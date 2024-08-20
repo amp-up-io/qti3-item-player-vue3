@@ -16,6 +16,7 @@
  * Parents can be qti-correct-response or qti-default-value.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -179,13 +180,17 @@ export default {
         }
         this.valueBaseType = variableBaseType
       }
+    },
+
+    getStore () {
+      return (this.$parent.$parent.getDeclarationContext() === 'TEST') ? teststore : store
     }
 
   },
 
   created: function() {
-    try {
-      let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute (store, this.$parent.$parent.$props.identifier)
+    try {      
+      let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.$parent.$parent.$props.identifier)
 
       if (typeof declaration === 'undefined') {
         // Did not find required variable declaration
