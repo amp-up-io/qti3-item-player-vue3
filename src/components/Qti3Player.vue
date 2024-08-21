@@ -21,6 +21,7 @@
 <script>
 import { ref, computed, watch, nextTick, onBeforeUnmount, onErrorCaptured, getCurrentInstance } from 'vue'
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore' 
 import { XmlFilters } from '@/shared/helpers/XmlFilters'
 import Swal from 'sweetalert2'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -601,6 +602,10 @@ export default {
       return `item-container-${qtiAttributeValidation.randomString(5,'a')}`
     }
 
+    function getTeststore () {
+      return teststore
+    }
+
     /**
      * @description All QTI 3 Assessment Item components, including supporting
      * components, are loaded into the global app context here.
@@ -853,7 +858,8 @@ export default {
       setItemContextSessionControl,
       setItemContextGuid,
       setItemContextState,
-      setItemLifecycleStatus
+      setItemLifecycleStatus,
+      getTeststore
     }
 
   }, // setup
