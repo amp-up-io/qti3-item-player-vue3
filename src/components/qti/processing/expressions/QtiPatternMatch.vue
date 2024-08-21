@@ -15,6 +15,7 @@
  * http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#regexs
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -50,6 +51,7 @@ export default {
       appliedRegex: null,
       // Set to true if pattern resolves to a variable identifier
       isPatternIdentifier: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -76,10 +78,14 @@ export default {
       return this.valueCardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     validateAttributes() {
       let declaration
       try {
-        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.pattern)
+        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.pattern)
         // If we get to this line of code then we believe that 'pattern' is
         // a variable identifier, not a RegEx pattern.
         this.isPatternIdentifier = true
@@ -194,7 +200,7 @@ export default {
      */
     getRegex () {
       if (this.isPatternIdentifier) {
-        let declaration = store.getVariableDeclaration(this.pattern)
+        const declaration = this.getStore().getVariableDeclaration(this.pattern)
         return qtiAttributeValidation.validatePattern('pattern', declaration.value)
       }
       return this.appliedRegex
@@ -204,6 +210,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
       this.validateAttributes()
       this.validateChildren()
     } catch (err) {

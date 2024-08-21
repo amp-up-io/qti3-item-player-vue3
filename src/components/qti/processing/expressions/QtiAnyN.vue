@@ -18,6 +18,7 @@
  * The result NULL indicates that the correct value for the operator cannot be determined.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -59,6 +60,7 @@ export default {
       valueMax: null,
       // Set to true if max resolves to a variable identifier
       isMaxIdentifier: false,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -85,13 +87,17 @@ export default {
       return this.valueCardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     validateMinMaxAttribute(attributeName, attributeValue) {
       let declaration
       let isIdentifier = false
 
       // Try and resolve attribute as an identifier
       try {
-        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute(store, attributeValue)
+        declaration =  qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), attributeValue)
         // If we get to this line of code then we believe that the attribute is
         // a variable identifier, not an integer value
         isIdentifier = true
@@ -258,7 +264,7 @@ export default {
       if (this.valueMin !== null) {
         return (this.valueMin)
       }
-      let declaration = store.getVariableDeclaration(this.min)
+      const declaration = this.getStore().getVariableDeclaration(this.min)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     },
@@ -271,7 +277,7 @@ export default {
       if (this.valueMax !== null) {
         return (this.valueMax)
       }
-      let declaration = store.getVariableDeclaration(this.max)
+      const declaration = this.getStore().getVariableDeclaration(this.max)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     }
@@ -279,6 +285,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
       this.validateAttributes()
       this.validateChildren()
     } catch (err) {

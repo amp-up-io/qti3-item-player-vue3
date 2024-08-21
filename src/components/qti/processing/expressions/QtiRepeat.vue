@@ -17,6 +17,7 @@
  * NULL then the result is NULL.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -48,6 +49,7 @@ export default {
       expressions: [],
       // This resolves to an integer if number-repeats is not an identifier
       valueNumberRepeats: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -78,6 +80,10 @@ export default {
       return this.valueCardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     validateAttributes() {
       // Resolve the number-repeats attribute.
       // First, try to resolve it as an integer.
@@ -94,7 +100,7 @@ export default {
       // template variable or outcome variable.
       try {
         qtiAttributeValidation.validateIdentifierAttribute(this.numberRepeats)
-        const declarationNumberRepeats = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(store, this.numberRepeats)
+        const declarationNumberRepeats = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(this.getStore(), this.numberRepeats)
         if ((declarationNumberRepeats.baseType !== 'integer') || (declarationNumberRepeats.cardinality !== 'single')) {
           throw new QtiValidationException('[Repeat] Attribute "number-repeats" template or outcome variable must be base-type="integer" and cardinality="single"')
         }
@@ -240,7 +246,7 @@ export default {
       if (this.valueNumberRepeats !== null) {
         return (this.valueNumberRepeats)
       }
-      let declaration = store.getVariableDeclaration(this.numberRepeats)
+      const declaration = this.getStore().getVariableDeclaration(this.numberRepeats)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     }
@@ -249,6 +255,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
       this.validateAttributes()
       this.validateChildren()
     } catch (err) {

@@ -10,6 +10,7 @@
  * (see qti-variable) may be used to obtain the correct response from an individual item.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -37,6 +38,7 @@ export default {
       value: null,
       valueBaseType: null,
       valueCardinality: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -71,6 +73,10 @@ export default {
       this.valueCardinality = cardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     /**
      * Iterate through the child nodes:
      * There should be zero child nodes of this component.
@@ -81,7 +87,7 @@ export default {
 
     evaluate () {
       try {
-        let responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute (store, this.identifier)
+        const responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute (this.getStore(), this.identifier)
 
         if (typeof responseDeclaration === 'undefined') {
           this.setValue(qtiProcessing.nullValue())
@@ -112,7 +118,8 @@ export default {
 
   created () {
     try {
-      let responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(store, this.identifier)
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
+      const responseDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute(this.getStore(), this.identifier)
       this.setBaseType(responseDeclaration.baseType)
       this.setCardinality(responseDeclaration.cardinality)
     } catch (err) {

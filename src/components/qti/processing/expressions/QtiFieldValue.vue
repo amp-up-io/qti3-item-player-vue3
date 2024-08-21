@@ -11,6 +11,7 @@
  * that identifier then the result of the operator is NULL.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -38,6 +39,7 @@ export default {
       valueBaseType: null,
       valueCardinality: 'single',
       expression: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -66,6 +68,10 @@ export default {
 
     getCardinality () {
       return this.valueCardinality
+    },
+
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
     },
 
     /**
@@ -143,7 +149,7 @@ export default {
       let variableDeclaration
 
       try {
-        variableDeclaration = qtiAttributeValidation.validateVariableIdentifierAttribute(store, variableIdentifier)
+        variableDeclaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), variableIdentifier)
       } catch (err) {
         // No variable declaration found for this identifier.  Bail.
         return null
@@ -160,7 +166,7 @@ export default {
 
       // No default value.  If this is a response declaration, check if there is a correctResponse definition
       try {
-        variableDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute (store, variableIdentifier)
+        variableDeclaration = qtiAttributeValidation.validateResponseIdentifierAttribute (this.getStore(), variableIdentifier)
       } catch (err) {
         // If we get here, it's because no response declaration was found for this identifier. Bail.
         return null
@@ -218,6 +224,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
       this.validateChildren()
     } catch (err) {
       this.isQtiValid = false

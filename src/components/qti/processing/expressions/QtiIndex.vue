@@ -15,6 +15,7 @@
  * runtime that is used.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiParseException from '@/components/qti/exceptions/QtiParseException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
@@ -46,6 +47,7 @@ export default {
       expression: null,
       // This resolves to an integer if 'n' is not an identifier
       valueN: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -76,6 +78,10 @@ export default {
       return this.valueCardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     validateAttributes() {
       // Resolve the n attribute.
       // First, try to resolve it as an integer.
@@ -92,7 +98,7 @@ export default {
       // template variable or outcome variable.
       try {
         qtiAttributeValidation.validateIdentifierAttribute(this.n)
-        const declarationN = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(store, this.n)
+        const declarationN = qtiAttributeValidation.validateTemplateOrOutcomeIdentifierAttribute(this.getStore(), this.n)
         if ((declarationN.baseType !== 'integer') || (declarationN.cardinality !== 'single')) {
           throw new QtiValidationException('[Index] Attribute "n" template or outcome variable must be base-type="integer" and cardinality="single"')
         }
@@ -213,7 +219,7 @@ export default {
       if (this.valueN !== null) {
         return (this.valueN)
       }
-      let declaration = store.getVariableDeclaration(this.n)
+      const declaration = this.getStore().getVariableDeclaration(this.n)
       // Return the variable's value.  Return 0 if variable is somehow not found.
       return (declaration !== null ? declaration.value : 0)
     }
@@ -221,6 +227,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
       this.validateAttributes()
       this.validateChildren()
     } catch (err) {

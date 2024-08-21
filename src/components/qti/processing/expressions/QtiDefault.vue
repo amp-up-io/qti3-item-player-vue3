@@ -10,6 +10,7 @@
  * (see qti-variable) may be used to obtain the default value from an individual item.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -37,6 +38,7 @@ export default {
       value: null,
       valueBaseType: null,
       valueCardinality: null,
+      processingContext: null,
       isQtiValid: true
     }
   },
@@ -71,6 +73,10 @@ export default {
       this.valueCardinality = cardinality
     },
 
+    getStore () {
+      return (this.processingContext === 'TEST') ? teststore : store
+    },
+
     /**
      * Iterate through the child nodes:
      * There should be zero child nodes of this component.
@@ -81,7 +87,7 @@ export default {
 
     evaluate () {
       try {
-        let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier)
+        const declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.identifier)
 
         if (typeof declaration === 'undefined') {
           this.setValue(qtiProcessing.nullValue())
@@ -112,7 +118,8 @@ export default {
 
   created () {
     try {
-      let declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(store, this.identifier)
+      this.processingContext = qtiProcessing.computeProcessingContext(this)
+      const declaration = qtiAttributeValidation.validateVariableIdentifierAttribute(this.getStore(), this.identifier)
       this.setBaseType(declaration.baseType)
       this.setCardinality(declaration.cardinality)
     } catch (err) {
