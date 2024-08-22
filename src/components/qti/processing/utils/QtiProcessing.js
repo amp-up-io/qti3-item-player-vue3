@@ -84,7 +84,8 @@ export default class QtiProcessing {
       'qti-lcm',
       'qti-stats-operator',
       'qti-power',
-      'qti-any-n'
+      'qti-any-n',
+      'qti-test-variables'
     ]
   }
 
