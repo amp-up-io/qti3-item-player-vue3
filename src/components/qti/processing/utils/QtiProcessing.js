@@ -664,4 +664,13 @@ export default class QtiProcessing {
     return this.computeProcessingType(node.$parent)
   }
 
+  computeNodeContext (node) {
+    if (node === null) return 'ITEM'
+    if (node.$options.name === 'QtiAssessmentItem') return 'ITEM'
+    if (node.$options.name === 'QtiAssessmentTest') return 'TEST'
+
+    // Inspect the node's parent
+    return this.computeNodeContext(node.$parent)    
+  }
+
 }

@@ -24,7 +24,9 @@ export const teststore = {
     /* [0..*] */
     printedVariables: [],
     /* [0..*] */
-    catalogs: []
+    catalogs: [],
+    /* [0..*] */
+    scoringRubricBlocks: []
   },
 
   testContext: {
@@ -97,6 +99,18 @@ export const teststore = {
 
   getPrintedVariables () {
     return this.state.printedVariables
+  },
+
+  getCatalog (id) {
+    return this.state.catalogs.find(c => c.id === id)
+  },
+
+  getCatalogs () {
+    return this.state.catalogs
+  },
+
+  getScoringRubricBlocks () {
+    return this.state.scoringRubricBlocks
   },
 
   defineContextDeclaration (contextDeclaration) {
@@ -174,6 +188,10 @@ export const teststore = {
     this.state.catalogs[catalogIndex] = catalog
   },
 
+  defineScoringRubricBlock (rubricBlock) {
+    this.state.scoringRubricBlocks.push(rubricBlock)
+  },
+
   resetAll () {
     this.state.test = null
     this.state.identifier = ''
@@ -186,6 +204,7 @@ export const teststore = {
     this.state.feedbacks.splice(0, this.state.feedbacks.length)
     this.state.printedVariables.splice(0, this.state.printedVariables.length)
     this.state.catalogs.splice(0, this.state.catalogs.length)
+    this.state.scoringRubricBlocks.splice(0, this.state.scoringRubricBlocks.length)
     // Reset testContext
     this.testContext.guid = null
     this.testContext.state = null

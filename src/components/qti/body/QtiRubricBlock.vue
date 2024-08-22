@@ -15,10 +15,13 @@
  * are satisfied and that therefore would otherwise be visible.
  */
 import { store } from '@/store/store'
+import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
+import QtiProcessing from '@/components/qti/processing/utils/QtiProcessing'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
+const qtiProcessing = new QtiProcessing()
 
 export default {
   name: 'QtiRubricBlock',
@@ -51,6 +54,7 @@ export default {
 
   data () {
     return {
+      rubricBlockContext: null,
       isQtiValid: true
     }
   },
@@ -68,6 +72,22 @@ export default {
   },
 
   methods: {
+
+    getView () {
+      return this.view
+    },
+
+    getUse () {
+      return this.use
+    },
+
+    getInnerHtml () {
+      return this.$refs.root.innerHTML
+    },
+
+    getStore () {
+      return (this.rubricBlockContext === 'TEST') ? teststore : store
+    },
 
     validateChildren () {
       // TODO: ??
@@ -90,6 +110,7 @@ export default {
 
   created () {
     try {
+      this.processingContext = qtiProcessing.computeNodeContext(this)
       qtiAttributeValidation.validateRubricBlockViewAttribute(this.view)
       this.validateChildren()
     } catch (err) {
@@ -108,7 +129,7 @@ export default {
 
         if (this.isScoringRubricBlock) {
           // Notify store of our new scoring rubric block
-          store.defineScoringRubricBlock({
+          this.getStore().defineScoringRubricBlock({
               view: this.view,
               html: this.$refs.root.innerHTML,
               node: this
@@ -118,7 +139,7 @@ export default {
         // Show/Hide the rubric block
         this.evaluate()
 
-        console.log('[' + this.$options.name + '][View: ' + this.view + ']')
+        console.log('[' + this.$options.name + '][' + this.rubricBlockContext + '][View: ' + this.view + ']')
       } catch (err) {
         this.isQtiValid = false
         throw new QtiValidationException(err.message)
