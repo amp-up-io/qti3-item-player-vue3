@@ -658,6 +658,7 @@ export default class QtiProcessing {
     if (node.$options.name === 'QtiOutcomeProcessing') return 'OUTCOME'
     if (node.$options.name === 'QtiResponseProcessing') return 'RESPONSE'
     if (node.$options.name === 'QtiTemplateProcessing') return 'TEMPLATE'
+    if (node.$options.name === 'QtiBranchRule') return 'OUTCOME'
 
     // Inspect the node's parent
     return this.computeProcessingType(node.$parent)
