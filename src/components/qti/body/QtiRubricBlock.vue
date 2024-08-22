@@ -110,7 +110,7 @@ export default {
 
   created () {
     try {
-      this.processingContext = qtiProcessing.computeNodeContext(this)
+      this.rubricBlockContext = qtiProcessing.computeNodeContext(this)
       qtiAttributeValidation.validateRubricBlockViewAttribute(this.view)
       this.validateChildren()
     } catch (err) {
