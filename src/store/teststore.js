@@ -9,6 +9,8 @@ export const teststore = {
     test: null,
     identifier: '',
     title: '',
+    /* duration is a built-in RD */
+    responseDeclarations: [],
     /* [0..*] */
     contextDeclarations: [],
     /* [0..*] */
@@ -48,6 +50,14 @@ export const teststore = {
     this.state.test = node.test
   },
 
+  getResponseDeclarations () {
+    return this.state.responseDeclarations
+  },
+
+  getResponseDeclaration (identifier) {
+    return this.state.responseDeclarations.find(rd => rd.identifier === identifier)
+  },
+
   getOutcomeDeclarations () {
     return this.state.outcomeDeclarations
   },
@@ -73,7 +83,10 @@ export const teststore = {
 
     declaration = this.state.contextDeclarations.find(cd => cd.identifier === identifier)
     if (typeof declaration !== 'undefined') return declaration
-    
+  
+    declaration = this.state.responseDeclarations.find(rd => rd.identifier === identifier)
+    if (typeof declaration !== 'undefined') return declaration
+      
     return null
   },
 
@@ -122,6 +135,18 @@ export const teststore = {
     } else {
       // New context variable.
       this.state.contextDeclarations.push(contextDeclaration)
+    }
+  },
+
+  defineResponseDeclaration (responseDeclaration) {
+    let rdIndex = this.state.responseDeclarations.findIndex(rd => rd.identifier == responseDeclaration.identifier)
+
+    if (rdIndex > -1) {
+      // Found the response variable. This is an error.  Update it for now.
+      this.state.responseDeclarations[rdIndex] = responseDeclaration
+    } else {
+      // New response variable.
+      this.state.responseDeclarations.push(responseDeclaration)
     }
   },
 
@@ -196,6 +221,7 @@ export const teststore = {
     this.state.test = null
     this.state.identifier = ''
     this.state.title = ''
+    this.state.responseDeclarations.splice(0, this.state.responseDeclarations.length)
     this.state.outcomeDeclarations.splice(0, this.state.outcomeDeclarations.length)
     this.state.contextDeclarations.splice(0, this.state.contextDeclarations.length)
     this.state.timeLimit = null
@@ -231,8 +257,8 @@ export const teststore = {
     })
     console.log('[QtiAssessmentTest][QTI_CONTEXT] initialized')
 
-    // This is the Test duration
-    this.defineOutcomeDeclaration({
+    // Test duration
+    this.defineResponseDeclaration({
       identifier: 'duration',
       baseType: 'duration',
       cardinality: 'single',
