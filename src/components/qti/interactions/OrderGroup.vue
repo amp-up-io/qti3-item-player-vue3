@@ -68,8 +68,7 @@ export default {
      */
     maxChoices: {
       required: false,
-      type: String,
-      default: '0'
+      type: Number
     },
     /*
      * NOT A QTI ATTRIBUTE - Determined by the QtiOrderInteraction component.
@@ -119,7 +118,7 @@ export default {
   computed: {
 
     computedMaxChoices () {
-      return this.maxChoices*1
+      return (this.maxChoices === null) ? 0 : this.maxChoices
     }
 
   },
@@ -194,7 +193,8 @@ export default {
       // Go down 2 levels to get to the real children
       const children = this.$.subTree.children[0].children[0].children[0].children
       children.forEach((node) => {
-        if ((node.type.name === 'QtiSimpleChoice') && (node.component !== null)) {
+        if (node.component === null) return
+        if (node.type.name === 'QtiSimpleChoice') {
           this.choices.push(node.component.proxy)
         }
       })
@@ -202,9 +202,9 @@ export default {
 
     /**
      * @description Main workhorse method to initialize this Order Group's UI.
-     * @param {Array} response - a prior response or null
+     * @param {Array} order - a prior order or null
      */
-    processGroupUI (response) {
+    processGroupUI (order) {
       // If there is a prompt, save the entire prompt node.  It will be 
       // moved to the proper place in the DOM later by the parent OrderInteraction
       // component.
@@ -228,7 +228,7 @@ export default {
       this.sortable = new OrderInteractionWidget(this.$refs.root, {
         interactionSubType: this.interactionSubType,
         maxChoices: this.computedMaxChoices,
-        response: response,
+        response: order,
         onReady: this.handleWidgetReady,
         onUpdate: this.handleWidgetUpdate,
         onSelectionsLimit: this.handleSelectionsLimit
@@ -347,8 +347,8 @@ export default {
       if (this.priorState === null) return []
 
       // If interactionSubType is 'default'
-      // The priotValue property is in priorState.value
-      if (subtype === 'default') return this.priorState.value
+      // the priorValue property is in priorState.state.order
+      if (subtype === 'default') return this.priorState.state.order
 
       // If interactionSubType is 'ordermatch'
       // The priorValue property is in priorState.state.order
@@ -412,7 +412,7 @@ export default {
         this.processChildren()
 
         // Build a UI - triggers an 'orderGroupReady' event upon completion.
-        this.processGroupUI(this.priorState === null ? null : this.priorState.value)
+        this.processGroupUI(this.priorState === null ? null : this.priorState.state.order)
       } catch (err) {
         this.isQtiValid = false
         if (err.name === 'QtiValidationException') {

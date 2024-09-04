@@ -9,8 +9,8 @@
       :shuffle="shuffle"
       :responseIdentifier="responseIdentifier"
       :orientation="orientation"
-      :maxChoices="maxChoices"
-      :minChoices="minChoices"
+      :maxChoices="maxChoicesValue"
+      :minChoices="minChoicesValue"
       :interactionSubType="interactionSubType"
       :dataChoicesContainerWidth="dataChoicesContainerWidth"
       :priorState="priorState"
@@ -56,8 +56,7 @@ export default {
      */
     minChoices: {
       required: false,
-      type: String,
-      default: '0'
+      type: String
     },
     /*
      * The maximum number of choices that the candidate may select and order
@@ -68,8 +67,7 @@ export default {
      */
     maxChoices: {
       required: false,
-      type: String,
-      default: '0'
+      type: String
     },
     /*
      * If the shuffle characteristic is true then the delivery engine must randomize the order in which
@@ -122,9 +120,14 @@ export default {
       choices: [],
       isShuffle: false,
       hasPrompts: false,
+      minChoicesValue: null,
+      maxChoicesValue: null,
+      isMinChoicesSpecified: false,
+      isMaxChoicesSpecified: false,
       isQtiValid: true,
       // If we are restoring, this is where we save the prior variable state
-      priorState: null
+      priorState: null,
+      originalOrder: null
     }
   },
 
@@ -209,9 +212,22 @@ export default {
      * @param {Array} response
      */
     initializeValue (response) {
-      this.setResponse(response)
+      this.setResponse(this.computeResponse(response))
       this.setState(this.computeState())
       this.updateValidity(this.computeIsValid())
+    },
+
+    initializeOriginalOrder () {
+      if (this.originalOrder !== null) return
+
+      // Construct an order from the order of the choices
+      let order = []
+
+      this.choices.forEach((choice) => {
+        order.push(choice.identifier)
+      })
+
+      this.originalOrder = order
     },
 
     /**
@@ -294,6 +310,15 @@ export default {
      */
     handleOrderGroupReady (data) {
       this.choices = data.choices
+
+      if (!this.isMinChoicesSpecified) {
+        this.minChoicesValue = this.choices.length
+      }
+
+      if (this.originalOrder === null) {
+        this.initializeOriginalOrder()
+      }
+
       this.initializeValue(data.response)
     },
 
@@ -303,6 +328,10 @@ export default {
      */
     handleOrderGroupUpdate (data) {
       this.setResponse(data.response)
+      this.setState({
+        order: data.response,
+        oorder: this.originalOrder
+      })
       this.updateValidity(this.computeIsValid())
     },
 
@@ -311,18 +340,61 @@ export default {
     },
 
     /**
-     * @description Build a response from the array of choices.
-     * Response is an array of identifier strings
-     * @return {Array} response
+     * @description Build a response with the provided data.  If no data is provided then
+     * compute a response from the current order.
+     * @param {Object} data
+     * @return {Array} response - an ordering of choices or null (when no choices have been ordered)
      */
-    computeResponse () {
+    computeResponse (data) {
       let response = []
+      
+      // If no data provided, build a provisional response from the given choice order.
+      if (typeof data === 'undefined')
+        this.choices.forEach((choice) => {
+          response.push(choice.identifier)
+        })
+
+      else
+        // Provisional response data is provided.
+        response = data
+  
+      let changeCount = 0
+
+      // Depending on the interactionSubType, we count changes differently.
+      switch (this.interactionSubType) {
+        case 'default':
+          // Compare originalOrder vs current response order
+          for (let i = 0; i < response.length; i++) {
+            // If originalOrder and response do not match then increment count
+            if (response[i] !== this.originalOrder[i]) {
+              changeCount += 1
+            }
+          }
+          break
+
+        case 'ordermatch':
+          // Look for any response elements that are not null and not in the same order 
+          // as the originalOrder.
+          for (let i = 0; i < response.length; i++) {
+            if ((response[i] !== null) && (response[i] !== this.originalOrder[i])) {
+              changeCount += 1
+            }
+          }
+          break
+        
+      }
+
+      return (changeCount === 0) ? null : response
+    },
+
+    computeOrder () {
+      const order = []
 
       this.choices.forEach((choice) => {
-        response.push(choice.identifier)
+        order.push(choice.identifier)
       })
 
-      return response
+      return order
     },
 
     /**
@@ -332,12 +404,12 @@ export default {
     computeState () {
       if (this.priorState !== null) return this.priorState.state
 
-      // The state (order) is the order of the choices
-      const state = {
-        order: this.computeResponse()
+      // The state (order) is the current order of the choices
+      // and the original order (oorder) of the choices.
+      return {
+        order: this.computeOrder(),
+        oorder: this.originalOrder
       }
-
-      return state
     },
 
     /**
@@ -348,7 +420,7 @@ export default {
     computeIsValid () {
       const state = this.getState()
       const response = this.getResponse()
-      const minRequired = this.minChoices*1
+      const minRequired = this.minChoicesValue
 
       // First, completely null responses are not valid.
       if (response === null) return false
@@ -362,17 +434,18 @@ export default {
       // Depending on the interactionSubType, we count changes differently.
       switch (this.interactionSubType) {
         case 'default':
-          // Compare state.order vs current response order
+          // Compare original state.order vs current response order
           for (let i = 0; i < response.length; i++) {
             // If state.order and response do not match then increment count
-            if (response[i] !== state.order[i]) {
+            if (response[i] !== state.oorder[i]) {
               changeCount += 1
             }
           }
 
           // minChoices is not explicitly specified.
-          if (minRequired === 0) {
-            if (changeCount > 0) return true
+          if (!this.isMinChoicesSpecified) {
+            // All choices must be ordered to be valid.
+            if (changeCount === minRequired) return true
             return false
           }
 
@@ -381,15 +454,17 @@ export default {
           return false
 
         case 'ordermatch':
-          // Look for any response elements that are not null
+          // Look for any response elements that are not null and not in the same order 
+          // as the original state.order.
           for (let i = 0; i < response.length; i++) {
-            if (response[i] !== null) {
+            if ((response[i] !== null) && (response[i] !== state.oorder[i])) {
               changeCount += 1
             }
           }
 
           // minChoices is not explicitly specified.
           if (minRequired === 0) {
+            // All choices must be ordered to be valid.
             if (changeCount === response.length) return true
             return false
           }
@@ -436,7 +511,7 @@ export default {
         this.maxSelectionsMessage = this.dataMaxSelectionsMessage
         return
       }
-      this.maxSelectionsMessage = (this.maxChoices == 0) ? '' : 'You may set an order for a maximum of ' + this.maxChoices + ' choice' + (this.maxChoices > 1 ? 's' : '') + ' for this question.'
+      this.maxSelectionsMessage = (this.maxChoicesValue === null) ? '' : 'You may set an order for a maximum of ' + this.maxChoicesValue + ' choice' + (this.maxChoicesValue > 1 ? 's' : '') + ' for this question.'
     },
 
     computeMinSelectionsMessage () {
@@ -445,23 +520,11 @@ export default {
         return
       }
 
-      // With default, we are ordering choices in place.  In this case,
-      // when minChoices is unspecified, we look for at least one change.
-      if (this.interactionSubType === 'default') {
-        // minChoices is not explicitly specified.
-        if ((this.minChoices*1) == 0) {
-          this.minSelectionsMessage = 'You must set the order for at least 1 choice for this question.'
-        } else {
-          this.minSelectionsMessage = 'You must set the order for at least ' + this.minChoices + ' choice' + (this.minChoices > 1 ? 's' : '') + ' for this question.'
-        }
-      } else if (this.interactionSubType === 'ordermatch') {
-        // minChoices is not explicitly specified.
-        if ((this.minChoices*1) == 0) {
-          this.minSelectionsMessage = 'You must set the order for all choices for this question.'
-        } else {
-          this.minSelectionsMessage = 'You must set the order for at least ' + this.minChoices + ' choice' + (this.minChoices > 1 ? 's' : '') + ' for this question.'
-        }
-      }
+      // If minChoices is not explicitly specified, all choices must be ordered.
+      if (!this.isMinChoicesSpecified)
+        this.minSelectionsMessage = 'You must set the order for all choices for this question.'
+      else
+        this.minSelectionsMessage = 'You must set the order for at least ' + this.minChoicesValue + ' choice' + (this.minChoicesValue > 1 ? 's' : '') + ' for this question.'
     },
 
     /**
@@ -507,9 +570,10 @@ export default {
      * When not null, has this schema:
      * {
      *   identifier: [String],
-     *   value: [String or Array]
+     *   value: [Array] or null
      *   state: {
-     *     order: [Array of Strings]
+     *     order: [Array of Strings],
+     *     oorder: [Array of Strings]
      *   }
      * }
      * @param {String} identifier - of a response variable
@@ -531,6 +595,12 @@ export default {
       if (!('order' in priorState.state)) {
         throw new QtiEvaluationException('Order Interaction State Invalid.  "order" property not found.')
       }
+      if (!('oorder' in priorState.state)) {
+        throw new QtiEvaluationException('Order Interaction State Invalid.  "oorder" property not found.')
+      }
+
+      // Set original order
+      this.originalOrder = priorState.state.oorder
 
       return priorState
     }
@@ -552,6 +622,31 @@ export default {
 
       this.isShuffle = (this.shuffle === 'true' ? true : false)
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
+
+      // Fussing with order interaction min-choices.
+      if (typeof this.minChoices !== 'undefined') {
+        this.isMinChoicesSpecified = true
+      }
+      this.minChoicesValue = qtiAttributeValidation.validateIntegerAttribute('min-choices', this.minChoices, false, null)
+      if (this.minChoicesValue === 0) {
+        throw new QtiValidationException('qti-order-interaction "min-choices", when specified, must not be 0')
+      }
+
+      // If min-choices is not specified, max-choices is ignored.
+      if (!this.isMinChoicesSpecified) {
+        this.maxChoicesValue = null
+      } else {
+        if (typeof this.maxChoices !== 'undefined') {
+          this.isMaxChoicesSpecified = true
+        }
+        this.maxChoicesValue = qtiAttributeValidation.validateIntegerAttribute('max-choices', this.maxChoices, false, null)
+      }
+
+      if (this.isMinChoicesSpecified && this.isMaxChoicesSpecified) {
+        if (this.minChoicesValue > this.maxChoicesValue) {
+          throw new QtiValidationException('qti-order-interaction "min-choices" must not be greater than "max-choices"')
+        }
+      }
 
       this.computeMinSelectionsMessage()
       this.computeMaxSelectionsMessage()
