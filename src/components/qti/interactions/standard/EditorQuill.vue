@@ -170,8 +170,6 @@ export default {
     <path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"></path>
   </svg>`
 
-        let self = this
-
         // Build default config
         const defaultOptions = {
           theme: 'snow',
@@ -186,10 +184,10 @@ export default {
               ],
               handlers: {
                 redo() {
-                  self.quill.history.redo()
+                  this.quill.history.redo()
                 },
                 undo() {
-                  self.quill.history.undo()
+                  this.quill.history.undo()
                 }
               }
             },
@@ -216,6 +214,7 @@ export default {
         }
 
         this.quill = new Quill(this.$refs.editor, defaultOptions)
+        this.quill.root.setAttribute('spellcheck', false)
         this.quill.on('text-change', this.textChangeHandler)
         this.updateCounter(this.getLength())
         this.quill.enable(true)
