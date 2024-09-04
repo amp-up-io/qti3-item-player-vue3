@@ -76,9 +76,6 @@ npm run build
 
 ## Usage
 
-The [Demo TestRunner](https://github.com/amp-up-io/qti3-item-player-controller) is a good way to get familiar with QTI 3 Player usage.  Specifically, please see the [TestRunner.vue](https://github.com/amp-up-io/qti3-item-player-controller/blob/main/src/views/TestRunner.vue) sub-component.
-
-
 ### 1. Import QTI 3 Player and QTI 3 Player CSS
 
 ```js
@@ -228,9 +225,14 @@ QTI 3 Player triggers a `notifyQti3ItemReady` event upon completion of the Playe
  * @description Event handler for the QTI3Player component's 'notifyQti3ItemReady'
  * event.  This event is fired upon completion of the qti-assessment-item
  * component's loading of XML.
+ * The inner qti-assessment-item component is passed in the event.
+ * @param {Component} item - the qti-assessment-item component itself
  */
-handleItemReady () {
+handleItemReady (item) {
   console.log('QTI 3 Item XML is loaded and rendered!  The latest "attempt" has officially begun.')
+  // The item argument is the qti-assessment-item component
+  // with all exposed properties and methods.
+  this.item = item
 }
 ```
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -248,7 +250,7 @@ After item XML is loaded and an attempt has begun, a test controller may retriev
 
 * **suspendAttempt**
 
-    This performs response validation (if `validateResponses: true`) and produces the state of all item variables.  _No response processing is executed._  Typical use is when `submissionMode: "simultaneous"`.
+  This performs response validation (if `validateResponses: true`) and produces the state of all item variables.  _No response processing is executed._  Typical use is when `submissionMode: "simultaneous"`.
 
 The `endAttempt` and `suspendAttempt` methods may take a considerable amount of time to complete.  QTI 3 Player triggers the `notifyQti3EndAttemptCompleted` and `notifyQti3SuspendAttemptCompleted` events, respectively, upon completion of an `endAttempt` or a `suspendAttempt` method call.
 
@@ -722,7 +724,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Built With
 
-The QTI3 Item Player is built with the Vue 3.4 (v3.4.34) framework.
+The QTI3 Item Player is built with the Vue 3.4 (v3.4.34) framework and Vite.
 
 * [Vue.js](https://vuejs.org/)
 
@@ -749,5 +751,5 @@ This component would not be possible were it not for a fortuitous decision by th
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-[license-shield]: https://img.shields.io/github/license/amp-up-io/qti3-item-player?label=License&style=for-the-badge
-[license-url]: https://github.com/amp-up-io/qti3-item-player/blob/main/LICENSE
+[license-shield]: https://img.shields.io/github/license/amp-up-io/qti3-item-player-vue3?label=License&style=for-the-badge
+[license-url]: https://github.com/amp-up-io/qti3-item-player-vue3/blob/main/LICENSE
