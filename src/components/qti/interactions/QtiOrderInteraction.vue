@@ -327,7 +327,7 @@ export default {
      * @param {Object} data
      */
     handleOrderGroupUpdate (data) {
-      this.setResponse(data.response)
+      this.setResponse(this.computeResponse(data.response))
       this.setState({
         order: data.response,
         oorder: this.originalOrder
@@ -357,7 +357,7 @@ export default {
       else
         // Provisional response data is provided.
         response = data
-  
+
       let changeCount = 0
 
       // Depending on the interactionSubType, we count changes differently.
@@ -373,13 +373,19 @@ export default {
           break
 
         case 'ordermatch':
-          // Look for any response elements that are not null and not in the same order 
-          // as the originalOrder.
+          // More intuitive implemenation: count non-null's in the response
           for (let i = 0; i < response.length; i++) {
-            if ((response[i] !== null) && (response[i] !== this.originalOrder[i])) {
+            if (response[i] !== null) {
               changeCount += 1
             }
           }
+
+          // **Old implementation**
+          //for (let i = 0; i < response.length; i++) {
+          //  if ((response[i] !== null) && (response[i] !== this.originalOrder[i])) {
+          //    changeCount += 1
+          //  }
+          //}
           break
         
       }
@@ -418,7 +424,6 @@ export default {
      * @return {Boolean} (true if valid, false if invalid)
      */
     computeIsValid () {
-      const state = this.getState()
       const response = this.getResponse()
       const minRequired = this.minChoicesValue
 
@@ -427,7 +432,7 @@ export default {
 
       // Second, do a sanity check on the response by comparing
       // the response length to the original order length.
-      if (response.length != state.order.length) return false
+      if (response.length !== this.originalOrder.length) return false
 
       let changeCount = 0
 
@@ -437,7 +442,7 @@ export default {
           // Compare original state.order vs current response order
           for (let i = 0; i < response.length; i++) {
             // If state.order and response do not match then increment count
-            if (response[i] !== state.oorder[i]) {
+            if (response[i] !== this.originalOrder[i]) {
               changeCount += 1
             }
           }
