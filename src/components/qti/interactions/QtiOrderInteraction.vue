@@ -454,21 +454,34 @@ export default {
           return false
 
         case 'ordermatch':
-          // Look for any response elements that are not null and not in the same order 
-          // as the original state.order.
+          // According to the specification, we MUST look for any response elements that are not null 
+          // and not in the same order as the original order.  However, this is very confusing to the 
+          // candidate in the ordermatch scenario.  Consequently, we use an alternate approach:  count 
+          // the non-null elements of the response array.
+          
+          //
+          //Original implementation which complies with the spec
+          //for (let i = 0; i < response.length; i++) {
+          //  if ((response[i] !== null) && (response[i] !== state.oorder[i])) {
+          //    changeCount += 1
+          //  }
+          //}
+
+          // More intuitive implemenation: count non-null's in the response
           for (let i = 0; i < response.length; i++) {
-            if ((response[i] !== null) && (response[i] !== state.oorder[i])) {
+            if (response[i] !== null) {
               changeCount += 1
             }
           }
 
           // minChoices is not explicitly specified.
-          if (minRequired === 0) {
+          if (!this.isMinChoicesSpecified) {
             // All choices must be ordered to be valid.
             if (changeCount === response.length) return true
             return false
           }
 
+          // minChoices was specified.
           if (changeCount >= minRequired) return true
           return false
 

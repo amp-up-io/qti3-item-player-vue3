@@ -351,8 +351,8 @@ export default {
       if (subtype === 'default') return this.priorState.state.order
 
       // If interactionSubType is 'ordermatch'
-      // The priorValue property is in priorState.state.order
-      return this.priorState.state.order
+      // The priorValue property is in priorState.state.oorder
+      return this.priorState.state.oorder
     },
 
     /**
@@ -412,7 +412,17 @@ export default {
         this.processChildren()
 
         // Build a UI - triggers an 'orderGroupReady' event upon completion.
-        this.processGroupUI(this.priorState === null ? null : this.priorState.state.order)
+        if (this.priorState === null) 
+          return this.processGroupUI(null)
+        
+        if (this.interactionSubType === 'default')
+          // We use the prior state's 'order' property to set the choice order
+          return this.processGroupUI(this.priorState.order)
+        
+        if (this.interactionSubType === 'ordermatch')
+          // We use the prior state's 'value' property to set the choice order
+          this.processGroupUI(this.priorState.value)
+
       } catch (err) {
         this.isQtiValid = false
         if (err.name === 'QtiValidationException') {
