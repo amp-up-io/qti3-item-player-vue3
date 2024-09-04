@@ -119,7 +119,8 @@ export default {
     processChildren () {
       const children = this.$.subTree.children[0].children[0].children
       children.forEach((node) => {
-        if ((node.type.name === 'QtiSimpleChoice') && (node.component !== null)) {
+        if (node.component === null) return
+        if (node.type.name === 'QtiSimpleChoice') {
           this.choices.push(node.component.proxy)
         }
       }, this)
