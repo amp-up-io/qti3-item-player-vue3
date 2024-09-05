@@ -273,6 +273,9 @@ export default {
   },
 
   beforeUnmount () {
+    if (this.$el) {
+      this.quill.off('text-change', this.textChangeHandler)
+    }
     this.$el.remove()
     this.quill = undefined
   }
