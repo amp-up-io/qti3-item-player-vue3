@@ -707,7 +707,7 @@ The QTI3 Item Player 2022-2024 development roadmap includes all features and cap
 - [x] Support for Interaction "Review" Status
 - [x] Improved Audio Player
 - [x] Improved Video Player
-- [ ] Update Quill.js to version 2.x
+- [x] Update Quill.js to version 2.x
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
