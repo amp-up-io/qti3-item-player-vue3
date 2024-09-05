@@ -1,4 +1,4 @@
-# Amp-up.io QTI 3 Player Component for Vue 3
+# Amp-up.io QTI 3 Item Player Component for Vue 3
 
 <div id="top"></div>
 
@@ -10,7 +10,7 @@
 
 
 
-This is the **Vue 3 version** of the original Amp-up.io QTI 3 Player Component ("QTI 3 Player") which was originally built with Vue 2.6.
+This is the **Vue 3 version** of the original Amp-up.io QTI 3 Item Player Component ("QTI 3 Player") which was originally built with Vue 2.6.
 
 The QTI 3 Player is a 100% JavaScript component that aims to encapsulate the best practices and behaviors of the 1EdTech QTI 3 Assessment **Item** specification.
 
