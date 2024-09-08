@@ -76,17 +76,34 @@ npm run build
 
 ## Usage
 
-### 1. Import QTI 3 Player and QTI 3 Player CSS
+### 1. Install QTI 3 Player
+
+```sh
+cd <Project folder where your package.json is located> 
+npm install qti3-item-player-vue3
+```
+
+### 2. Import and Use QTI 3 Player
 
 ```js
-// The Qti3Player component and built-in CSS
+import { createApp } from 'vue'
+import App from './App.vue'
+// The Qti3Player component
 import Qti3Player from 'qti3-item-player-vue3'
-import 'qti3-item-player-vue3/dist/qti3Player.css'
+
+const app = createApp(App)
+
+// "use" triggers the component installer, and makes Qti3Player
+// available globally to all app components.
+app
+  .use(Qti3Player)
+  .mount('#app')
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 2. Load the QTI 3 Player component in your Page or Template
+### 3. Load the QTI 3 Player component and import the Player CSS into your Page or Template
 
 ```html
 <Qti3Player
@@ -105,10 +122,16 @@ import 'qti3-item-player-vue3/dist/qti3Player.css'
   @notifyQti3ItemCatalogEvent="handleItemCatalogEvent"
 />
 ```
+
+```js
+// The Qti3Player built-in CSS
+import 'qti3-item-player-vue3/dist/qti3Player.css'
+```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 3. Listen for the QTI 3 Player 'notifyQti3PlayerReady' event
+### 4. Listen for the QTI 3 Player 'notifyQti3PlayerReady' event
 
 This event signifies that the QTI 3 Player component is loaded and ready for action.  The following snippet is a sample handler for the `notifyQti3PlayerReady` event.  QTI 3 Player hands itself as an argument to the `notifyQti3PlayerReady` event, thus simplifying further QTI 3 Player API calls.
 
@@ -124,12 +147,13 @@ handlePlayerReady (qti3Player) {
   this.qti3Player = qti3Player
 }
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 4. Load a QTI 3 Item into QTI 3 Player
+### 5. Load a QTI 3 Item into QTI 3 Player
 
-Once QTI 3 Player is loaded and ready (see #3 above), QTI 3 Item XML can be loaded directly into QTI 3 Player via the Player's `loadItemFromXML` method which takes two arguments `xml {String}` and `configuration {Object}`.  
+Once QTI 3 Player is loaded and ready (see #4 above), QTI 3 Item XML can be loaded directly into QTI 3 Player via the Player's `loadItemFromXML` method which takes two arguments `xml {String}` and `configuration {Object}`.  
 
 ```js
 // Load item XML with a configuration.  Use the 'this.qti3Player' reference
@@ -137,7 +161,7 @@ Once QTI 3 Player is loaded and ready (see #3 above), QTI 3 Item XML can be load
 this.qti3Player.loadItemFromXml(xml, configuration)
 ```
 
-#### 4a) About a Configuration
+#### 5a) About a Configuration
 
 The `configuration` object is used to specify runtime context to QTI 3 Player during the item session loaded in `loadItemFromXml`.  A configuration object has the following structure:
 
@@ -151,7 +175,7 @@ configuration: {
 }
 ```
 
-#### 4b) Constructing a Configuration
+#### 5b) Constructing a Configuration
 
 The following snippet is an example of how an application can construct a `configuration`.
 
@@ -216,7 +240,7 @@ In the absence of a `pnp` property, QTI 3 Player will use defaults, or previous 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 5. Listen for the QTI 3 Player 'notifyQti3ItemReady' Event
+### 6. Listen for the QTI 3 Player 'notifyQti3ItemReady' Event
 
 QTI 3 Player triggers a `notifyQti3ItemReady` event upon completion of the Player's `loadItemFromXML` method.  The following snippet is a sample handler for the `notifyQti3ItemReady` event.
 
@@ -235,10 +259,11 @@ handleItemReady (item) {
   this.item = item
 }
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 6. Retrieving Item State
+### 7. Retrieving Item State
 
 After item XML is loaded and an attempt has begun, a test controller may retrieve the item's current state via two methods:
 
@@ -254,7 +279,7 @@ After item XML is loaded and an attempt has begun, a test controller may retriev
 
 The `endAttempt` and `suspendAttempt` methods may take a considerable amount of time to complete.  QTI 3 Player triggers the `notifyQti3EndAttemptCompleted` and `notifyQti3SuspendAttemptCompleted` events, respectively, upon completion of an `endAttempt` or a `suspendAttempt` method call.
 
-#### 6a) Calling endAttempt and handling the notifyQti3EndAttemptCompleted event
+#### 7a) Calling endAttempt and handling the notifyQti3EndAttemptCompleted event
 
 ```js
 // Call the endAttempt method, passing a string/target action that will be
@@ -276,7 +301,7 @@ handleEndAttemptCompleted (data) {
 }
 ```
 
-#### 6b) Calling suspendAttempt and handling the notifyQti3SuspendAttemptCompleted event
+#### 7b) Calling suspendAttempt and handling the notifyQti3SuspendAttemptCompleted event
 
 ```js
 // Call the suspendAttempt method, passing a string/target action that will be
@@ -297,10 +322,11 @@ handleSuspendAttemptCompleted (data) {
   // ... do something ...
 }
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 7. About Item State
+### 8. About Item State
 
 #### Item State Object Structure
 
@@ -393,10 +419,11 @@ In this item, there are two qti-choice-interaction's, each with single cardinali
   "target": "navigateNextItem"
 }
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 8. Scoring API
+### 9. Scoring API
 
 There are scenarios where an encapsulating application may load item XML - along with a provided Item State - into QTI 3 Player and then score the Item State by executing response processing.  Such a scenario exists when a Test Part's `submission-mode` is set to `simultaneous`.  Another use-case is when a scoring system is batch-scoring a collection of items and a candidate's Item States from a submitted Test. For these scenarios, use the `scoreAttempt` method:
 
@@ -415,7 +442,7 @@ The `scoreAttempt` method may take a considerable amount of time to complete.  Q
 />
 ```
 
-#### 8a) Calling scoreAttempt and handling the notifyQti3ScoreAttemptCompleted event
+#### 9a) Calling scoreAttempt and handling the notifyQti3ScoreAttemptCompleted event
 
 ```js
 // Call the scoreAttempt method, passing a string/target action that will be
@@ -448,7 +475,7 @@ handleScoreAttemptCompleted (data) {
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 9. Item Session 'Alert' Messages and the notifyQti3ItemAlertEvent
+### 10. Item Session 'Alert' Messages and the notifyQti3ItemAlertEvent
 
 An item session 'alert' message is triggered by QTI 3 Player when a person exceeds an interaction's max-choices or max-associations threshold.  QTI 3 Player uses a built-in messaging/toast component to display such alerts to the candidate.  
 
@@ -483,10 +510,11 @@ displayItemAlertEvent (event) {
   })
 }
 ```
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 10. Item Session 'Invalid Response' Messages
+### 11. Item Session 'Invalid Response' Messages
 
 An item session 'invalid response' message is triggered by QTI 3 Player when,  
 
@@ -528,7 +556,7 @@ This permits an encapsulating application to handle and display validation messa
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 11. Item 'Catalog' Events
+### 12. Item 'Catalog' Events
 
 An item 'catalog' event is triggered by QTI 3 Player when a user selects a control (such as a highlighted term) within the item's presentation that is bound to an item's catalog.  As of QTI 3 Player version 0.3.1, the only supported catalog event () is a 'glossary' event.  QTI 3 Player will display its own Catalog Glossary Dialog component when a user selects a control within the item's presentation that is bound to a 'glossary' event.
 
@@ -594,7 +622,7 @@ As of the 0.3.4 release, QTI 3 Player supports the following IS0 639 language co
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-### 12. About Dynamic Catalog Rebinding
+### 13. About Dynamic Catalog Rebinding
 
 Under most use-cases, a PNP is passed into QTI 3 Player as part of the configuration (see 4b Constructing a Configuration) as an item's XML is loaded.  However, _after an item is loaded_, an encapsulating application may update PNP settings and then force a catalog rebinding with the updated PNP settings.  QTI 3 Player implements a `bindCatalog` API method for this use-case.
 
