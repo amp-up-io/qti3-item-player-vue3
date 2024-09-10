@@ -2,15 +2,18 @@
   <div>
     <Qti3Player
       ref="qti3player"
-      v-bind:container-class="containerClass"
-      v-bind:color-class="colorClass"
+      :container-class="containerClass"
+      :color-class="colorClass"
+      :container-padding-class="containerPaddingClass"
       suppress-alert-messages
       suppress-invalid-response-messages
       @notifyQti3PlayerReady="handlePlayerReady"
       @notifyQti3ItemReady="handleItemReady"
       @notifyQti3SuspendAttemptCompleted="handleSuspendAttemptCompleted"
       @notifyQti3EndAttemptCompleted="handleEndAttemptCompleted"
+      @notifyQti3ScoreAttemptCompleted="handleScoreAttemptCompleted"
       @notifyQti3ItemAlertEvent="displayItemAlertEvent"
+      @notifyQti3ItemCatalogEvent="handleItemCatalogEvent"
     />
     <button ref="btnPrev" type="button" @click="handlePrevItem" class="btn btn-sm btn-outline-primary">Prev</button>
     <button ref="btnNext" type="button" @click="handleNextItem" class="btn btn-sm btn-outline-primary">Next</button>
@@ -18,7 +21,7 @@
 </template>
 
 <script>
-import Qti3Player from '@/Qti3Player.vue'
+import Qti3Player from '@/components/Qti3Player.vue'
 import { PnpFactory } from '@/shared/helpers/PnpFactory'
 import { SessionControlFactory } from '@/shared/helpers/SessionControlFactory'
 import Swal from 'sweetalert2'
@@ -39,7 +42,10 @@ export default {
           "identifier": "sbac-200-183300-templated",
           "guid": "0000-0000-0001sbac-templated",
           "xml": `<!-- This example adapted from the Smarter Balanced IRP, copyright Smarter Balanced. -->
-      <qti-assessment-item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0"   xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd" identifier="sbac-200-183300-templated" time-dependent="false" title="sbac-200-183300-templated" xml:lang="en">
+      <qti-assessment-item xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" 
+        xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd" 
+        identifier="sbac-200-183300-templated" time-dependent="false" title="sbac-200-183300-templated" xml:lang="en">
         <qti-response-declaration base-type="identifier" cardinality="multiple" identifier="RESPONSE">
           <qti-correct-response>
             <qti-value>D</qti-value>
@@ -51,52 +57,52 @@ export default {
             <qti-value>0</qti-value>
           </qti-default-value>
         </qti-outcome-declaration>
-      <qti-outcome-declaration base-type="identifier" cardinality="single" identifier="FEEDBACK" />
-      <qti-template-declaration identifier="a" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-      <qti-template-declaration identifier="b" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-      <qti-template-declaration identifier="c" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-      <qti-template-declaration identifier="d" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
-      <qti-template-processing>
-        <qti-set-template-value identifier="a">
-          <qti-random-integer min="2" max="20"/>
-        </qti-set-template-value>
-        <qti-set-template-value identifier="b">
-          <qti-random-integer min="3" max="13"/>
-        </qti-set-template-value>
-        <qti-set-template-value identifier="c">
-          <qti-integer-divide>
-            <qti-variable identifier="a"/>
-            <qti-variable identifier="b"/>
-          </qti-integer-divide>
-        </qti-set-template-value>
-        <qti-set-template-value identifier="d">
-          <qti-integer-modulus>
-            <qti-variable identifier="a"/>
-            <qti-variable identifier="b"/>
-          </qti-integer-modulus>
-        </qti-set-template-value>
-        <qti-template-constraint>
-          <qti-and>
-            <qti-gt>
+        <qti-outcome-declaration base-type="identifier" cardinality="single" identifier="FEEDBACK"/>
+        <qti-template-declaration identifier="a" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
+        <qti-template-declaration identifier="b" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
+        <qti-template-declaration identifier="c" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
+        <qti-template-declaration identifier="d" cardinality="single" base-type="integer" math-variable="true" param-variable="true"/>
+        <qti-template-processing>
+          <qti-set-template-value identifier="a">
+            <qti-random-integer min="2" max="20"/>
+          </qti-set-template-value>
+          <qti-set-template-value identifier="b">
+            <qti-random-integer min="3" max="13"/>
+          </qti-set-template-value>
+          <qti-set-template-value identifier="c">
+            <qti-integer-divide>
               <qti-variable identifier="a"/>
               <qti-variable identifier="b"/>
-            </qti-gt>
-            <qti-not>
-              <qti-equal tolerance-mode="exact">
-                <qti-variable identifier="c"/>
-                <qti-variable identifier="d"/>
-              </qti-equal>
-            </qti-not>
-            <qti-not>
-              <qti-equal tolerance-mode="exact">
-                <qti-variable identifier="d"/>
-                <qti-base-value base-type="integer">0</qti-base-value>
-              </qti-equal>
-            </qti-not>
-          </qti-and>
-        </qti-template-constraint>
+            </qti-integer-divide>
+          </qti-set-template-value>
+          <qti-set-template-value identifier="d">
+            <qti-integer-modulus>
+              <qti-variable identifier="a"/>
+              <qti-variable identifier="b"/>
+            </qti-integer-modulus>
+          </qti-set-template-value>
+          <qti-template-constraint>
+            <qti-and>
+              <qti-gt>
+                <qti-variable identifier="a"/>
+                <qti-variable identifier="b"/>
+              </qti-gt>
+              <qti-not>
+                <qti-equal tolerance-mode="exact">
+                  <qti-variable identifier="c"/>
+                  <qti-variable identifier="d"/>
+                </qti-equal>
+              </qti-not>
+              <qti-not>
+                <qti-equal tolerance-mode="exact">
+                  <qti-variable identifier="d"/>
+                  <qti-base-value base-type="integer">0</qti-base-value>
+                </qti-equal>
+              </qti-not>
+            </qti-and>
+          </qti-template-constraint>
       </qti-template-processing>
-      <qti-item-body class="" data-catalog-idref="item-183300-global">
+      <qti-item-body data-catalog-idref="item-183300-global">
         <div class="qti-layout-row">
           <div class="qti-layout-col8 qti-layout-offset2">
             <div class="prompt">
@@ -134,7 +140,7 @@ export default {
               </qti-simple-choice>
             </qti-choice-interaction>
           </div>
-        </div>
+       </div>
       </qti-item-body>
       <qti-response-processing>
         <qti-response-condition>
@@ -160,7 +166,6 @@ export default {
           </qti-response-else>
         </qti-response-condition>
       </qti-response-processing>
-      <!--
       <qti-modal-feedback outcome-identifier="FEEDBACK" identifier="correct" show-hide="show">
         <qti-content-body>
           <p>Well done!</p>
@@ -171,13 +176,12 @@ export default {
           <p>Sorry, your answer is not correct.</p>
         </qti-content-body>
       </qti-modal-feedback>
-      -->
-    </qti-assessment-item>`
+      </qti-assessment-item>`
         },
-        {
-          "identifier": "q2-choice-interaction-single-cardinality",
-          "guid": "0000-0000-0001",
-          "xml": `<qti-assessment-item 
+      {
+        "identifier": "q2-choice-interaction-single-cardinality",
+        "guid": "0000-0000-0001",
+        "xml": `<qti-assessment-item 
           xmlns="http://www.imsglobal.org/xsd/imsqtiasi_v3p0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
           xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqtiasi_v3p0 https://purl.imsglobal.org/spec/qti/v3p0/schema/xsd/imsqti_asiv3p0_v1p0.xsd" 
           identifier="q2-choice-interaction-single-cardinality" title="Q2 - Choice Interaction - Single Cardinality" adaptive="false" time-dependent="false">
@@ -199,19 +203,19 @@ export default {
               <qti-simple-choice identifier="choice_c">choice_c</qti-simple-choice>
             </qti-choice-interaction>
           </qti-item-body>
-
           <qti-response-processing template="https://purl.imsglobal.org/spec/qti/v3p0/rptemplates/match_correct.xml"/>
           </qti-assessment-item>`
-        }
+      }
       ],
-      maxItems: 3,
+      maxItems: 2,
       containerClass: 'qti3-player-container-fluid',
       colorClass: 'qti3-player-color-default',
-      containerPaddingClass: 'qti3-player-container-padding-0',
+      containerPaddingClass: 'qti3-player-container-padding-2',
       itemStates: new Map(),
       sessionControl: null,
       pnp: null,
       qti3Player: null,
+      item: null,
       performResponseProcessing: true
     }
   },
@@ -285,6 +289,9 @@ export default {
 
     handleSuspendAttemptCompleted (data) {
       this.evaluateResults(data)
+    },
+
+    handleScoreAttemptCompleted () {
     },
 
     evaluateResults (data) {
@@ -404,9 +411,16 @@ export default {
      * @description Event handler for the QTI3Player component's 'notifyQti3ItemReady'
      * event.  This event is fired upon completion of the qti-assessment-item
      * component's loading of XML.
+     * 
+     * The inner qti-assessment-item component is passed in the event.
+     * @param {Component} item - the qti-assessment-item component itself
      */
-    handleItemReady () {
-      // NOOP
+    handleItemReady (item) {
+      this.item = item
+    },
+
+    handleItemCatalogEvent (event) {
+      console.log('[ItemCatalogEvent][Type: ' + event.type + ']', event)
     }
 
   },
