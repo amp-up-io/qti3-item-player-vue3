@@ -680,12 +680,6 @@ export default {
 <style>
 .amp-video {
   position: relative;
-	max-width:1024px;
-	max-width:64rem;
-	width:100%;
-	height:100%;
-	max-height:494px;
-	max-height:30.875rem;
 	margin-top:8px;
 	margin-top:.5rem;
   margin-bottom:8px;

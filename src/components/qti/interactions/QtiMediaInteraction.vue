@@ -559,6 +559,10 @@ div.qti-media-interaction {
   display: block;
   padding: 0;
   margin: 0 0 .5rem 0;
+}
+
+/* Set width to 100% when there is no qti-width- class override */
+div.qti-media-interaction:not[class*=" qti-width-"] {
   width: 100%;
 }
 </style>
