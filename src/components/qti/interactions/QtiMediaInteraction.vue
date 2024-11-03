@@ -244,6 +244,8 @@ export default {
     getPrompts (slots) {
       let prompts = []
 
+      if (!slots.default) return prompts
+
       slots.default().forEach((vnode) => {
         // Only check for qti-prompt, skipping text nodes.
         if (typeof vnode.type !== 'undefined') {
