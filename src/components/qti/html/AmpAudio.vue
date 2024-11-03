@@ -378,7 +378,7 @@ export default {
     },
 
     /**
-     * @description Try to detect a class of audio player that we recognoze.
+     * @description Try to detect a class of audio player that we recognize.
      * @param {*} props - vnode props
      */
     getAudioSubType (props) {
@@ -582,6 +582,17 @@ export default {
   position: relative;
   margin: 0;
 	padding: 0;
+}
+
+/* When AmpAudio is in a Catalog Dialog */
+.amp-audio.cat-audio__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
 }
 
 .amp-audio__holder {
