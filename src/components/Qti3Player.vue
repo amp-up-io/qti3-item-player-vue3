@@ -1849,6 +1849,12 @@ export default {
   border-bottom: 1px dotted var(--foreground);
 }
 
+.qti3-player-catalog-clickable-term:focus-visible {
+  padding-right: 1px;
+  padding-left: 1px;
+  outline: 1px solid var(--foreground);
+}
+
 .qti3-player-writing-mode-vertical-rl .qti3-player-catalog-clickable-term {
   cursor: pointer;
   border-left: 1px dotted var(--foreground);
@@ -1859,5 +1865,12 @@ export default {
   cursor: pointer;
   border-right: 1px dotted var(--foreground);
   border-bottom: 0;
+}
+
+.qti3-player-writing-mode-vertical-rl .qti3-player-catalog-clickable-term:focus-visible,
+.qti3-player-writing-mode-vertical-lr .qti3-player-catalog-clickable-term:focus-visible {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  outline: 1px solid var(--foreground);
 }
 </style>
