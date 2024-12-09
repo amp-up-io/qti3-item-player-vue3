@@ -453,11 +453,11 @@ export default class QtiProcessing {
       case 'directedPair':
       case 'pair':
       case 'uri':
+      case 'file':
         result[baseType] = value
         return result
 
       case 'intOrIdentifier':
-      case 'file':
         // These are unsupported in QTI 3 Player as of 3/9/2023
         result[baseType] = null
         return result
