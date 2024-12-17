@@ -102,6 +102,8 @@ export default {
       configuration: null,
       templateVariables: [],
       contextVariables: [],
+      stylesheets: [],
+      catalogInfoNode: null,
       uniqueId: null,
       pciIframe: null,
       isReady: false,
@@ -319,19 +321,23 @@ export default {
       let hasTemplateVariable = false
       // eslint-disable-next-line
       let hasStylesheet = false
+      // eslint-disable-next-line
+      let hasCatalogInfo = false
 
       this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
           // Only the following permitted:
-          // qti-prompt
-          // qti-interaction-modules
-          // qti-interaction-markup
-          // qti-template-variable
-          // qti-context-variable
           //
-          // New addition to the QTI 3 PCI schema:  qti-stylesheet
+          // qti-prompt [0-1]
+          // qti-interaction-modules [0-1]
+          // qti-interaction-markup [0-1]
+          // qti-template-variable [0-*]
+          // qti-context-variable [0-*]
+          // qti-stylesheet [0-*]
+          // qti-catalog-info [0-1]
+          //
           if (slot.type.name === 'QtiPrompt') {
-            if (hasMarkup || hasModules || hasContextVariable || hasTemplateVariable) {
+            if (hasMarkup || hasModules || hasContextVariable || hasTemplateVariable || hasStylesheet || hasCatalogInfo) {
               throw new QtiValidationException('Invalid element order. qti-prompt must be the first element')
             }
 
@@ -341,7 +347,7 @@ export default {
           }
 
           if (slot.type.name === 'QtiInteractionModules') {
-            if (hasMarkup || hasContextVariable || hasTemplateVariable) {
+            if (hasMarkup || hasContextVariable || hasTemplateVariable || hasStylesheet || hasCatalogInfo) {
               throw new QtiValidationException('Invalid element order: qti-interaction-modules')
             }
 
@@ -351,7 +357,7 @@ export default {
           }
 
           if (slot.type.name === 'QtiInteractionMarkup') {
-            if (hasContextVariable || hasTemplateVariable) {
+            if (hasContextVariable || hasTemplateVariable || hasStylesheet || hasCatalogInfo) {
               throw new QtiValidationException('Invalid element order: qti-interaction-markup')
             }
 
@@ -361,20 +367,34 @@ export default {
           }
 
           if (slot.type.name === 'QtiTemplateVariable') {
-            if (hasContextVariable) {
+            if (hasContextVariable || hasStylesheet || hasCatalogInfo) {
               throw new QtiValidationException('Invalid element order: qti-template-variable')
             }
 
-            if (!hasTemplateVariable) return hasTemplateVariable = true
-
-            throw new QtiValidationException('Maximum of 1 qti-interaction-markup element permitted')
+            return hasTemplateVariable = true
           }
 
-          if (slot.type.name === 'QtiContextVariable') return hasContextVariable = true
+          if (slot.type.name === 'QtiContextVariable') {
+            if (hasStylesheet || hasCatalogInfo) {
+              throw new QtiValidationException('Invalid element order: qti-context-variable')
+            }
 
-          // We do not yet know in which order QtiStylesheet will appear in the schema.
-          // For now, permit it in any order.
-          if (slot.type.name === 'QtiStylesheet') return hasStylesheet = true
+            return hasContextVariable = true
+          }
+
+          if (slot.type.name === 'QtiStylesheet') {
+            if (hasCatalogInfo) {
+              throw new QtiValidationException('Invalid element order: qti-stylesheet')
+            }
+
+            return hasStylesheet = true
+          }
+
+          if (slot.type.name === 'QtiCatalogInfo') {
+            if (!hasCatalogInfo) return hasCatalogInfo = true
+
+            throw new QtiValidationException('Maximum of 1 qti-catalog-info element permitted')
+          }
 
           throw new QtiValidationException('Node is not permitted inside QtiPortableCustomInteraction: "' + slot.type.name + '"')
         }
@@ -391,6 +411,7 @@ export default {
         const node = child.component.proxy
 
         // TODO - Add QtiStylesheet
+        // TODO - Add QtiCatalogInfo
         switch (child.type.name) {
           case 'QtiInteractionMarkup':
             this.markup = node.getMarkup()
@@ -404,6 +425,12 @@ export default {
           case 'QtiContextVariable':
             this.contextVariables.push(node)
             break
+          case 'QtiStylesheet':
+          this.stylesheets.push(node)
+            break
+          case 'QtiCatalogInfo':
+            this.catalogInfoNode = node
+            break            
         }
       })
 
@@ -538,6 +565,20 @@ export default {
       return templateVariablesObject
     },
 
+    getStylesheets () {
+      let stylesheets = []
+      //let templateVariablesObject = {}
+      for (let i=0; i<this.stylesheets.length; i++) {
+        const node = this.stylesheets[i];
+        stylesheets.push({ href: node.href, type: node.type })
+      }
+      return stylesheets
+    },
+
+    getCatalogInfo () {
+      return this.catalogInfoNode
+    },
+
     getModules () {
       return this.modules
     },
@@ -598,6 +639,8 @@ export default {
         boundTo: this.getResponseVariable(),
         templateVariables: this.getTemplateVariables(),
         contextVariables: this.getContextVariables(),
+        stylesheets: this.getStylesheets(),
+        catalogInfo: this.getCatalogInfo(),
         module: this.module,
         modules: this.getModules(),
         moduleResolution: this.getConfiguration(),

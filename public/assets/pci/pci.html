@@ -127,6 +127,8 @@ const QTI_PCI_API = {
   properties: null,
   contextVariables: null,
   templateVariables: null,
+  stylesheets: null,
+  catalogInfo: null,
   moduleResolution: null,
   instance: null,
   response: null,
@@ -201,6 +203,22 @@ const QTI_PCI_API = {
 	  this.templateVariables = templateVariables;
   },
 
+  getStylesheets: function () {
+	  return this.stylesheets;
+  },
+
+  setStylesheets: function (stylesheets) {
+	  this.stylesheets = stylesheets;
+  },
+
+  getCatalogInfo: function () {
+    return this.catalogInfo;
+  },
+
+  setCatalogInfo: function (catalogInfo) {
+    this.catalogInfo = catalogInfo;
+  },
+
   getBoundTo: function () {
     return this.boundTo;
   },
@@ -273,13 +291,16 @@ const QTI_PCI_API = {
     this.setModuleResolution(pci.moduleResolution);
     this.setContextVariables(pci.contextVariables);
     this.setTemplateVariables(pci.templateVariables);
+    this.setStylesheets(pci.stylesheets);
+    this.setCatalogInfo(pci.catalogInfo);
     this.setBoundTo(pci.boundTo);
     this.setStatus(pci.status)
 
     this.trackResize(this.getDom());
     this.trackQtiInteractionChanged(this.getDom());
+    this.injectStylesheets();
     this.injectClassAttribute();
-	  this.injectMarkup();
+    this.injectMarkup();
     this.launchPci(
       this.getTypeIdentifier(), 
       this.getDom(), 
@@ -305,6 +326,20 @@ const QTI_PCI_API = {
         id="qti3-player-pci-markup"
         class="qti-interaction-markup"
        >${this.getPci().markup}</div>`;
+  },
+
+  injectStylesheets: function () {
+    const stylesheets = this.getStylesheets();
+    if (stylesheets === null) return;
+    stylesheets.forEach((stylesheet) => {
+      // Get the head element
+      const head = document.head;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = stylesheet.href;
+      link.type = stylesheet.type;
+      head.appendChild(link);
+    });
   },
 
   getModuleDependencies: function () {
