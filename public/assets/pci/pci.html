@@ -289,7 +289,7 @@ const QTI_PCI_API = {
     this.setDom(document.getElementById('qti3-player-pci-element'));
     this.setPci(pci);
     this.setTypeIdentifier(pci.typeIdentifier);
-    this.setProperties(pci.properties);
+    this.setProperties(this.transformProperties(pci.properties));
     this.setModuleResolution(pci.moduleResolution);
     this.setContextVariables(pci.contextVariables);
     this.setTemplateVariables(pci.templateVariables);
@@ -331,29 +331,52 @@ const QTI_PCI_API = {
   },
 
   injectStylesheets () {
-    const stylesheets = this.getStylesheets();
-    if (stylesheets === null) return;
+    const stylesheets = this.getStylesheets()
+    if (stylesheets === null) return
     stylesheets.forEach((stylesheet) => {
-      // Get the head element
-      const head = document.head;
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = stylesheet.href;
-      link.type = stylesheet.type;
-      head.appendChild(link);
-    });
+      if (!stylesheet.hasOwnProperty('css')) return
+      // Stylesheet css property is base64.  Decode it.
+      const cssText = this.decodeBase64ToBytes(stylesheet.css)
+      const style = document.createElement('style')
+      style.innerHTML = `${cssText}`
+      document.head.appendChild(style)
+    })
+  },
+
+  /**
+   * @description Transform the given properties object into a new object
+   * containing the same keys, but with base64-decoded values.
+   * @param {Object} properties
+   * @return {Object} transformed properties object with decoded values
+   */
+  transformProperties (properties) {
+    const props = {}
+    for (const [key, value] of Object.entries(properties)) {
+      props[`${key}`] = `${this.decodeBase64ToBytes(value)}`
+    }
+	  return props
+  },
+
+  decodeBase64ToBytes (base64) {
+    const textDecoder = new TextDecoder()
+    return textDecoder.decode(this.base64ToBytes(base64))
+  },
+
+  base64ToBytes (base64) {
+    const binString = atob(base64)
+    return Uint8Array.from(binString, (m) => m.codePointAt(0))
   },
 
   getModuleDependencies () {
     // Init qtiCustomInteractionContext as the first dependency
-    let dependencies = ['qtiCustomInteractionContext'];
+    let dependencies = ['qtiCustomInteractionContext']
 
-    const paths = this.getModuleResolution().paths;
+    const paths = this.getModuleResolution().paths
     for (let property in paths) {
-      dependencies.push(property);
-    };
+      dependencies.push(property)
+    }
 
-    return dependencies;
+    return dependencies
   },
 
   /**

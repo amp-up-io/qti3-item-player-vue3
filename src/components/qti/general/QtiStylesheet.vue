@@ -35,6 +35,7 @@ export default {
 
   data () {
     return {
+      rawCss: '',
       css: '',
       isQtiValid: true
     }
@@ -50,6 +51,10 @@ export default {
       return this.type
     },
 
+    getRawCss () {
+      return this.rawCss
+    },
+
     /**
      * @description Pull the stylesheet from the Href URI.
      * Wrap stylesheet contents in a style element, then inject into the
@@ -57,7 +62,8 @@ export default {
      */
     getCss () {
       axios.get(this.href).then(response => {
-          this.css = `<style>${response.data}</style>`
+          this.rawCss = response.data
+          this.css = `<style>${this.rawCss}</style>`
         })
         .catch(e => {
           console.log('[' + this.$options.name + '][CSS Fetch Error: ' + e + ']')

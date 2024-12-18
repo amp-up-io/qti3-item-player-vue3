@@ -533,7 +533,7 @@ export default {
       const properties = {}
       for (let key in pci.dataset) {
         if ('uniqueId' !== key) {
-          properties[key] = pci.dataset[key]
+          properties[key] = qtiProcessing.encodeBytesToBase64(pci.dataset[key])
         }
       }
 
@@ -567,8 +567,9 @@ export default {
     getStylesheets () {
       let stylesheets = []
       for (let i=0; i<this.stylesheets.length; i++) {
-        const node = this.stylesheets[i];
-        stylesheets.push({ href: node.getHref(), type: node.getType() })
+        const node = this.stylesheets[i]
+        const cssBase64 = qtiProcessing.encodeBytesToBase64(node.getRawCss())
+        stylesheets.push({ href: node.getHref(), type: node.getType(), css: `${cssBase64}`})
       }
       return stylesheets
     },
