@@ -92,7 +92,6 @@ export default {
       isQtiValid: true,
       hasPrompts: false,
       pciModuleResolver: null,
-
       loadIframeHandler: null,
       renderer: '',
       classAttribute: '',
@@ -567,10 +566,9 @@ export default {
 
     getStylesheets () {
       let stylesheets = []
-      //let templateVariablesObject = {}
       for (let i=0; i<this.stylesheets.length; i++) {
         const node = this.stylesheets[i];
-        stylesheets.push({ href: node.href, type: node.type })
+        stylesheets.push({ href: node.getHref(), type: node.getType() })
       }
       return stylesheets
     },

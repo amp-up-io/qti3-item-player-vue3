@@ -42,6 +42,14 @@ export default {
 
   methods: {
 
+    getHref () {
+      return this.href
+    },
+    
+    getType () {
+      return this.type
+    },
+
     /**
      * @description Pull the stylesheet from the Href URI.
      * Wrap stylesheet contents in a style element, then inject into the
