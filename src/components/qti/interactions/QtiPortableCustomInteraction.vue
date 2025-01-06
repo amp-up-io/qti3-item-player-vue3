@@ -27,6 +27,8 @@
  * qti-interaction-markup [1]
  * qti-template-variable [0..unbounded]
  * qti-context-variable [0..unbounded]
+ * qti-stylesheet [0..unbounded]
+ * qti-catalog-info [0..1]
  */
 import { store } from '@/store/store'
 import { PciModuleResolver } from '@/components/qti/interactions/pci/PciModuleResolver'
@@ -409,8 +411,6 @@ export default {
         if (child.component === null) return
         const node = child.component.proxy
 
-        // TODO - Add QtiStylesheet
-        // TODO - Add QtiCatalogInfo
         switch (child.type.name) {
           case 'QtiInteractionMarkup':
             this.markup = node.getMarkup()
@@ -747,8 +747,8 @@ export default {
       // Pull any prior interaction state.
       this.priorState = this.getPriorState(this.responseIdentifier)
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
-      this.cardinality = this.getCardinality();
-      this.baseType = this.getBaseType();
+      this.cardinality = this.getCardinality()
+      this.baseType = this.getBaseType()
       this.uniqueId = this.createId()
     } catch (err) {
       this.isQtiValid = false

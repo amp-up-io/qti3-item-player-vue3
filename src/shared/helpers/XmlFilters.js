@@ -10,7 +10,6 @@ export class XmlFilters {
     this.xmlDeclaration = new RegExp(/<\?xml.*?\?>/s)
     // Regex matching closed 'track' and 'source' elements
     this.rxTrackSource = new RegExp(/<(track|source)[^>]+?\/>/g)
-
   }
 
   /**
