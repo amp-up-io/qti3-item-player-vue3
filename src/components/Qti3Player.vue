@@ -68,6 +68,7 @@ import QtiOrderInteraction from '@/components/qti/interactions/QtiOrderInteracti
 import QtiHottextInteraction from '@/components/qti/interactions/QtiHottextInteraction.vue'
 import QtiHotspotInteraction from '@/components/qti/interactions/QtiHotspotInteraction.vue'
 import QtiPortableCustomInteraction from '@/components/qti/interactions/QtiPortableCustomInteraction.vue'
+import QtiSelectPointInteraction from '@/components/qti/interactions/QtiSelectPointInteraction.vue'
 
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
@@ -670,6 +671,7 @@ export default {
         .component('qti-hotspot-interaction', QtiHotspotInteraction)
         .component('qti-media-interaction', QtiMediaInteraction)
         .component('qti-portable-custom-interaction', QtiPortableCustomInteraction)
+        .component('qti-select-point-interaction', QtiSelectPointInteraction)
         .component('qti-prompt', QtiPrompt)
         .component('qti-simple-choice', QtiSimpleChoice)
         .component('ChoiceGroup', ChoiceGroup)
