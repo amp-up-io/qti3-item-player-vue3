@@ -485,10 +485,7 @@ export default {
       // Compute the Scaling Factor.
       // When responsive, the original image width divided by the current width.
       // When not responsive, the Scaling Factor is 1
-      const scalingFactor = 
-          (this.isResponsive) 
-            ? this.bgImageProperties.w / this.backgroundImageWidth
-            : 1
+      const scalingFactor = this.getScalingFactor()
 
       let newX, newY
       if (isRestore) {
@@ -511,11 +508,17 @@ export default {
       }
     },
 
+    getScalingFactor () {
+      return (this.isResponsive) 
+                ? this.bgImageProperties.w / this.backgroundImageWidth
+                : 1
+    },
+
     newPointElement (id, point, dataPoint, markerType, isStatic) {
       // default marker type is a circle with radius 9, and a blue theme
       const el = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-      el.setAttribute('cx', point.x+0.5)
-      el.setAttribute('cy', point.y+0.5)
+      el.setAttribute('cx', point.x)
+      el.setAttribute('cy', point.y)
       el.setAttribute('r',  this.pointRadius)
 
       if (markerType === 'default-light') {
@@ -562,6 +565,8 @@ export default {
       // Remove the pointElement
       this.deletePoint(id, pointElement)
 
+      // Update state to reflect the current point(s)
+      this.setState(this.computeState())
       // Update the response to reflect the current point(s)
       this.setResponse(this.computeResponse())
       // Update validity
@@ -746,8 +751,6 @@ export default {
           default:
         }
       }
-
-      console.log('this markerType:', this.markerType)
     },
 
     /**
@@ -850,6 +853,12 @@ export default {
 </script>
 
 <style>
+.qti-select-point-interaction {
+  margin: 0.5rem 0;
+  display: block;
+  width: 100%;
+}
+
 .qti-select-point-interaction .select-point-group {
   position: relative;
   display: inline-block;
@@ -857,7 +866,6 @@ export default {
 }
 
 .qti-select-point-interaction.qti-bordered .select-point-group {
-  /* border: 1px solid var(--foreground); */
   border: 1px solid transparent;
 }
 
@@ -866,16 +874,10 @@ export default {
   height: auto;
 }
 
-.select-point-group svg.select-point-overlay {
+.qti-select-point-interaction .select-point-group svg.select-point-overlay {
   outline: none;
   user-select: none;
   cursor: pointer;
-}
-
-.qti-select-point-interaction:not(.responsive) .select-point-group svg.select-point-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
 }
 
 .qti-select-point-interaction.responsive .select-point-group svg.select-point-overlay {
