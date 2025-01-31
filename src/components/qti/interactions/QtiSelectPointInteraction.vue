@@ -46,7 +46,7 @@ export default {
     maxChoices: {
       required: false,
       type: String,
-      default: '1'
+      default: '0'
     },
     dataMaxSelectionsMessage: {
       required: false,
@@ -352,7 +352,7 @@ export default {
       if (this.isSingle && (this.pointElements.size == 0)) return false
 
       // multiple card max-choices = 0 means no limit -> good
-      if (!this.isSingle || (this.maxChoices == 0)) return false
+      if (!this.isSingle && (this.maxChoices == 0)) return false
       if (!this.isSingle && (this.pointElements.size < this.maxChoices)) return false
 
       store.NotifyInteractionSelectionsLimit(this.maxSelectionsMessage)
@@ -799,6 +799,11 @@ export default {
 
       qtiAttributeValidation.validateMaxMinChoices(this.maxChoices, this.minChoices)
       this.isSingle = (this.getCardinality() !== 'multiple')
+
+      if (this.isSingle && (this.maxChoices != 1)) {
+        throw new QtiValidationException('Invalid qti-select-point-interaction.  cardinality: "single", max-choices attribute: "' + this.maxChoices + '"')
+      }
+
       this.hasPrompts = (this.getPrompts(this.$slots).length > 0 ? true : false)
 
       this.computeMinSelectionsMessage()
