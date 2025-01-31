@@ -592,7 +592,6 @@ export default {
 
     processBackgroundImage () {
       this.bgImageProperties = this.computeBackgroundImageProperties()
-      console.log('Initial Dimensions, bgImageProperties:',this.bgImageProperties)
 
       if (this.bgImageProperties === null) {
         throw new QtiValidationException('Select Point interaction must have exactly one <img>, <object>, or <picture> node')
