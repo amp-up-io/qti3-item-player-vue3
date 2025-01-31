@@ -452,7 +452,8 @@ export default {
       this.processBackgroundImage()
 
       // children[1] is the hotspotgroup child
-      const children = this.$.subTree.children[1].children[0].dynamicChildren
+      const children = this.$.subTree.children[1].children[0].children
+
       children.forEach((child) => {
         if (child.component === null) return
         if (child.type.name === 'QtiHotspotChoice') {
