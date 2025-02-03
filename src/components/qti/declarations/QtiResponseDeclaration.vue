@@ -172,6 +172,9 @@ export default {
           }
 
           if (slot.type.name === 'QtiAreaMapping') {
+            if ((this.getCardinality() !== 'record') && (this.getBaseType() !== 'point')) {
+              throw new QtiValidationException(`Invalid qti-area-mapping definition.  Variable base-type is "${this.getBaseType()}", not "point"`)
+            }
             if (!hasAreaMapping) {
               return hasAreaMapping = true
             }
@@ -207,10 +210,9 @@ export default {
           return this.mapping = node.component.proxy
         }
 
-        // Unsupported
-        //if (node.type.name === 'QtiAreaMapping') {
-        //  return this.areaMapping = node.component.proxy
-        //}
+        if (node.type.name === 'QtiAreaMapping') {
+          return this.areaMapping = node.component.proxy
+        }
 
         throw new QtiValidationException('[' + node.type.name + '][Unhandled Child Node]: "' + node.type.name + '"')
       })

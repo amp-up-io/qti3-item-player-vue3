@@ -39,6 +39,7 @@ import QtiCompanionMaterialsInfo from '@/components/qti/companionmaterials/QtiCo
 import QtiMapping from '@/components/qti/declarations/QtiMapping.vue'
 import QtiMapEntry from '@/components/qti/declarations/QtiMapEntry.vue'
 import QtiAreaMapping from '@/components/qti/declarations/QtiAreaMapping.vue'
+import QtiAreaMapEntry from '@/components/qti/declarations/QtiAreaMapEntry.vue'
 import QtiInterpolationTable from '@/components/qti/declarations/QtiInterpolationTable.vue'
 import QtiInterpolationTableEntry from '@/components/qti/declarations/QtiInterpolationTableEntry.vue'
 import QtiMatchTable from '@/components/qti/declarations/QtiMatchTable.vue'
@@ -645,6 +646,7 @@ export default {
         .component('qti-match-table', QtiMatchTable)
         .component('qti-match-table-entry', QtiMatchTableEntry)
         .component('qti-area-mapping', QtiAreaMapping)
+        .component('qti-area-map-entry', QtiAreaMapEntry)
 
       // Item Body or Modal Feedback elements
       app
