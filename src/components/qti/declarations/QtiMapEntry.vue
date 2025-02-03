@@ -118,7 +118,7 @@ export default {
 
       this.$slots.default().forEach((slot) => {
         if (qtiAttributeValidation.isValidSlot(slot)) {
-          throw new QtiValidationException('Invalid Child Node: "' + slot.tpe.name + '"')
+          throw new QtiValidationException('Invalid Child Node: "' + slot.type.name + '"')
         }
       })
     }
