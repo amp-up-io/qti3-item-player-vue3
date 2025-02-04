@@ -130,6 +130,7 @@ import QtiDefault from '@/components/qti/processing/expressions/QtiDefault.vue'
 import QtiVariable from '@/components/qti/processing/expressions/QtiVariable.vue'
 import QtiMatch from '@/components/qti/processing/expressions/QtiMatch.vue'
 import QtiMapResponse from '@/components/qti/processing/expressions/QtiMapResponse.vue'
+import QtiMapResponsePoint from '@/components/qti/processing/expressions/QtiMapResponsePoint.vue'
 import QtiIsNull from '@/components/qti/processing/expressions/QtiIsNull.vue'
 import QtiAnd from '@/components/qti/processing/expressions/QtiAnd.vue'
 import QtiOr from '@/components/qti/processing/expressions/QtiOr.vue'
@@ -731,6 +732,7 @@ export default {
       app.component('qti-variable', QtiVariable)
       app.component('qti-match', QtiMatch)
       app.component('qti-map-response', QtiMapResponse)
+      app.component('qti-map-response-point', QtiMapResponsePoint)
       app.component('qti-is-null', QtiIsNull)
       app.component('qti-and', QtiAnd)
       app.component('qti-or', QtiOr)

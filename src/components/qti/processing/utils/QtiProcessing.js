@@ -239,7 +239,7 @@ export default class QtiProcessing {
 
     // No key matches, bail with defaultValue
     return declaration.mapping.getDefaultValue()
-  } // end mapResponseValues
+  } // end mapResponse
 
   mappingEliminateNullsAndDuplicates (arr) {
     let len = arr.length
@@ -296,6 +296,93 @@ export default class QtiProcessing {
 
     // No table matches, bail with defaultValue - which may be null
     return declaration.lookupTable.getDefaultValue()
+  }
+
+  /**
+   * This expression looks up the value of a response variable that must be of base-type point, 
+   * and transforms it using the associated qti-area-mapping.
+   * @param {Object} declaration 
+   * @returns {Number} constrained mapped value
+   */
+  mapResponsePoint (declaration) {
+    if (this.isNullValue(declaration.value)) {
+      return declaration.areaMapping.getDefaultValue()
+    }
+
+    const areaMapEntries = declaration.areaMapping.getValue()
+    const len = areaMapEntries.length
+
+    /*
+     * The transformation is similar to mapResponse except that
+     * the points are tested against each area in turn. When
+     * mapping containers each area can be mapped once only. For
+     * example, if the candidate identified two points that both
+     * fall in the same area then the mappedValue is still added
+     * to the calculated total just once.
+     */
+
+    if (declaration.cardinality === 'single') {
+
+      let point = this.toPointObject(declaration.value)
+
+      for (let i = 0; i < len; i++) {
+        const areaMapEntry = areaMapEntries[i]
+        if (this.isPointInside(areaMapEntry.mapShape, areaMapEntry.mapCoords, point)) {
+          // Apply mapping constraints to our mappedValue and bail.
+          return declaration.areaMapping.applyConstraints(new BigNumber(areaMapEntry.mappedValue))
+        }
+      }
+
+    } else if (declaration.cardinality === 'multiple') {
+      
+      // Init a running total
+      let sum = new BigNumber(0)
+      // sourceValues is array with format ["x1 y1", "x2 y2", ... "xn yn"]
+      let sourceValues = declaration.value
+      // Clone sourceValues
+      let values = Array.from(sourceValues)
+
+      for (let i = 0; i < len; i++) {
+        const areaMapEntry = areaMapEntries[i]
+        let isMappingUnused = true
+        for (let j = 0; j < sourceValues.length; j++) {
+
+          let point = this.toPointObject(sourceValues[j])
+
+          if (this.isPointInside(areaMapEntry.mapShape, areaMapEntry.mapCoords, point)) {
+            if (isMappingUnused) {
+              sum = sum.plus(areaMapEntry.mappedValue)
+              isMappingUnused = false
+            }
+            // Remove the point from the cloned list of points
+            const pointIndex = values.indexOf(sourceValues[j])
+            if (pointIndex > -1) values.splice(pointIndex, 1)
+          }
+        }
+      }
+
+      sum = sum.plus(new BigNumber(declaration.areaMapping.getDefaultValue()).times(values.length))
+      return declaration.areaMapping.applyConstraints(sum)
+    } // end cardinality=multiple
+
+    // No key matches, bail with defaultValue
+    return declaration.areaMapping.getDefaultValue()
+  } // end mapResponsePoint
+
+  /**
+   * @description Convert a QTI point value (a string "x y") to an object.
+   * @param {String} pointString 
+   * @returns {Object} { x: <numeric x value>, y: <numeric y value> }
+   */
+  toPointObject (pointString) {
+    if (pointString === null) return null
+    if (typeof pointString !== 'string') return null
+
+    const parts = pointString.split(' ')
+    if (parts.length != 2) return null
+    const x = new BigNumber(parts[0]).toNumber()
+    const y = new BigNumber(parts[1]).toNumber()
+    return { x: x, y: y }
   }
 
   /**
