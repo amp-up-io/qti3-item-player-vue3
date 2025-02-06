@@ -145,6 +145,7 @@ import QtiEqualRounded from '@/components/qti/processing/expressions/QtiEqualRou
 import QtiFieldValue from '@/components/qti/processing/expressions/QtiFieldValue.vue'
 import QtiRandomFloat from '@/components/qti/processing/expressions/QtiRandomFloat.vue'
 import QtiRandomInteger from '@/components/qti/processing/expressions/QtiRandomInteger.vue'
+import QtiInside from '@/components/qti/processing/expressions/QtiInside.vue'
 import QtiIntegerDivide from '@/components/qti/processing/expressions/QtiIntegerDivide.vue'
 import QtiIntegerModulus from '@/components/qti/processing/expressions/QtiIntegerModulus.vue'
 import QtiIntegerToFloat from '@/components/qti/processing/expressions/QtiIntegerToFloat.vue'
@@ -747,6 +748,7 @@ export default {
       app.component('qti-field-value', QtiFieldValue)
       app.component('qti-random-float', QtiRandomFloat)
       app.component('qti-random-integer', QtiRandomInteger)
+      app.component('qti-inside', QtiInside)
       app.component('qti-integer-divide', QtiIntegerDivide)
       app.component('qti-integer-modulus', QtiIntegerModulus)
       app.component('qti-integer-to-float', QtiIntegerToFloat)
