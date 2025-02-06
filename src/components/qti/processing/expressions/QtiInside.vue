@@ -12,8 +12,6 @@
  * if any of the points are inside the area. 
  * If the sub-expression is NULL then the operator results in NULL.
  */
-import { store } from '@/store/store'
-import { teststore } from '@/store/teststore'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
 import QtiEvaluationException from '@/components/qti/exceptions/QtiEvaluationException'
@@ -50,7 +48,6 @@ export default {
       valueBaseType: 'boolean',
       valueCardinality: 'single',
       expression: null,
-      processingContext: null,
       isQtiValid: true
     }
   },
@@ -75,10 +72,6 @@ export default {
 
     getCardinality () {
       return this.valueCardinality
-    },
-
-    getStore () {
-      return (this.processingContext === 'TEST') ? teststore : store
     },
 
     getShape () {
