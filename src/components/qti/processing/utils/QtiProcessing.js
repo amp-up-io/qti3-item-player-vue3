@@ -530,6 +530,21 @@ export default class QtiProcessing {
       }
     }
 
+    // ellipse is deprecated - support it anyway.
+    const ELLIPSE = {
+      COORDS_LENGTH: 4,
+      CENTER_X: 0,
+      CENTER_Y: 1,
+      H_RADIUS: 2,
+      V_RADIUS: 3,
+
+      isInside (coords, point) {
+        const x = new BigNumber(Math.pow(point.x - coords[this.CENTER_X], 2) / Math.pow(coords[this.H_RADIUS], 2))
+        const y = new BigNumber(Math.pow(point.y - coords[this.CENTER_Y], 2) / Math.pow(coords[this.V_RADIUS], 2))
+        return x.plus(y).lte(new BigNumber(1))
+      }
+    }
+
     const POLY = {
       MINIMUM_COORDS_LENGTH: 6,
       LEFT_X: 0,
@@ -609,22 +624,13 @@ export default class QtiProcessing {
       }
     }
 
-    if (shape === 'circle') {
-      return CIRCLE.isInside(coords, point)
-    }
-    if (shape === 'rect') {
-      return RECT.isInside(coords, point)
-    }
-    if (shape === 'poly') {
-      return POLY.isInside(coords, point)
-    }
-    if (shape === 'default') {
-      return true
-    }
-    if (shape === 'ellipse') {
-      // This should have been flagged as unsupported during validation.
-      return false
-    }
+    if (shape === 'circle') return CIRCLE.isInside(coords, point)
+    if (shape === 'rect') return RECT.isInside(coords, point)
+    if (shape === 'poly') return POLY.isInside(coords, point)
+    if (shape === 'ellipse') return ELLIPSE.isInside(coords, point)
+    if (shape === 'default') return true
+    // ?? unknown shape
+    return false
   }
 
   /**

@@ -124,6 +124,7 @@ export default {
           break
 
         case 'rect':
+        case 'ellipse':
           if (data.length != 4) {
             throw new QtiValidationException(`Invalid number of coordinates for ${this.shape} shape. Expected 4, but found: ${data.length}`)
           }
@@ -132,9 +133,6 @@ export default {
         case 'poly':
           this.validatePolyCoords(data)
           break
-
-        case 'ellipse':
-          throw new QtiValidationException(`Ellipse is a deprecated shape.  Not supported.`)
 
         case 'default':
           // This signifies that the entire image is a target.
