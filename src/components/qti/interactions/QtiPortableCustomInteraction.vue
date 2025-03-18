@@ -91,6 +91,7 @@ export default {
       baseType: null,
       cardinality: null,
       isValidResponse: true,
+      invalidResponseMessage: 'Input Required',
       isQtiValid: true,
       hasPrompts: false,
       pciModuleResolver: null,
@@ -181,7 +182,7 @@ export default {
      * @return {String} custom message
      */
     getInvalidResponseMessage () {
-      return ''
+      return this.invalidResponseMessage
     },
 
     /**
@@ -267,41 +268,6 @@ export default {
     computeState () {
       const state = {}
       return state
-    },
-
-    /**
-     * @description The determines an interaction's validity status.
-     * @return {Boolean} (true if valid, false if invalid)
-     */
-    computeIsValid () {
-      return true
-    },
-
-    /**
-     * @description Evaluate the interaction's response validity.
-     * Update the interaction's validity if there is a change.
-     */
-    evaluateValidity () {
-      // Save old validity value
-      const priorValidity = this.getIsValid()
-      // Compute new validity value
-      const currentValidity = this.computeIsValid()
-      // Bail if no change
-      if (priorValidity === currentValidity) return
-      // There is a change.
-      this.updateValidity(currentValidity)
-    },
-
-    /**
-     * @description Update the interaction's validity.
-     * @param {Boolean} isValid
-     */
-    updateValidity (isValid) {
-      this.setIsValid(isValid)
-      store.setInteractionIsValidResponse({
-          identifier: this.responseIdentifier,
-          isValidResponse: isValid
-        })
     },
 
     /**
@@ -706,6 +672,26 @@ export default {
 
       // Notify store that we have completed our state saving
       this.notifyInteractionStateReady()
+    },
+
+    /**
+     * @description Proxy to update this interaction's validity.
+     * @param {Boolean} isValid
+     */
+    pciUpdateValidity (isValid) {
+      this.setIsValid(isValid)
+      store.setInteractionIsValidResponse({
+          identifier: this.responseIdentifier,
+          isValidResponse: isValid
+        })
+    },
+
+    /**
+     * @description Proxy to update this interaction's response value.
+     * @param {Object} response
+     */
+    pciUpdateResponse (response) {
+      this.setResponse(response)
     },
 
     pciSetReady () {
