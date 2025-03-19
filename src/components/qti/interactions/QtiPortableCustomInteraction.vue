@@ -589,6 +589,11 @@ export default {
       return responseVariable
     },
 
+    getAfaPnp () {
+      const pnp = store.getItemContextPnp()
+      return pnp.getAfaPnp()
+    },
+
     /**
      * @description Build a PciLoadInteraction message payload and send the
      * message to the pciIframe.  Optionally, include a priorState in the 
@@ -606,6 +611,7 @@ export default {
         contextVariables: this.getContextVariables(),
         stylesheets: this.getStylesheets(),
         catalogInfo: this.getCatalogInfo(),
+        pnp: this.getAfaPnp(),
         module: this.module,
         modules: this.getModules(),
         moduleResolution: this.getConfiguration(),

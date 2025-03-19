@@ -152,6 +152,7 @@ const QTI_PCI_API = {
   templateVariables: null,
   stylesheets: null,
   catalogInfo: null,
+  pnp: null,
   moduleResolution: null,
   instance: null,
   response: null,
@@ -244,6 +245,14 @@ const QTI_PCI_API = {
     this.catalogInfo = catalogInfo
   },
 
+  getPnp () {
+    return this.pnp
+  },
+
+  setPnp (pnp) {
+    this.pnp = pnp
+  },
+
   getBoundTo () {
     return this.boundTo[this.getResponseIdentifier()]
   },
@@ -318,6 +327,7 @@ const QTI_PCI_API = {
     this.setTemplateVariables(pci.templateVariables)
     this.setStylesheets(pci.stylesheets)
     this.setCatalogInfo(pci.catalogInfo)
+    this.setPnp(pci.pnp)
     this.setBoundTo(pci.boundTo)
     this.setStatus(pci.status)
 
@@ -333,6 +343,7 @@ const QTI_PCI_API = {
       this.getProperties(),
       this.getContextVariables(),
       this.getTemplateVariables(),
+      this.getPnp(),
       this.getStateFromState(),
       this.getBoundTo(),
       this.getStatus()
@@ -423,6 +434,7 @@ const QTI_PCI_API = {
       properties,
       contextVariables,
       templateVariables,
+      pnp,
       state,
       boundTo,
       status) {
@@ -439,6 +451,7 @@ const QTI_PCI_API = {
         properties: properties,
         templateVariables: templateVariables,
         contextVariables: contextVariables,
+        pnp: pnp,
         boundTo: boundTo,
         responseIdentifier: responseIdentifier,
         onready: ctx.notifyReady,
