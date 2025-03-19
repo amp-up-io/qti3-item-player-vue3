@@ -758,6 +758,14 @@ export const store = {
     })
   },
 
+  pciSetRenderingProperties () {
+    this.getInteractions().forEach((interaction) => {
+      if (interaction.interactionType === 'PortableCustom') {
+        interaction.node.pciSetRenderingProperties()
+      }
+    })
+  },
+
   pciInitialize (identifier) {
     let interaction = store.getInteraction(identifier)
     if ((typeof interaction === 'undefined') || 

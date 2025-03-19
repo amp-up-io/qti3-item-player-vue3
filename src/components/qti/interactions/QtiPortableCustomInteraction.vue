@@ -708,6 +708,19 @@ export default {
       return ((this.pciIframe !== null) && this.isReady)
     },
 
+    pciSetRenderingProperties () {
+      // Pull the PNP from the store.
+      const message = { 
+        message: 'PciSetRenderingProperties', 
+        properties: {
+          pnp: this.getAfaPnp(),
+          status: store.getItemLifecycleStatus()
+        }
+      }
+
+      this.pciIframe.contentWindow.postMessage(message, '*')
+    },
+
     /**
      * @description Notify the item that this PCI's state has been retrieved
      * and persisted. Prior to calling this method, be sure to save the 

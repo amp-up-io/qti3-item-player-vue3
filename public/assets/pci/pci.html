@@ -123,7 +123,7 @@ let qtiCustomInteractionContext = {
    * @param {Object} properties Properties is an Object consisting of two properties:
    * {
    *   pnp: { "access-for-all-pnp": { <afapnp } },
-   *   status: "<item lifecycle status>"   // 'interacting' | 'closed' | 'review' | 'solution'
+   *   status: "<item lifecycle status>"   // 'initial' | 'interacting' | 'closed' | 'review' | 'solution'
    * }
    */
   setRenderingProperties (instance, properties) {
@@ -470,6 +470,10 @@ const QTI_PCI_API = {
     })
   },
 
+  setRenderingProperties (properties) {
+    qtiCustomInteractionContext.setRenderingProperties(this.getInstance(), properties)
+  },
+
   NotifyPciChildLoaded () {
     if (self == top) return
 
@@ -481,16 +485,16 @@ const QTI_PCI_API = {
   },
 
   NotifyPciReady (instance, state) {
-    this.setInstance(instance);
+    this.setInstance(instance)
 
-    if (self == top) return;
+    if (self == top) return
 
-    const height = this.getDom().clientHeight;;
-    const computedHeight = (height) ? height : 0;
-    const width = this.getDom().clientWidth;
-    const computedWidth = (width) ? width : 0;
+    const height = this.getDom().clientHeight
+    const computedHeight = (height) ? height : 0
+    const width = this.getDom().clientWidth
+    const computedWidth = (width) ? width : 0
 
-    window.parent.postMessage({ message: 'PciReady', identifier: this.getResponseIdentifier(), width: computedWidth, height: computedHeight, success: true },'*');
+    window.parent.postMessage({ message: 'PciReady', identifier: this.getResponseIdentifier(), width: computedWidth, height: computedHeight, success: true },'*')
   },
 
   NotifyPciDone (instance, response, state, status) {
@@ -628,6 +632,10 @@ window.onload = (event) => {
         break
       
       case 'PciResizeContainerWidth':
+        break
+
+      case 'PciSetRenderingProperties':
+        QTI_PCI_API.setRenderingProperties(e.data.properties)
         break
 
       default:
