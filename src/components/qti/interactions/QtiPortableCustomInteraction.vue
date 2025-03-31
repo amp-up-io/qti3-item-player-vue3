@@ -79,6 +79,13 @@ export default {
       required: false,
       type: String,
       default: ''
+    },
+    /*
+     * Optional attribute to override default PCI invalid response message.
+     */
+    dataMinSelectionsMessage: {
+      required: false,
+      type: String
     }
   },
 
@@ -91,7 +98,7 @@ export default {
       baseType: null,
       cardinality: null,
       isValidResponse: true,
-      invalidResponseMessage: 'Input Required',
+      invalidResponseMessage: '',
       isQtiValid: true,
       hasPrompts: false,
       pciModuleResolver: null,
@@ -183,6 +190,17 @@ export default {
      */
     getInvalidResponseMessage () {
       return this.invalidResponseMessage
+    },
+
+    /**
+     * @description Initiate an async PciCheckValidity_Request.  When the PCI has 
+     * a reply it will send a PciCheckValidity_Reply message containing the 
+     * validity.
+     */
+    checkValidityRequest () {
+      this.pciIframe.contentWindow.postMessage({ 
+          message: 'PciCheckValidity_Request'
+        }, '*')
     },
 
     /**
@@ -413,6 +431,15 @@ export default {
 
     enable () {
       // NOOP
+    },
+
+    computeMinSelectionsMessage () {
+      console.log('this.dataMinSelectionsMessage:',this.dataMinSelectionsMessage)
+      if (typeof this.dataMinSelectionsMessage !== 'undefined') {
+        this.invalidResponseMessage = this.dataMinSelectionsMessage
+        return
+      }
+      this.invalidResponseMessage = 'Input required'
     },
 
     /**
@@ -748,6 +775,8 @@ export default {
 
       const staticClass = (typeof this.$.vnode.props['class'] !== 'undefined') ? this.$.vnode.props['class'] : ''
       this.setClassAttribute(staticClass)
+
+      this.computeMinSelectionsMessage()
 
       // Pull any prior interaction state.
       this.priorState = this.getPriorState(this.responseIdentifier)
