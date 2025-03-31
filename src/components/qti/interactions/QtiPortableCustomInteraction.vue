@@ -434,7 +434,6 @@ export default {
     },
 
     computeMinSelectionsMessage () {
-      console.log('this.dataMinSelectionsMessage:',this.dataMinSelectionsMessage)
       if (typeof this.dataMinSelectionsMessage !== 'undefined') {
         this.invalidResponseMessage = this.dataMinSelectionsMessage
         return
