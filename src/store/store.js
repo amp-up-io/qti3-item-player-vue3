@@ -739,11 +739,11 @@ export const store = {
 
       case 'PciReady':
         console.log('[PCI Parent] PCI Ready: ' + event.data.identifier + ', height: '+ event.data.height + ', width: '+event.data.width)
-        
+
         // Message we receive from the PCI in an onready callback.
         // This message includes a PCI's rendered width and height.
         // Notify the PCI component that its PCI successfully loaded.
-        this.pciReady(event.data.identifier)
+        this.pciReady(event.data.identifier, event.data.valid)
         // Resize the iframe - usually this is the height that is resized
         this.pciResizeIframe(event.data.identifier, event.data.height, event.data.width, true)
         break
@@ -801,12 +801,14 @@ export const store = {
     interaction.node.pciInitialize()
   },
 
-  pciReady (identifier) {
+  pciReady (identifier, valid) {
     let interaction = store.getInteraction(identifier)
     if ((typeof interaction === 'undefined') || 
         (interaction.interactionType !== 'PortableCustom')) return
 
     interaction.node.pciSetReady()
+    interaction.node.setIsValid(valid)
+    interaction.isValidResponse = valid
   },
 
   pciResizeIframe (identifier, height, width, isInitialResize) {

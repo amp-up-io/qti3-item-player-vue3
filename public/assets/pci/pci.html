@@ -139,14 +139,15 @@ let qtiCustomInteractionContext = {
    * Otherwise, return boolean true (is valid).
    * @param {Object} instance The Custom Interaction Instance.
    */
-  checkValidity (instance) {
-    let isValid = false
+   checkValidity (instance) {
+    // default to true
+    let isValid = true
     if ((typeof instance.checkValidity !== 'undefined') && typeof instance.checkValidity == 'function') {
       isValid = instance.checkValidity()
     }
-    console.log('[PCI Context] Interaction checkValidity:', isValid)
-    QTI_PCI_API.NotifyPciCheckValidity(isValid)
+    return isValid
   }
+
 }
 
 define('qtiCustomInteractionContext',[],function(){
@@ -490,7 +491,7 @@ const QTI_PCI_API = {
   },
 
   checkValidity () {
-    qtiCustomInteractionContext.checkValidity(this.getInstance())
+    return qtiCustomInteractionContext.checkValidity(this.getInstance())
   },
 
   NotifyPciChildLoaded () {
@@ -508,12 +509,13 @@ const QTI_PCI_API = {
 
     if (self == top) return
 
+    const isValid = this.checkValidity()
     const height = this.getDom().clientHeight
     const computedHeight = (height) ? height : 0
     const width = this.getDom().clientWidth
     const computedWidth = (width) ? width : 0
 
-    window.parent.postMessage({ message: 'PciReady', identifier: this.getResponseIdentifier(), width: computedWidth, height: computedHeight, success: true },'*')
+    window.parent.postMessage({ message: 'PciReady', identifier: this.getResponseIdentifier(), valid: isValid, width: computedWidth, height: computedHeight, success: true },'*')
   },
 
   NotifyPciDone (instance, response, state, status) {
@@ -530,11 +532,6 @@ const QTI_PCI_API = {
   NotifyPciStateReady (stringifiedStateObject) {
     if (self == top) return
     window.parent.postMessage({ message: 'PciGetState_Reply', identifier: this.getResponseIdentifier(), state: stringifiedStateObject, success: true },'*')
-  },
-
-  NotifyPciCheckValidity (valid) {
-    if (self == top) return
-    window.parent.postMessage({ message: 'PciCheckValidity_Reply', identifier: this.getResponseIdentifier(), valid: valid, success: true },'*')
   },
 
   NotifyPciInteractionChanged (valid, value) {
@@ -660,10 +657,6 @@ window.onload = (event) => {
 
       case 'PciSetRenderingProperties':
         QTI_PCI_API.setRenderingProperties(e.data.properties)
-        break
-
-      case 'PciCheckValidity_Request':
-        QTI_PCI_API.checkValidity()
         break
 
       default:
