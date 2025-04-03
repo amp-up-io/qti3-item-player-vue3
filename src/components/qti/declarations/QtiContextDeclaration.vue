@@ -188,8 +188,36 @@ export default {
 
         throw new QtiValidationException('[' + node.type.name + '][Unhandled Child Node]: "' + node.type.name + '"')
       })
-    }
+    },
 
+    /**
+     * @description Retrieve this variable's prior state.
+     * When not null, has this schema:
+     * {
+     *   identifier: [String],
+     *   value: [Value saved from last attempt]
+     * }
+     * @param {String} identifier - of an outcome variable
+     */
+     getPriorState (identifier) {
+      const priorState = store.getItemContextStateVariable(identifier)
+      console.log('[ContextDeclaration][' + identifier + '][priorState]', priorState)
+
+      // If priorState is null, we are not restoring anything
+      if (priorState === null) return null
+
+      // Perform basic consistency checking on this priorState
+      if (!('value' in priorState)) {
+        throw new QtiEvaluationException('Variable Restore State Invalid.  "value" property not found.')
+      }
+
+      if (this.getCardinality() !== 'record')
+        this.setValue(priorState.value)
+      else
+        this.setValue(store.createRecordFromMapValue(identifier, this.defaultValue, priorState.value))
+
+      return priorState
+    }
   },
 
   created: function() {
@@ -232,7 +260,10 @@ export default {
       try {
         this.processChildren()
 
-        this.initializeValue()
+        if (this.getPriorState(this.identifier) === null) {
+          // Initialize a value when no prior state
+          this.initializeValue()
+        }
 
         const obj = {
             identifier: this.identifier,
