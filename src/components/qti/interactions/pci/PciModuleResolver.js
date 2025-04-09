@@ -48,7 +48,7 @@ export class PciModuleResolver {
         let configuration = null
         
         // Check the happy path first.  This occurs when there is no 
-        // qti-interaction-modules element and there is a non-empty modules attribute.
+        // qti-interaction-modules element and there is a non-empty module attribute.
         if ((this.moduleAttribute.length > 0) && (this.modulesNode === null)) {
 
             // Load the PCI from the module_resolution.js file found at the
@@ -72,15 +72,19 @@ export class PciModuleResolver {
         let baseConfig = this.constants.BASE_CONFIG
 
         // Init base config
-        baseConfig = await this.initBaseConfiguration(baseConfig, modules)
+        baseConfig = await this.initBaseConfiguration(this.constants.BASE_CONFIG, modules)
 
         // Attempt to resolve primary config modules
         configuration = await this.resolvePrimaryConfigurationModules(baseConfig, modules)
-        
+
         // Bail if we found a pimaryconfiguration
         if (configuration !== null) return configuration
 
-        // Unable to resolve primary config modules.  Attempt to resolve secondary config modules
+        // Unable to resolve primary config modules. Start over by trying to find a secondary config.
+        baseConfig = await this.initBaseSecondaryConfiguration(this.constants.BASE_CONFIG, modules)
+
+        // Attempt to resolve secondary config modules.  This will attempt to resolve modules
+        // from the fallback-path attribute on qti-interaction-module elements
         configuration = await this.resolveSecondaryConfigurationModules(baseConfig, modules)
 
         return configuration
@@ -100,6 +104,19 @@ export class PciModuleResolver {
         return baseConfig
     }
 
+    async initBaseSecondaryConfiguration (baseConfig, modules) {
+
+        // Default fallback_module_resolution.js will be in the item's modules subfolder
+        const url = `${this.getItemPathUri()}modules/fallback_module_resolution.js`
+
+        if (typeof modules.secondaryConfiguration === 'undefined') {
+            const mr = await this.fetchDefaultFallbackModuleResolution(url, false)
+            if (mr !== null) return mr
+        }
+
+        return baseConfig
+    }
+
     async resolvePrimaryConfigurationModules (baseConfig, modules) {
 
         let primaryUrls = []
@@ -107,9 +124,6 @@ export class PciModuleResolver {
         // If no primary-configuration attribute exists in qti-interaction-modules, try
         // to build and resolve a primary configuration from scratch.
         if (typeof modules.primaryconfiguration === 'undefined') {
-
-            // TODO:  should we try to load a module_resolution.js at the default URL
-            // which is itemPathUri/modules/module_resolution.js  ??
 
             for (let i=0; i<modules.module.length; i++) {
 
@@ -164,9 +178,6 @@ export class PciModuleResolver {
 
         if (typeof modules.secondaryconfiguration === 'undefined') {
 
-            // TODO:  should we try to load a module_resolution.js at the default URL
-            // which is itemPathUri/modules/fallback_module_resolution.js  ??
-            
             for (let i=0; i<modules.module.length; i++) {
 
                 if (typeof modules.module[i].fallbackpath === 'undefined') {
@@ -214,11 +225,13 @@ export class PciModuleResolver {
         return (areModulesResolved ? configuration : null)
     }
 
-    async resolveConfigurationPathUrls (paths) {
+    async resolveConfigurationPathUrls (pathsObject) {
+        const paths  = Object.keys(pathsObject)
         let urls = []
+
         // Now loop through the configuration paths and resolve each path
         for (let i=0; i<paths.length; i++) {
-            urls.push(paths[i])
+            urls.push(pathsObject[paths[i]] + '.js')
         }
 
         let areModulesResolved = await this.resolveConfigurationModules(urls)
@@ -324,6 +337,37 @@ export class PciModuleResolver {
             return configuration
         } catch (error) {
             console.log('module_resolution.js Fetch error:', error)
+            return null
+        }           
+    }
+
+    async fetchDefaultFallbackModuleResolution (url, isConfigurationRelative) {
+        try {
+            const response = await fetch(url)
+            if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`)
+            }
+
+            // Get the config json
+            const configuration = await response.json()
+
+            // Adjust relative paths to absolute paths
+            let paths = configuration.paths
+            for (let path in paths) {
+                if (paths[path] !== null && !paths[path].startsWith('http')) {
+
+                    if (isConfigurationRelative)
+                        // Paths should be relative to the URL of the configuration
+                        paths[path] = `${this.getConfigurationRelativePath(url)}${paths[path]}`
+                    else
+                        // Paths should be relative to the URL of the item
+                        paths[path] = `${this.getItemPathUri()}${paths[path]}`
+
+                }
+            }
+            return configuration
+        } catch (error) {
+            console.log('fallback_module_resolution.js Fetch error:', error)
             return null
         }           
     }
