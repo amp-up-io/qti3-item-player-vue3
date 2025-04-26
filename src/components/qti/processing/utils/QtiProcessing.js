@@ -86,6 +86,7 @@ export default class QtiProcessing {
       'qti-power',
       'qti-any-n',
       'qti-inside',
+      'qti-container-size',
       'qti-test-variables'
     ]
   }
