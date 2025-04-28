@@ -125,6 +125,7 @@ import QtiSetCorrectResponse from '@/components/qti/processing/rules/QtiSetCorre
 import QtiSetDefaultValue from '@/components/qti/processing/rules/QtiSetDefaultValue.vue'
 // Expressions
 import QtiBaseValue from '@/components/qti/processing/expressions/QtiBaseValue.vue'
+import QtiContains from '@/components/qti/processing/expressions/QtiContains.vue'
 import QtiContainerSize from '@/components/qti/processing/expressions/QtiContainerSize.vue'
 import QtiCorrect from '@/components/qti/processing/expressions/QtiCorrect.vue'
 import QtiDefault from '@/components/qti/processing/expressions/QtiDefault.vue'
@@ -730,6 +731,7 @@ export default {
       // Expressions
       app.component('qti-base-value', QtiBaseValue)
       app.component('qti-container-size', QtiContainerSize)
+      app.component('qti-contains', QtiContains)
       app.component('qti-correct', QtiCorrect)
       app.component('qti-default', QtiDefault)
       app.component('qti-variable', QtiVariable)
