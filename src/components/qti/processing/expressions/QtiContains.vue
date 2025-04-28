@@ -107,9 +107,12 @@ export default {
           if (firstExpression.getCardinality() !== node.getCardinality()) {
             throw new QtiValidationException('[Contains] Expressions must be of same cardinality')
           }
-          if (node.getBaseType() === 'duration') {
-            throw new QtiValidationException('[Contains] Expressions of base-type duration not permitted')
+        }
+        if ((node.getCardinality() !== 'multiple') && (node.getCardinality() !== 'ordered')) {
+            throw new QtiValidationException('[Contains] Expressions must be cardinality="multiple" or cardinality="ordered"')
           }
+        if (node.getBaseType() === 'duration') {
+          throw new QtiValidationException('[Contains] Expressions of base-type="duration" not permitted')
         }
       })
     },
@@ -136,6 +139,7 @@ export default {
         let secondValue = this.expressions[1].evaluate()
 
         if (qtiProcessing.isNullValue(firstValue) || qtiProcessing.isNullValue(secondValue)) {
+          console.log('[Contains]', qtiProcessing.nullValue())
           this.setValue(qtiProcessing.nullValue())
           return this.getValue()
         }
@@ -143,13 +147,13 @@ export default {
         let firstExpression = this.expressions[0]
 
         if (firstExpression.getCardinality() === 'multiple') {
-          return qtiProcessing.isMultipleValuesContains(firstValue, secondValue)
+          this.setValue(qtiProcessing.isMultipleValuesContains(firstValue, secondValue))
+        } else if (firstExpression.getCardinality() === 'ordered') {
+          this.setValue(qtiProcessing.isOrderedValuesContains(firstValue, secondValue))
         }
 
-        if (firstExpression.getCardinality() === 'ordered') {
-          return qtiProcessing.isOrderedValuesContains(firstValue, secondValue)
-        }
-
+        console.log('[Contains]', this.getValue())
+        return this.getValue()
       } catch (err) {
         if (err.name === 'QtiValidationException') {
           throw new QtiValidationException(err.message)
