@@ -70,6 +70,7 @@ import QtiHottextInteraction from '@/components/qti/interactions/QtiHottextInter
 import QtiHotspotInteraction from '@/components/qti/interactions/QtiHotspotInteraction.vue'
 import QtiPortableCustomInteraction from '@/components/qti/interactions/QtiPortableCustomInteraction.vue'
 import QtiSelectPointInteraction from '@/components/qti/interactions/QtiSelectPointInteraction.vue'
+import QtiCustomInteraction from '@/components/qti/interactions/QtiCustomInteraction.vue'
 
 import QtiPrompt from '@/components/qti/interactions/QtiPrompt.vue'
 import QtiInlineChoice from '@/components/qti/interactions/QtiInlineChoice.vue'
@@ -88,6 +89,7 @@ import QtiGapImg from '@/components/qti/interactions/QtiGapImg.vue'
 import QtiGap from '@/components/qti/interactions/QtiGap.vue'
 import QtiHottext from '@/components/qti/interactions/QtiHottext.vue'
 import QtiHotspotChoice from '@/components/qti/interactions/QtiHotspotChoice.vue'
+import CustomOption from '@/components/qti/interactions/custom/CustomOption.vue'
 import QtiInteractionModules from '@/components/qti/interactions/pci/QtiInteractionModules.vue'
 import QtiInteractionModule from '@/components/qti/interactions/pci/QtiInteractionModule.vue'
 import QtiInteractionMarkup from '@/components/qti/interactions/pci/QtiInteractionMarkup.vue'
@@ -665,6 +667,7 @@ export default {
         .component('amp-audio', AmpAudio)
         .component('amp-video', AmpVideo)
         .component('qti-choice-interaction', QtiChoiceInteraction)
+        .component('qti-custom-interaction', QtiCustomInteraction)
         .component('qti-end-attempt-interaction', QtiEndAttemptInteraction)
         .component('qti-extended-text-interaction', QtiExtendedTextInteraction)
         .component('qti-text-entry-interaction', QtiTextEntryInteraction)
@@ -700,6 +703,7 @@ export default {
         .component('qti-interaction-markup', QtiInteractionMarkup)
         .component('qti-template-variable', QtiTemplateVariable)
         .component('qti-context-variable', QtiContextVariable)
+        .component('custom-option', CustomOption)
 
       // Catalog elements
       app
