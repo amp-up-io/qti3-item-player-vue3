@@ -1,4 +1,7 @@
 import Sortable from 'sortablejs'
+import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
+
+const qtiAttributeValidation = new QtiAttributeValidation()
 
 class OrderInteractionWidget {
 
@@ -152,7 +155,7 @@ class OrderInteractionWidget {
     if (description === null) {
       description = document.createElement('div')
       description.classList.add('qti-visually-hidden', 'qti-order-keyboard-help')
-      description.id = `order_keyboard_help_${Math.random().toString(36).slice(2, 9)}`
+      description.id = this.createDomId('order_keyboard_help')
       this.wrapper.appendChild(description)
     }
 
@@ -171,6 +174,10 @@ class OrderInteractionWidget {
     }
 
     return liveRegion
+  }
+
+  createDomId (prefix) {
+    return `${prefix}_${qtiAttributeValidation.randomString(5, 'a')}`
   }
 
   handleDefaultKeyDown (event) {
