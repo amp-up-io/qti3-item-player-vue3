@@ -135,64 +135,20 @@ export default {
 <style>
 body {
   margin: 0;
-  background: #f5f7fb;
-  color: #1b2430;
-  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
 }
 
 .test-shell {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2rem 1.25rem 3rem;
+  padding: 1rem;
 }
 
 .test-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: end;
-  justify-content: space-between;
   margin-bottom: 1.5rem;
-}
-
-.eyebrow {
-  margin: 0 0 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #4d648d;
-}
-
-h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
-  line-height: 1.05;
-}
-
-.instructions {
-  max-width: 42rem;
-  margin: 0.75rem 0 0;
-  line-height: 1.5;
 }
 
 .sample-switcher {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-}
-
-.sample-switcher button {
-  border: 1px solid #1b2430;
-  background: #fff;
-  color: #1b2430;
-  border-radius: 999px;
-  padding: 0.7rem 1rem;
-  font-weight: 600;
-}
-
-.sample-switcher button:hover {
-  background: #1b2430;
-  color: #fff;
+  margin-top: 0.75rem;
 }
 </style>

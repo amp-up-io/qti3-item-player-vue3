@@ -196,26 +196,8 @@ class OrderInteractionWidget {
     const fromIndex = choices.indexOf(choice)
     if (fromIndex < 0) return
 
-    let toIndex = fromIndex
-
-    switch (action) {
-      case 'previous':
-        toIndex -= 1
-        break
-      case 'next':
-        toIndex += 1
-        break
-      case 'first':
-        toIndex = 0
-        break
-      case 'last':
-        toIndex = choices.length - 1
-        break
-      default:
-        return
-    }
-
-    if ((toIndex < 0) || (toIndex >= choices.length) || (toIndex === fromIndex)) return
+    const toIndex = this.getTargetIndex(action, fromIndex, choices.length)
+    if ((toIndex === null) || (toIndex === fromIndex)) return
 
     this.reorderChoice(choice, fromIndex, toIndex)
     choice.focus()
@@ -239,6 +221,27 @@ class OrderInteractionWidget {
         return 'first'
       case 'End':
         return 'last'
+      default:
+        return null
+    }
+  }
+
+  getTargetIndex (action, fromIndex, choiceCount) {
+    const offsets = {
+      previous: -1,
+      next: 1
+    }
+
+    if (action in offsets) {
+      const toIndex = fromIndex + offsets[action]
+      return ((toIndex < 0) || (toIndex >= choiceCount)) ? null : toIndex
+    }
+
+    switch (action) {
+      case 'first':
+        return 0
+      case 'last':
+        return choiceCount - 1
       default:
         return null
     }
