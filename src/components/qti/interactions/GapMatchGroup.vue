@@ -296,11 +296,10 @@ export default {
       // Insert the empty target wrapper immediately after the Choice Wrapper
       this.insertAfter(gapTargetWrapper, gapChoiceWrapperElement)
 
-      // The next element sibling after the target wrapper SHOULD BE the
-      // element containing all gaps.  Append the element to the target wrapper.
-      const gapContentElement = gapTargetWrapper.nextElementSibling
-      if (gapContentElement != null) {
-        gapTargetWrapper.append(gapContentElement)
+      // Move all remaining gap content into the target wrapper. Gap content can
+      // be split across sibling blocks, and every gap must be registered.
+      while (gapTargetWrapper.nextElementSibling != null) {
+        gapTargetWrapper.append(gapTargetWrapper.nextElementSibling)
       }
 
       // Return the wrapper
