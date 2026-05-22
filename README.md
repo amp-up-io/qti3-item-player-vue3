@@ -18,7 +18,7 @@ A conforming QTI 3 authoring or exporting system can construct a QTI 3 Item XML 
 
 [1EdTech QTI v3 Best Practices and Implementation Guide](https://www.imsglobal.org/spec/qti/v3p0/impl)
 
-QTI 3 Player has achieved both <a href="https://site.imsglobal.org/certifications/amp-upio/amp-upio-qti-3-test-player" target="_blank">QTI 3 Basic and QTI 3 Advanced "Delivery" Conformance</a> Certification from 1EdTech.  Furthermore, QTI 3 Player supports many so-called "Elective" capabilities that go beyond Advanced delivery conformance. 
+QTI 3 Player has achieved both <a href="https://site.imsglobal.org/certifications/amp-upio/amp-upio-qti-3-test-player" target="1edtech">QTI 3 Basic and QTI 3 Advanced "Delivery" Conformance</a> Certification from 1EdTech.  Furthermore, QTI 3 Player was the first to achieve the <a href="https://site.imsglobal.org/certifications/amp-upio/amp-upio-qti-3-test-player" target="1edtech">QTI 3 Elective Delivery Portable Custom Interaction (PCI) Conformance</a> Certification.  QTI 3 Player also supports many additional elective capabilities that go beyond Advanced delivery conformance. 
 
 For a complete list of the QTI3 XML elements supported by the QTI 3 Player component, please refer to the [QTI 3 Player Item Reference](https://docs.google.com/document/d/1KCImUAk-2uBqSOHRO1lJa1orrzF4b8cl/#heading=h.gjdgxs).
 
@@ -35,6 +35,8 @@ The QTI 3 Player has API's, interfaces, and capabilities which are optimized for
 
 <img src="https://user-images.githubusercontent.com/898605/158195206-4f82d851-f3f0-47f6-9756-fbee098c7dcf.png" width="320" height="270">
 <img src="https://user-images.githubusercontent.com/898605/158033033-dbb00c44-6d95-4ec0-9591-9d3459fcc1b8.png" width="320" height="270">
+<img width="320" height="270" alt="image" src="https://github.com/user-attachments/assets/9e1ccf9d-54c4-4d6f-a7e7-10eb1037e8e2" />
+<img width="320" height="270" alt="image" src="https://github.com/user-attachments/assets/4f7a38bb-dabb-43fc-a577-dbb755706d3d" />
 <img src="https://user-images.githubusercontent.com/898605/158033144-d19063f0-43c4-48e4-a2d1-6e4de6439fc9.png" width="320" height="270">
 <img src="https://user-images.githubusercontent.com/898605/158032910-d739e359-c248-4bad-be30-935bb23aa6ff.png" width="320" height="270">
 </div>
