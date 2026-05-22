@@ -1,4 +1,7 @@
 import Sortable from 'sortablejs'
+import QtiAttributeValidation from '@/components/qti/validation/QtiAttributeValidation'
+
+const qtiAttributeValidation = new QtiAttributeValidation()
 
 class OrderInteractionWidget {
 
@@ -24,6 +27,7 @@ class OrderInteractionWidget {
     this.handleTouchStart = this.handleTouchStart.bind(this)
     this.handleTouchMove = this.handleTouchMove.bind(this)
     this.handleTouchEnd = this.handleTouchEnd.bind(this)
+    this.handleDefaultKeyDown = this.handleDefaultKeyDown.bind(this)
     this.notifyUpdate = this.notifyUpdate.bind(this)
 
     if (this.options.interactionSubType === 'default') {
@@ -34,6 +38,8 @@ class OrderInteractionWidget {
         animation: 400,
         onEnd: this.notifyUpdate
       })
+
+      this.initializeDefaultKeyboardSupport()
 
       // NOTE: No need to restore a response for 'default' order
       // interactions because the source qti-simple-choice Elements
@@ -119,12 +125,161 @@ class OrderInteractionWidget {
     this.options.onSelectionsLimit()
   }
 
+  initializeDefaultKeyboardSupport () {
+    this.defaultKeyboardDescriptionId = this.getOrCreateKeyboardDescription()
+    this.liveRegion = this.getOrCreateLiveRegion()
+
+    this.getChoiceElements().forEach((choice) => {
+      choice.setAttribute('aria-describedby', this.defaultKeyboardDescriptionId)
+    })
+
+    this.sourcewrapper.addEventListener('keydown', this.handleDefaultKeyDown)
+  }
+
+  getChoiceElements () {
+    return Array.from(this.sourcewrapper.querySelectorAll('.qti-simple-choice'))
+  }
+
+  isVerticalOrientation () {
+    return this.sourcewrapper.classList.contains('qti-orientation-vertical')
+  }
+
+  getKeyboardMoveKeysText () {
+    return this.isVerticalOrientation()
+      ? 'Up and Down arrow keys'
+      : 'Left and Right arrow keys'
+  }
+
+  getOrCreateKeyboardDescription () {
+    let description = this.wrapper.querySelector('.qti-order-keyboard-help')
+    if (description === null) {
+      description = document.createElement('div')
+      description.classList.add('qti-visually-hidden', 'qti-order-keyboard-help')
+      description.id = this.createDomId('order_keyboard_help')
+      this.wrapper.appendChild(description)
+    }
+
+    description.textContent = `Use ${this.getKeyboardMoveKeysText()} to move this item. Press Home to move it to the start or End to move it to the end.`
+    return description.id
+  }
+
+  getOrCreateLiveRegion () {
+    let liveRegion = this.wrapper.querySelector('.qti-order-live-region')
+    if (liveRegion === null) {
+      liveRegion = document.createElement('div')
+      liveRegion.classList.add('qti-visually-hidden', 'qti-order-live-region')
+      liveRegion.setAttribute('aria-live', 'polite')
+      liveRegion.setAttribute('aria-atomic', 'true')
+      this.wrapper.appendChild(liveRegion)
+    }
+
+    return liveRegion
+  }
+
+  createDomId (prefix) {
+    return `${prefix}_${qtiAttributeValidation.randomString(5, 'a')}`
+  }
+
+  handleDefaultKeyDown (event) {
+    if (this.isDisabled) return
+
+    const choice = this.getClosestElement(event.target, 'qti-simple-choice')
+    if (!choice) return
+
+    const action = this.getKeyboardAction(event.code)
+    if (action === null) return
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    const choices = this.getChoiceElements()
+    const fromIndex = choices.indexOf(choice)
+    if (fromIndex < 0) return
+
+    const toIndex = this.getTargetIndex(action, fromIndex, choices.length)
+    if ((toIndex === null) || (toIndex === fromIndex)) return
+
+    this.reorderChoice(choice, fromIndex, toIndex)
+    choice.focus()
+    this.announceKeyboardMove(choice, toIndex, choices.length)
+    this.notifyUpdate({ target: this.sourcewrapper })
+  }
+
+  getKeyboardAction (code) {
+    const isVertical = this.isVerticalOrientation()
+
+    switch (code) {
+      case 'ArrowUp':
+        return (isVertical ? 'previous' : null)
+      case 'ArrowDown':
+        return (isVertical ? 'next' : null)
+      case 'ArrowLeft':
+        return (isVertical ? null : 'previous')
+      case 'ArrowRight':
+        return (isVertical ? null : 'next')
+      case 'Home':
+        return 'first'
+      case 'End':
+        return 'last'
+      default:
+        return null
+    }
+  }
+
+  getTargetIndex (action, fromIndex, choiceCount) {
+    const offsets = {
+      previous: -1,
+      next: 1
+    }
+
+    if (action in offsets) {
+      const toIndex = fromIndex + offsets[action]
+      return ((toIndex < 0) || (toIndex >= choiceCount)) ? null : toIndex
+    }
+
+    switch (action) {
+      case 'first':
+        return 0
+      case 'last':
+        return choiceCount - 1
+      default:
+        return null
+    }
+  }
+
+  reorderChoice (choice, fromIndex, toIndex) {
+    const choices = this.getChoiceElements()
+    choices.splice(fromIndex, 1)
+    choices.splice(toIndex, 0, choice)
+    choices.forEach((node) => {
+      this.sourcewrapper.appendChild(node)
+    })
+  }
+
+  announceKeyboardMove (choice, toIndex, totalChoices) {
+    if (this.liveRegion === null) return
+
+    const description = choice.querySelector('.qti-choice-description')
+    const label = (description === null)
+      ? 'Item'
+      : description.textContent.trim()
+
+    this.liveRegion.textContent = ''
+    window.requestAnimationFrame(() => {
+      this.liveRegion.textContent = `${label} moved to position ${toIndex + 1} of ${totalChoices}.`
+    })
+  }
+
   toggleDisable (isDisabled) {
     this.isDisabled = isDisabled
 
     if ((this.options.interactionSubType === 'default') && (this.sortable !== null)) {
       // Disable sortable
       this.sortable.option('disabled', isDisabled)
+
+      this.getChoiceElements().forEach((choice) => {
+        choice.setAttribute('aria-disabled', `${isDisabled}`)
+      })
 
       // Update the class of all draggers
       const draggers = this.sourcewrapper.querySelectorAll('.draggable')
@@ -714,6 +869,8 @@ class OrderInteractionWidget {
   }
 
   destroy () {
+    this.sourcewrapper.removeEventListener('keydown', this.handleDefaultKeyDown)
+
     if (this.options.interactionSubType === 'ordermatch') {
 
       if (this.currentDragger !== null) {
