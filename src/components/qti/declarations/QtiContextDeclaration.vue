@@ -127,7 +127,7 @@ export default {
     },
 
     /**
-     * Resets value of this templateDeclaration to default if it exists, or null.
+     * Resets value of this contextDeclaration to default if it exists, or null.
      */
     reset () {
       this.initializeValue()
