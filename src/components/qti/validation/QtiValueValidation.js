@@ -73,8 +73,13 @@ export default class QtiValueValidation {
   }
 
   StringValue (value) {
-    if (value == null || value.length == 0) {
-      throw new QtiParseException('Invalid string "' + value + '". Length is not valid.')
+    if (value == null) {
+      throw new QtiParseException('Invalid string value [NULL]')
+    }
+    
+    // In QTI, a zero length string is a null value
+    if (value.length == 0) {
+      return null
     }
 
     return value
