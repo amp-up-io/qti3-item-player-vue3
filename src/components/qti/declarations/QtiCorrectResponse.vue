@@ -14,6 +14,7 @@
  * (where defined) to the candidate. When correct values are displayed they must be clearly distinguished from the
  * candidate's own responses (which may be hidden completely if necessary).
  */
+import { RecordField } from '@/shared/helpers/RecordField'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 
 export default {
@@ -81,7 +82,7 @@ export default {
             // Add the node if it has a proper base-type and field-identifier
             // Use field-identifier for the key.
             if (node.isRecordFieldValue()) {
-              correctResponse.set(node.getFieldIdentifier(), node)
+              correctResponse.set(node.getFieldIdentifier(), new RecordField(node.getFieldIdentifier(), node.getBaseType(), node.getValue()))
             }
             break
           case 'multiple':

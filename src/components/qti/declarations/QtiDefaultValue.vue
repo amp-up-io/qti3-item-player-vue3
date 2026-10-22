@@ -8,6 +8,7 @@
 /* An optional default value for the variable. The point at which a variable is set to its
  * default value varies depending on the type of item variable.
  */
+import { RecordField } from '@/shared/helpers/RecordField'
 import QtiValidationException from '@/components/qti/exceptions/QtiValidationException'
 
 export default {
@@ -75,7 +76,7 @@ export default {
             // Add the node if it has a proper base-type and field-identifier
             // Use field-identifier for the key.
             if (node.isRecordFieldValue()) {
-              defaultValue.set(node.getFieldIdentifier(), node)
+              defaultValue.set(node.getFieldIdentifier(), new RecordField(node.getFieldIdentifier(), node.getBaseType(), node.getValue()))
             }
             break
           case 'multiple':
