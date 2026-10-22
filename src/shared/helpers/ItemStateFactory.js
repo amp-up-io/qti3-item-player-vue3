@@ -127,6 +127,8 @@ export class ItemStateFactory {
   }
 
   serializeRecordVariableValue (value) {
+    // Bail if the Record value is null (no fields).
+    if (value === null) return null
     const jsonString = this.strMapToJson(value)
     return this.jsonToStrMap(jsonString)
   }
