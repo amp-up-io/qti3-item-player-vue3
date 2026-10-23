@@ -714,22 +714,21 @@ export default class QtiProcessing {
    * @param {*} value 
    * @param {*} baseType 
    * @param {*} cardinality 
-   * @returns 
+   * @returns JSON Object
    */
   valueToPciJson (value, baseType, cardinality) {
-    if (value === null) {
-      return { "base": null }
-    }
-
     if (cardinality === 'single') {
+      if (value === null) return { "base": null}
       return { "base": this.baseValueToPciJson(value, baseType) }
     }
 
     if ((cardinality === 'multiple') || (cardinality === 'ordered')) {
+      if (value === null) return { "list": null }
       return { "list": this.baseValueToPciJson(value, baseType) }
     }
 
     if (cardinality === 'record') {
+      if (value === null) return { "record": null }
       return { "record": this.recordValueToPciJson(value) }
     }
     
@@ -871,7 +870,9 @@ export default class QtiProcessing {
 
       if (value['record'] !== undefined) {
         if (variable.cardinality === 'record') {
-          return this.recordValueFromPciJson(value.record, variable)
+          return (value.record === null)
+            ? this.nullValue()
+            : this.recordValueFromPciJson(value.record, variable)
         }
         throw new QtiEvaluationException(`Inconsistent value cardinality [record] for this variable.  Variable must be record cardinality.`)
       }
@@ -972,8 +973,8 @@ export default class QtiProcessing {
             // 
             if (value[i].name === fieldIdentifier) {
               // Record fields are always single cardinality
-              const fieldValue = this.baseValueFromPciJson(value[i].base, fieldDefinition.getBaseType(), true)
-              const recordField = new RecordField(fieldIdentifier, fieldDefinition.getBaseType(), fieldValue)
+              const fieldValue = this.baseValueFromPciJson(value[i].base, fieldDefinition.baseType, true)
+              const recordField = new RecordField(fieldIdentifier, fieldDefinition.baseType, fieldValue)
               valueMap.set(fieldIdentifier, recordField)
               break
             }
