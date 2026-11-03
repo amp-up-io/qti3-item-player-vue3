@@ -102,6 +102,7 @@ export default {
 
     handleClick () {
       if (this.isDisabled) return
+      if (this.parentCardinality === 'ordered') return
 
       if (this.isRadio) {
         this.$parent.$emit('setChecked', { 'identifier': this.identifier, 'checked': 'true' })
@@ -115,6 +116,8 @@ export default {
     },
 
     handleKeydown (event) {
+      if (this.parentCardinality === 'ordered') return
+
       let flag = false
 
       switch (event.code) {
