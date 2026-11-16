@@ -30,7 +30,6 @@ import NodeUtils from '@/shared/helpers/NodeUtils'
 import HottextPresentationFactory from '@/components/qti/interactions/presentation/HottextInteractionPresentationFactory'
 
 const qtiAttributeValidation = new QtiAttributeValidation()
-const nodeUtils = new NodeUtils()
 
 export default {
   name: 'QtiHottextInteraction',
@@ -447,7 +446,7 @@ export default {
           : this.$.subTree.children[1].children
       
       // Sniff for all nested QtiHottext nodes
-      this.choices = nodeUtils.findNodes('QtiHottext', { within: children })
+      this.choices = new NodeUtils().findNodes('QtiHottext', { within: children })
 
       // Build a UI
       this.processGroupUI()

@@ -3,6 +3,7 @@ class NodeUtils {
   constructor() {
     // Initialize to new empty array
     this.nodes = []
+    return this
   }
 
   find(children, target) {
