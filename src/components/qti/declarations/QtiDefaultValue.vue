@@ -75,7 +75,7 @@ export default {
 
             // Add the node if it has a proper base-type and field-identifier
             // Use field-identifier for the key.
-            if (node.isRecordFieldValue()) {
+            if (node.isRecordFieldValue() && !node.isNull()) {
               defaultValue.set(node.getFieldIdentifier(), new RecordField(node.getFieldIdentifier(), node.getBaseType(), node.getValue()))
             }
             break
@@ -94,6 +94,18 @@ export default {
             console.log('[DefaultValue][Cardinality]: processChildren cardinality unhandled = ' + this.variableCardinality)
         }
       })
+
+      if (this.variableCardinality !== 'record') {
+        return defaultValue
+      }
+
+      // It's a record.  Test for odd default value records with no fields.
+      if ((defaultValue !== null) && 
+          (defaultValue instanceof Map) &&
+          (defaultValue.size === 0)) {
+          // A record with no fields is null.
+        return null
+      }
 
       return defaultValue
     },
