@@ -1,7 +1,7 @@
 {
   "name": "qti3-item-player-vue3",
   "version": "0.2.21",
-  "description": "QTI 3 Item Player implemented with Vue 3",
+  "description": "QTI 3 Assessment Item Player implemented with Vue 3",
   "author": {
     "name": "Paul Grudnitski",
     "email": "paul.grudnitski@amp-up.io"
@@ -9,9 +9,9 @@
   "license": "MIT",
   "private": false,
   "keywords": [
-    "QTI3",
-    "QTI 3",
-    "assessment-item",
+    "qti3",
+    "qti",
+    "assessment",
     "item",
     "component",
     "Vue 3"
