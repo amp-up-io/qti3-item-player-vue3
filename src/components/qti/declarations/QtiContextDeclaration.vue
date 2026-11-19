@@ -197,9 +197,9 @@ export default {
      *   identifier: [String],
      *   value: [Value saved from last attempt]
      * }
-     * @param {String} identifier - of an outcome variable
+     * @param {String} identifier - of a variable
      */
-     getPriorState (identifier) {
+    getPriorState (identifier) {
       const priorState = store.getItemContextStateVariable(identifier)
       console.log('[ContextDeclaration][' + identifier + '][priorState]', priorState)
 
