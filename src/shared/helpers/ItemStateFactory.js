@@ -1,3 +1,5 @@
+import { RecordField } from '@/shared/helpers/RecordField'
+
 export class ItemStateFactory {
 
   constructor(identifier, store) {
@@ -126,25 +128,56 @@ export class ItemStateFactory {
     return (typeof baseType === 'undefined') ? null : baseType
   }
 
+  /**
+   * @description Special handling of variables with Record cardinality.
+   * @param {Map} value - a raw Record value; i.e., null or a Map of RecordField's
+   */
   serializeRecordVariableValue (value) {
-    // Bail if the Record value is null (no fields).
+    // Bail if the Record value is null; i.e., no fields.
     if (value === null) return null
-    const jsonString = this.strMapToJson(value)
-    return this.jsonToStrMap(jsonString)
+    return this.objToStrMap(this.transformRecordFields(value))
   }
 
-  strMapToJson (stringMap) {
-    return JSON.stringify(this.strMapToObj(stringMap))
-  }
-
-  jsonToStrMap(jsonString) {
-    return this.objToStrMap(JSON.parse(jsonString))
-  }
-
-  strMapToObj (strMap) {
+  /**
+   * @description Takes a Record (a Map including all fields) and transforms the 
+   * RecordFields into Objects that include 'baseType' and 'value'.  In prior
+   * versions of the Player, a Record's RecordField's were stripped away, leaving only
+   * the field's value.  This (the absence of a baseType) resulted in problems 
+   * when restoring the Record's state.
+   * 
+   * @param {Map} recordMap - this should be a structure like:
+   *   Map (
+   *     fieldIdentifier1 => RecordField,
+   *     fieldIdentifier2 => RecordField
+   *   )
+   * 
+   * @returns {Object}
+   *   {
+   *     fieldIdentifier1: { baseType => string, float, etc, value => 'foo', 3.14165, etc},
+   *     fieldIdentifier2: { baseType => <a baseType>, value => <a value> }
+   *   }
+   */
+  transformRecordFields (recordMap) {
     let obj = Object.create(null)
-    for (let [k,v] of strMap) {
-      obj[k] = ((typeof v === 'object' && v !== null)) ? v.getValue() : v
+    for (let [k,v] of recordMap) {
+      if (v instanceof RecordField) {
+        if (v === null) { // Shouldn't happen
+          obj[k] = v
+          continue
+        }
+
+        // Create a new Object of the RecordField that
+        // includes just the baseType and value.
+        obj[k] = {
+          baseType: v.getBaseType(),
+          value: v.getValue()
+        }
+        continue
+      }
+
+      // If the value is somehow NOT a RecordField, 
+      // set the key (a fieldIdentifier) to null.
+      obj[k] = v
     }
     return obj
   }

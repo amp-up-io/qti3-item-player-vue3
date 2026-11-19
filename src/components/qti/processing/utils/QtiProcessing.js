@@ -713,12 +713,12 @@ export default class QtiProcessing {
    *              https://www.imsglobal.org/spec/qti/v3p0/impl#h.1mc9puik2ft6
    * @param {*} value 
    * @param {*} baseType 
-   * @param {*} cardinality 
+   * @param {*} cardinality
    * @returns JSON Object
    */
-  valueToPciJson (value, baseType, cardinality) {
+  valueToPciJson (value, baseType, cardinality, variableIdentifier='') {
     if (cardinality === 'single') {
-      if (value === null) return { "base": null}
+      if (value === null) return { "base": null }
       return { "base": this.baseValueToPciJson(value, baseType) }
     }
 
@@ -729,7 +729,7 @@ export default class QtiProcessing {
 
     if (cardinality === 'record') {
       if (value === null) return { "record": null }
-      return { "record": this.recordValueToPciJson(value) }
+      return { "record": this.recordValueToPciJson(value, variableIdentifier) }
     }
     
     // How did we get here?  Return null.
@@ -758,8 +758,8 @@ export default class QtiProcessing {
         return result
 
       case 'point':
-        result[baseType] = (value) => value.split(' ').map(Number)
-        return
+        result[baseType] = value.split(' ').map(Number)
+        return result
 
       case 'directedPair':
       case 'pair':
@@ -781,22 +781,37 @@ export default class QtiProcessing {
   /**
    * @description Builds a PCI "Record" Json representation of the value.
    * @param {Map} value - Map of record field value objects in the record.
+   * @param {String} variableIdentifier - used for special handling of QTI_CONTEXT.
    * @returns {Array} [
    *   { name: "fieldIdentifier1", base: { fieldIdentifier1_baseValue } }, 
    *   { name: "fieldIdentifier2", base: { fieldIdentifier2_baseValue } },
    *   ...
    * ]
    */
-  recordValueToPciJson (value) {
+  recordValueToPciJson (value, variableIdentifier) {
     let result = []
 
-    for (let fieldValue of value.values()) {
-      result.push({
-        "name": fieldValue.fieldIdentifier, 
-        "base": (fieldValue.value === null 
-            ? null
-            : this.baseValueToPciJson(fieldValue.value, fieldValue.baseType))        
-      })
+    for (const [k, fieldValue] of value.entries()) {
+      // Always create a field if the value is NOT null.
+      if (fieldValue.value !== null) {
+        result.push({
+          "name": k, 
+          "base": this.baseValueToPciJson(fieldValue.value, fieldValue.baseType)
+        })
+        continue
+      }
+
+      // Special handling of 3 fields in QTI_CONTEXT.
+      // Create JSON fields even if they have null values.
+      if ((variableIdentifier === 'QTI_CONTEXT') && 
+          ((k === 'candidateIdentifier') || 
+           (k === 'environmentIdentifier') || 
+           (k === 'testIdentifier'))) {
+        result.push({
+          "name": k, 
+          "base": this.baseValueToPciJson(fieldValue.value, fieldValue.baseType)
+        })
+      }
     }
 
     return result
@@ -951,10 +966,14 @@ export default class QtiProcessing {
       // Try to get the variable's field definition.
       let recordFieldMap = this.getRecordVariableFieldDefinition(variable)
 
-      // if recordFieldMap is not found, what should we do?
-      if (recordFieldMap === null) {
-        throw new QtiEvaluationException(`Unable to retrieve ${variable.identifier} record field definition.`)
-      }
+      // If recordFieldMap is not found, what should we do?
+      //
+      // Note: It turns out that empty Record Definitions are not uncommon in
+      // Response Variables - especially in TAO.  In this case (an empty record definition), 
+      // a Custom Interaction or a PCI may define the record's fields.
+      //if (recordFieldMap === null) {
+      //  throw new QtiEvaluationException(`Unable to retrieve ${variable.identifier} record field definition.`)
+      //}
 
       if (typeof value !== 'object') {
         throw new QtiEvaluationException(`Improper record value encoding.  Must be an Array.`)
@@ -966,6 +985,7 @@ export default class QtiProcessing {
 
       const valueMap = new Map()
 
+      /*
       for (let [fieldIdentifier, fieldDefinition] of recordFieldMap) {
         // Loop through all elements of the JSON record array.
         for (let i=0; i<value.length; i++) {
@@ -981,6 +1001,33 @@ export default class QtiProcessing {
           }
         }
       }
+      */
+
+      for (let i=0; i<value.length; i++) {
+        if ((value[i].name !== undefined) && (value[i].base !== undefined) && (value[i].base !== null)) {
+          // eslint-disable-next-line no-unused-vars
+          for (const [baseType, val] of Object.entries(value[i].base)) {
+            // Record fields are always single cardinality
+            const fieldValue = this.baseValueFromPciJson(value[i].base, baseType, true)
+            const recordField = new RecordField(value[i].name, baseType, fieldValue)
+            valueMap.set(value[i].name, recordField)
+          }
+        }
+      }
+
+      // If there is a recordFieldMap from a qti-default-value, add the fields from the
+      // default value that have not already been defined in the response value.
+      if (recordFieldMap !== null) {
+        for (let [fieldIdentifier, fieldDefinition] of recordFieldMap) {
+          if (!valueMap.has(fieldIdentifier)) {
+            // Add the record field
+            valueMap.set(fieldIdentifier, fieldDefinition)
+          }
+        }
+      }
+
+      // A record with no fields is null.
+      if (valueMap.size === 0) return null
 
       return valueMap
 
@@ -994,8 +1041,10 @@ export default class QtiProcessing {
     if (variable == null) return null
     // Check defaultValue first
     if (variable.defaultValue !== null) return variable.defaultValue
-    // Must be in correctResponse
-    return variable.correctResponse    
+    // 10/29/2026 - Discontinue checking correct response for record field definitions.
+    // if (variable.correctResponse !== null) return variable.correctResponse
+    // Empty record definition
+    return null
   }
 
   computeProcessingContext (node) {

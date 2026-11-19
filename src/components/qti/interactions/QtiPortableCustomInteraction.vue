@@ -598,14 +598,9 @@ export default {
     },
 
     getResponseVariable () {
-      //let responseValue = 
-      //    (this.priorState === null) 
-      //      ? qtiProcessing.valueToPciJson(this.getResponse(), this.baseType, this.cardinality)
-      //      : this.getResponse()
+      const responseValue = qtiProcessing.valueToPciJson(this.getResponse(), this.baseType, this.cardinality)
 
-      let responseValue = qtiProcessing.valueToPciJson(this.getResponse(), this.baseType, this.cardinality)
-
-      let responseVariable = {}
+      const responseVariable = {}
       responseVariable[this.responseIdentifier] = responseValue
       return responseVariable
     },

@@ -91,14 +91,21 @@ export default {
         }
 
         if (declaration.value === null) {
-          console.log('[QtiTemplateVariable][' + this.getIdentifier() + '] value:', { "base": null })
+          console.log('[QtiTemplateVariable][' + this.templateIdentifier + '] value:', { "base": null })
           this.setValue(qtiProcessing.valueToPciJson(qtiProcessing.nullValue(), this.getBaseType(), this.getCardinality()))
           return this.getValue()
         }
 
-        const pciValue = qtiProcessing.valueToPciJson(declaration.value, this.getBaseType(), this.getCardinality())
+        const pciValue = 
+                qtiProcessing
+                  .valueToPciJson(
+                    declaration.value,
+                    this.getBaseType(),
+                    this.getCardinality(),
+                    this.templateIdentifier
+                  )
 
-        console.log('[QtiTemplateVariable][' + this.getIdentifier() + '] value:', pciValue)
+        console.log('[QtiTemplateVariable][' + this.templateIdentifier + '] value:', pciValue)
 
         this.setValue(pciValue)
         return this.getValue()

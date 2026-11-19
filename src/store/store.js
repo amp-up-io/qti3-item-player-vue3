@@ -471,9 +471,9 @@ export const store = {
 
     // QTI_CONTEXT is a special case
     if (identifier === 'QTI_CONTEXT') {
-      recordValue.set('candidateIdentifier', new RecordField('candidateIdentifier', 'string', mapValue.get('candidateIdentifier')))
-      recordValue.set('testIdentifier', new RecordField('testIdentifier', 'string', mapValue.get('testIdentifier')))
-      recordValue.set('environmentIdentifier', new RecordField('environmentIdentifier', 'string', mapValue.get('environmentIdentifier')))
+      recordValue.set('candidateIdentifier', new RecordField('candidateIdentifier', 'string', mapValue.get('candidateIdentifier')['value']))
+      recordValue.set('testIdentifier', new RecordField('testIdentifier', 'string', mapValue.get('testIdentifier')['value']))
+      recordValue.set('environmentIdentifier', new RecordField('environmentIdentifier', 'string', mapValue.get('environmentIdentifier')['value']))
       return recordValue
     }
 
@@ -496,10 +496,17 @@ export const store = {
     if (itemContextState.outcomeVariables === null) return
 
     itemContextState.outcomeVariables.forEach((outcomeVariable) => {
-      this.setOutcomeVariableValue({
-        identifier: outcomeVariable.identifier,
-        value: outcomeVariable.value
-      })
+      let odIndex = this.state.outcomeDeclarations.findIndex(od => od.identifier == outcomeVariable.identifier)
+
+      if (odIndex < 0) return
+
+      // Found the outcome variable, set its value
+      const od = this.state.outcomeDeclarations[odIndex]
+      if (od.cardinality !== 'record')
+        od.value = outcomeVariable.value
+      else
+        od.value = this.createRecordFromMapValue(od.identifier, od.value, outcomeVariable.value)
+
     }, this)
   },
 
@@ -586,7 +593,7 @@ export const store = {
     if (itemContextState.responseVariables === null) return
 
     itemContextState.responseVariables.forEach((responseVariable) => {
-      this.setResponseVariableValue({
+      this.restoreResponseVariableValue({
         identifier: responseVariable.identifier,
         value: responseVariable.value,
         state: responseVariable.state
@@ -612,6 +619,56 @@ export const store = {
     let declaration = this.state.responseDeclarations[rdIndex]
     declaration.value = valueObject.value
     declaration.state = valueObject.state
+  },
+
+  restoreResponseVariableValue (valueObject) {
+    let rdIndex = this.state.responseDeclarations.findIndex(rd => rd.identifier == valueObject.identifier)
+
+    if (rdIndex < 0) return
+
+    // Found the response variable, update its value and state properties
+    let declaration = this.state.responseDeclarations[rdIndex]
+    const value = this.restoreVariableValue(declaration, valueObject)
+    declaration.value = value
+    declaration.state = valueObject.state
+  },
+
+  restoreVariableValue (variableDeclaration, valueObject) {
+    if (variableDeclaration.cardinality !== 'record') return valueObject.value
+    return this.restoreRecordValue(valueObject)
+  },
+
+  restoreRecordValue (recordValue) {
+    // Null record values are Records with no fields
+    if (recordValue.value === null) return recordValue.value
+
+    // Internally we model a Record value as a Map of RecordFields.
+    // Loop through all fields of the value to restore the Record.
+    const recordMap = new Map()
+    for (let [fieldIdentifier, fieldValue] of recordValue.value) {
+      // fieldValue should be an Object with baseType and value props
+      if ((!Object.hasOwn(fieldValue, 'baseType')) ||
+          (!Object.hasOwn(fieldValue, 'value'))) continue
+
+      // In QTI, null record field values are not restored
+      if (fieldValue.value === null) continue
+
+      // Create a RecordField for this fieldIdentifier.
+      // RecordFields are always Single Cardinality. No need
+      // to restore a cardinality property.
+      recordMap
+        .set(
+          fieldIdentifier,
+          new RecordField(
+            fieldIdentifier, 
+            fieldValue.baseType, 
+            fieldValue.value
+          )
+        )
+    }
+
+    // The record value is null if no fields were added to the Map.
+    return (recordMap.size === 0) ? null : recordMap
   },
 
   resetResponseVariableValue (valueObject) {

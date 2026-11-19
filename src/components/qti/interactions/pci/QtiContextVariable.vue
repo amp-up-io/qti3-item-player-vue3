@@ -96,7 +96,14 @@ export default {
           return this.getValue()
         }
 
-        const pciValue = qtiProcessing.valueToPciJson(declaration.value, this.getBaseType(), this.getCardinality())
+        const pciValue = 
+                qtiProcessing
+                  .valueToPciJson(
+                    declaration.value,
+                    this.getBaseType(),
+                    this.getCardinality(),
+                    this.identifier
+                  )
 
         console.log('[QtiContextVariable][' + this.identifier + '] value:', pciValue)
 
