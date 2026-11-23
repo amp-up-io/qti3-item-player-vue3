@@ -52,8 +52,8 @@ The QTI 3 Player has API's, interfaces, and capabilities which are optimized for
 git clone https://github.com/amp-up-io/qti3-item-player-vue3.git
 ```
 
-### 2. Install Node.js >= 20
-QTI 3 Player for Vue 3 has been built and tested with Node v20.14.0.
+### 2. Install Node.js >= 22
+QTI 3 Player for Vue 3 has been built and tested with Node v22.22.1.
 
 ### 3. Installation
 QTI 3 Player for Vue 3 includes a dependency on Vue 3, and a dependency on Vite for bundling.
